@@ -21,7 +21,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { ListPostsQueryDto } from './dto/list-posts-query.dto';
 import { ListPostsResponseDto, PostResponseDto } from './dto/post-response.dto';
 
-@Controller('api/v1/posts')
+@Controller('posts')
 export class PostsController {
   constructor(
     private readonly createPost: CreatePostUseCase,
