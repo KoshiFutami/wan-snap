@@ -41,3 +41,4 @@ cp docs/adr/0000-template.md docs/adr/NNNN-your-title.md
 | [0001](0001-ddd-for-posts-and-dogs.md) | posts/dogs モジュールに DDD を採用 | Accepted |
 | [0002](0002-post-item-in-post-aggregate.md) | PostItem を Post 集約内に含める | Accepted |
 | [0003](0003-cursor-pagination.md) | 一覧取得にカーソルページネーションを採用 | Accepted |
+| [0004](0004-prisma-v5-over-v7.md) | Prisma v5 を採用（v7 からダウングレード） | Accepted |
