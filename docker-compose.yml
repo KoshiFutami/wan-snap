@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-wansnap}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wansnap}
+      POSTGRES_DB: ${POSTGRES_DB:-wansnap}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-wansnap}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: dev
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-wansnap}:${POSTGRES_PASSWORD:-wansnap}@db:5432/${POSTGRES_DB:-wansnap}
+      NODE_ENV: development
+    ports:
+      - '3001:3001'
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/api/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: dev
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # ブラウザ（Client Components）から叩くURL
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      # Server Components / Server Actions がコンテナ内部から叩くURL
+      API_INTERNAL_URL: http://api:3001
+      NODE_ENV: development
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/web/node_modules
+      - /app/apps/web/.next
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
