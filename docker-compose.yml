@@ -1,20 +1,21 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: mysql:8.4
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-wansnap}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wansnap}
-      POSTGRES_DB: ${POSTGRES_DB:-wansnap}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_USER: ${MYSQL_USER:-wansnap}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-wansnap}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-wansnap}
     ports:
-      - '5432:5432'
+      - '3306:3306'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-wansnap}']
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p${MYSQL_ROOT_PASSWORD:-root}']
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   api:
     build:
@@ -24,7 +25,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-wansnap}:${POSTGRES_PASSWORD:-wansnap}@db:5432/${POSTGRES_DB:-wansnap}
+      DATABASE_URL: mysql://${MYSQL_USER:-wansnap}:${MYSQL_PASSWORD:-wansnap}@db:3306/${MYSQL_DATABASE:-wansnap}
       NODE_ENV: development
     ports:
       - '3001:3001'
@@ -60,4 +61,4 @@ services:
       - api
 
 volumes:
-  postgres_data:
+  mysql_data:

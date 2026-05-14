@@ -3,18 +3,18 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model User {
   id          String   @id @default(uuid())
-  email       String   @unique
-  password    String
-  displayName String   @map("display_name")
-  avatarUrl   String?  @map("avatar_url")
-  bio         String?
-  location    String?
+  email       String   @unique @db.VarChar(255)
+  password    String   @db.VarChar(255)
+  displayName String   @map("display_name") @db.VarChar(100)
+  avatarUrl   String?  @map("avatar_url") @db.VarChar(512)
+  bio         String?  @db.Text
+  location    String?  @db.VarChar(100)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -28,20 +28,21 @@ model User {
 }
 
 model Dog {
-  id            String    @id @default(uuid())
-  name          String
-  breed         String
-  birthYear     Int?      @map("birth_year")
-  weightKg      Decimal?  @map("weight_kg") @db.Decimal(5, 2)
-  neckCm        Decimal?  @map("neck_cm") @db.Decimal(5, 1)
-  chestCm       Decimal?  @map("chest_cm") @db.Decimal(5, 1)
-  backLengthCm  Decimal?  @map("back_length_cm") @db.Decimal(5, 1)
-  coatColors    String[]  @map("coat_colors")
-  photoUrl      String?   @map("photo_url")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  id           String   @id @default(uuid())
+  name         String   @db.VarChar(50)
+  breed        String   @db.VarChar(100)
+  birthYear    Int?     @map("birth_year")
+  weightKg     Decimal? @map("weight_kg") @db.Decimal(5, 2)
+  neckCm       Decimal? @map("neck_cm") @db.Decimal(5, 1)
+  chestCm      Decimal? @map("chest_cm") @db.Decimal(5, 1)
+  backLengthCm Decimal? @map("back_length_cm") @db.Decimal(5, 1)
+  // JSON配列で保存: ["black", "white"] など
+  coatColors   Json     @map("coat_colors")
+  photoUrl     String?  @map("photo_url") @db.VarChar(512)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  owner  User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String @map("owner_id")
 
   posts Post[]
@@ -51,9 +52,10 @@ model Dog {
 
 model Post {
   id        String   @id @default(uuid())
-  imageUrl  String   @map("image_url")
-  caption   String?
-  tags      String[]
+  imageUrl  String   @map("image_url") @db.VarChar(512)
+  caption   String?  @db.Text
+  // JSON配列で保存: ["柴犬", "ハーネス"] など
+  tags      Json     @default("[]")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -71,13 +73,13 @@ model Post {
 
 model PostItem {
   id          String  @id @default(uuid())
-  category    String
-  brand       String?
-  productName String? @map("product_name")
-  size        String?
-  purchaseUrl String? @map("purchase_url")
+  category    String  @db.VarChar(50)
+  brand       String? @db.VarChar(100)
+  productName String? @map("product_name") @db.VarChar(200)
+  size        String? @db.VarChar(20)
+  purchaseUrl String? @map("purchase_url") @db.VarChar(512)
   priceJpy    Int?    @map("price_jpy")
-  fitNote     String? @map("fit_note")
+  fitNote     String? @map("fit_note") @db.VarChar(500)
 
   post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String @map("post_id")

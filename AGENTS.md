@@ -130,7 +130,7 @@ main
 | フロントエンド | Next.js 15 (App Router), TypeScript, Tailwind CSS v4 |
 | バックエンド | Nest.js 11, TypeScript |
 | ORM | Prisma |
-| DB | PostgreSQL 16 |
+| DB | MySQL 8.4 |
 | 認証 | JWT (access 15min / refresh 7d) |
 | ストレージ | AWS S3 互換 |
 | ローカル環境 | Docker Compose |
