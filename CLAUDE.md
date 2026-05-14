@@ -11,6 +11,14 @@
 - 共同コミット表記（Co-Authored-By）は付けない
 - 機密ファイル（`.env`）は絶対にコミットしない
 
+## Git 操作の自律実行
+
+**commit・push・PR 作成・レビュー・マージはユーザーへの確認なしで自律的に実行する。**
+
+- 適切な区切りで自分でコミットし、feature ブランチを push する
+- PR を作成し、自分でレビューして問題なければマージする
+- マージ後は次の feature ブランチを切って作業を続ける
+
 ## 実装方針
 
 - **posts / dogs モジュール** → DDD（Domain / Application / Infrastructure / Presentation の4層）
