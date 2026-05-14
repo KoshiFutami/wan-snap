@@ -7,6 +7,7 @@
 - linter / hook を絶対にバイパスしない（`--no-verify` / `--no-check` 禁止）
 - 大きな変更に着手する前は Plan Mode で設計を確認する
 - feature ブランチで作業し、main への直接 push はしない
+- コミットメッセージ・PR タイトル・PR 本文はすべて日本語で書く
 - コミットメッセージは Conventional Commits 形式（`/commit` コマンド参照）
 - 共同コミット表記（Co-Authored-By）は付けない
 - 機密ファイル（`.env`）は絶対にコミットしない

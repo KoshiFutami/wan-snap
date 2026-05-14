@@ -1,0 +1,27 @@
+import { Inject, Injectable } from '@nestjs/common';
+import type {
+  FindAllResult,
+  IPostRepository,
+} from '../../domain/repositories/post.repository';
+import { POST_REPOSITORY } from '../../domain/repositories/post.repository';
+
+export interface ListPostsInput {
+  limit?: number;
+  cursor?: string;
+  tags?: string[];
+}
+
+@Injectable()
+export class ListPostsUseCase {
+  constructor(
+    @Inject(POST_REPOSITORY) private readonly postRepo: IPostRepository,
+  ) {}
+
+  async execute(input: ListPostsInput): Promise<FindAllResult> {
+    return this.postRepo.findAll({
+      limit: input.limit,
+      cursor: input.cursor,
+      tags: input.tags,
+    });
+  }
+}

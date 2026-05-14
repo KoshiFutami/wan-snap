@@ -53,6 +53,32 @@ wan-snap/
     └── <module>.controller.ts
 ```
 
+## ドキュメント管理
+
+### ADR（Architecture Decision Records）
+
+重要な設計判断は `docs/adr/` に記録する。
+
+**書くべきもの:**
+- アーキテクチャパターンの採用・変更
+- 技術選定（ORM、認証方式など）
+- トレードオフを伴う設計判断（集約境界、ページネーション方式など）
+- 将来変えにくい決定
+
+**書かなくていいもの:** 細かい実装判断（関数名、ファイル分割など）
+
+```bash
+# 新しい ADR を追加するとき
+cp docs/adr/0000-template.md docs/adr/NNNN-your-title.md
+# docs/adr/README.md の一覧にも追記する
+```
+
+### ドメイン設計ドキュメント
+
+DDDモジュールの集約境界・ドメインルール・リポジトリ契約は `docs/design/` に記録する。
+
+- [posts-domain.md](docs/design/posts-domain.md) — Posts ドメイン設計
+
 ## よく使うコマンド
 
 ```bash
