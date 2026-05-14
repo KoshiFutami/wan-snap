@@ -5,6 +5,11 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Wan Snap | わんこのおしゃれスナップ',
   description: '愛犬のコーデを共有して、同じ犬種のオーナーと繋がろう',
+  appleWebApp: {
+    capable: true,
+    title: 'Wan Snap',
+    statusBarStyle: 'default',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
