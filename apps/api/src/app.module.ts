@@ -6,6 +6,7 @@ import { DogsModule } from './modules/dogs/dogs.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { LikesModule } from './modules/likes/likes.module';
 import { PrismaModule } from './infrastructure/database/prisma.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -17,5 +18,6 @@ import { PrismaModule } from './infrastructure/database/prisma.module';
     PostsModule,
     LikesModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}
