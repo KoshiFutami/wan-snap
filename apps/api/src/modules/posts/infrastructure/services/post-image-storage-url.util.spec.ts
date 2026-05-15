@@ -1,4 +1,7 @@
-import { resolvePublicImageUrl } from './post-image-storage-url.util';
+import {
+  createPostImageObjectKey,
+  resolvePublicImageUrl,
+} from './post-image-storage-url.util';
 
 describe('resolvePublicImageUrl', () => {
   it('CloudFront URL がある場合は CloudFront を優先する', () => {
@@ -38,5 +41,16 @@ describe('resolvePublicImageUrl', () => {
     expect(url).toBe(
       'https://wan-snap.s3.ap-northeast-1.amazonaws.com/posts/2026/05/test.webp',
     );
+  });
+});
+
+describe('createPostImageObjectKey', () => {
+  it('UTC年月 + UUID でオブジェクトキーを生成する', () => {
+    const key = createPostImageObjectKey(
+      new Date('2026-05-15T03:30:40.000Z'),
+      () => 'test-uuid',
+    );
+
+    expect(key).toBe('posts/2026/05/test-uuid.webp');
   });
 });

@@ -2,7 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
 import { randomUUID } from 'crypto';
-import { resolvePublicImageUrl } from './post-image-storage-url.util';
+import {
+  createPostImageObjectKey,
+  resolvePublicImageUrl,
+} from './post-image-storage-url.util';
 
 const MAX_IMAGE_WIDTH = 1600;
 const MAX_IMAGE_HEIGHT = 1600;
@@ -39,15 +42,22 @@ export class PostImageStorageService {
       throw new BadRequestException('画像ファイルが空です');
     }
 
-    const key = this.createObjectKey();
-    const optimizedImage = await sharp(imageBuffer)
-      .rotate()
-      .resize(MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT, {
-        fit: 'inside',
-        withoutEnlargement: true,
-      })
-      .webp({ quality: WEBP_QUALITY })
-      .toBuffer();
+    const key = createPostImageObjectKey(new Date(), () => randomUUID());
+    let optimizedImage: Buffer;
+    try {
+      optimizedImage = await sharp(imageBuffer)
+        .rotate()
+        .resize(MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+        .webp({ quality: WEBP_QUALITY })
+        .toBuffer();
+    } catch (error) {
+      throw new BadRequestException('画像の変換に失敗しました', {
+        cause: error,
+      });
+    }
 
     await this.s3Client.send(
       new PutObjectCommand({
@@ -67,12 +77,5 @@ export class PostImageStorageService {
       publicBaseUrl: this.publicBaseUrl,
       endpoint: this.endpoint,
     });
-  }
-
-  private createObjectKey(): string {
-    const date = new Date();
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    return `posts/${year}/${month}/${randomUUID()}.webp`;
   }
 }

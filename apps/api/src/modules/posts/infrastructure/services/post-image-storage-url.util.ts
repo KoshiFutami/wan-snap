@@ -7,6 +7,16 @@ export interface ResolvePublicImageUrlInput {
   endpoint?: string;
 }
 
+export function createPostImageObjectKey(
+  date: Date | undefined,
+  uuidFactory: () => string,
+): string {
+  const baseDate = date ?? new Date();
+  const year = baseDate.getUTCFullYear();
+  const month = String(baseDate.getUTCMonth() + 1).padStart(2, '0');
+  return `posts/${year}/${month}/${uuidFactory()}.webp`;
+}
+
 export function resolvePublicImageUrl({
   key,
   bucket,
