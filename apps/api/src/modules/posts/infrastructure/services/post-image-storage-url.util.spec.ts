@@ -1,5 +1,6 @@
 import {
   createPostImageObjectKey,
+  extractS3ObjectKey,
   resolvePublicImageUrl,
 } from './post-image-storage-url.util';
 
@@ -52,5 +53,33 @@ describe('createPostImageObjectKey', () => {
     );
 
     expect(key).toBe('posts/2026/05/test-uuid.webp');
+  });
+});
+
+describe('extractS3ObjectKey', () => {
+  it('CloudFront URL からオブジェクトキーを抽出できる', () => {
+    const key = extractS3ObjectKey(
+      'https://d111111abcdef8.cloudfront.net/posts/2026/05/test-uuid.webp',
+    );
+    expect(key).toBe('posts/2026/05/test-uuid.webp');
+  });
+
+  it('S3 直URL からオブジェクトキーを抽出できる', () => {
+    const key = extractS3ObjectKey(
+      'https://wan-snap.s3.ap-northeast-1.amazonaws.com/posts/2026/05/test-uuid.webp',
+    );
+    expect(key).toBe('posts/2026/05/test-uuid.webp');
+  });
+
+  it('MinIO 公開URL からオブジェクトキーを抽出できる', () => {
+    const key = extractS3ObjectKey(
+      'http://localhost:9000/wan-snap/posts/2026/05/test-uuid.webp',
+    );
+    expect(key).toBe('posts/2026/05/test-uuid.webp');
+  });
+
+  it('外部URL は null を返す', () => {
+    const key = extractS3ObjectKey('https://example.com/dog.jpg');
+    expect(key).toBeNull();
   });
 });

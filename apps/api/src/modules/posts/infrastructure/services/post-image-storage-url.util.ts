@@ -31,6 +31,11 @@ export function resolvePublicImageUrl({
   return `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
 }
 
+export function extractS3ObjectKey(imageUrl: string): string | null {
+  const match = imageUrl.match(/(posts\/\d{4}\/\d{2}\/[\w-]+\.webp)$/);
+  return match?.[1] ?? null;
+}
+
 function trimTrailingSlash(value: string): string {
   return value.replace(/\/+$/, '');
 }
