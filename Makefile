@@ -1,6 +1,6 @@
 .PHONY: up down logs logs-api logs-web \
         migrate migrate-dev db-reset db-studio \
-        lint lint-fix typecheck test \
+        lint lint-fix typecheck test cdk-synth \
         commit push pr review
 
 # ── 環境 ──────────────────────────────────────────────
@@ -44,6 +44,9 @@ typecheck:
 
 test:
 	pnpm --recursive run test
+
+cdk-synth:
+	pnpm --filter cdk run synth
 
 # ── Git ──────────────────────────────────────────────
 commit:
