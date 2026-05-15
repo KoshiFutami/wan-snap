@@ -9,6 +9,7 @@ export default function NewPostPage() {
   const router = useRouter();
   const [dogs, setDogs] = useState<Dog[]>([]);
   const [dogId, setDogId] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState('');
   const [caption, setCaption] = useState('');
   const [tags, setTags] = useState('');
@@ -32,10 +33,19 @@ export default function NewPostPage() {
     setError('');
     setLoading(true);
     try {
+      let resolvedImageUrl = imageUrl.trim();
+      if (imageFile) {
+        const uploaded = await api.posts.uploadImage(imageFile, token);
+        resolvedImageUrl = uploaded.imageUrl;
+      }
+      if (!resolvedImageUrl) {
+        throw new Error('画像ファイルまたは画像URLを指定してください');
+      }
+
       const post = await api.posts.create(
         {
           dogId,
-          imageUrl,
+          imageUrl: resolvedImageUrl,
           caption: caption || undefined,
           tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
         },
@@ -86,16 +96,25 @@ export default function NewPostPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">画像URL *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">画像ファイル</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-gray-400 focus:outline-none"
+          />
+          <p className="mt-1 text-xs text-gray-400">選択した画像はアップロード時に自動で WebP 変換されます</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">画像URL（任意）</label>
           <input
             type="url"
-            required
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
             className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-gray-400 focus:outline-none"
             placeholder="https://..."
           />
-          <p className="mt-1 text-xs text-gray-400">※ S3連携前のため外部URLを貼り付けてください</p>
+          <p className="mt-1 text-xs text-gray-400">画像ファイルを選ばない場合のみ指定してください</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">キャプション</label>

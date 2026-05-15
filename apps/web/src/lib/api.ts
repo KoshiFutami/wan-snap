@@ -47,10 +47,11 @@ async function request<T>(
   init?: RequestInit & { token?: string },
 ): Promise<T> {
   const { token, ...rest } = init ?? {};
+  const isFormData = rest.body instanceof FormData;
   const res = await fetch(`${API_BASE}/api/v1${path}`, {
     ...rest,
     headers: {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...rest.headers,
     },
@@ -82,6 +83,15 @@ export const api = {
       },
       token: string,
     ) => request<Post>('/posts', { method: 'POST', body: JSON.stringify(body), token }),
+    uploadImage: (file: File, token: string) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return request<{ imageUrl: string }>('/posts/images', {
+        method: 'POST',
+        body: formData,
+        token,
+      });
+    },
     delete: (id: string, token: string) =>
       request<void>(`/posts/${id}`, { method: 'DELETE', token }),
   },
