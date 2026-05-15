@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, type Dog } from '../../../lib/api';
-import { getAccessToken } from '../../../lib/auth-store';
+import { getValidToken } from '../../../lib/auth-store';
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -18,12 +18,13 @@ export default function NewPostPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const token = getAccessToken();
-    if (!token) { router.push('/auth/sign-in'); return; }
-    api.dogs.list(token).then((list) => {
-      setDogs(list);
-      if (list.length > 0) setDogId(list[0].id);
-    }).catch(() => {});
+    getValidToken().then((token) => {
+      if (!token) { router.push('/auth/sign-in'); return; }
+      api.dogs.list(token).then((list) => {
+        setDogs(list);
+        if (list.length > 0) setDogId(list[0].id);
+      }).catch(() => {});
+    });
   }, [router]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,7 +41,7 @@ export default function NewPostPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = getAccessToken();
+    const token = await getValidToken();
     if (!token) { router.push('/auth/sign-in'); return; }
 
     setError('');
