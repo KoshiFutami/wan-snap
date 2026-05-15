@@ -13,13 +13,12 @@ export function Header() {
 
   const handleSignOut = () => {
     clearTokens();
-    setIsAuthed(false);
     window.location.href = '/';
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border-warm bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+    <header className="sticky top-0 z-50 border-b border-border-warm bg-white/95 backdrop-blur-md">
+      <div className="mx-auto flex max-w-sm items-center justify-between px-4 py-2.5">
         <Link href="/" className="flex items-center gap-1">
           <span
             className="text-xl font-black tracking-tight"
@@ -29,21 +28,16 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {isAuthed ? (
             <>
-              <Link
-                href="/posts/new"
-                className="rounded-full px-4 py-1.5 text-sm font-bold text-white transition-all hover:opacity-90 hover:-translate-y-px"
-                style={{ background: 'linear-gradient(135deg, #FF6B35, #EF476F)', boxShadow: '0 4px 14px rgba(255,107,53,0.4)' }}
-              >
-                ＋ 投稿する
-              </Link>
+              <IconButton emoji="🔍" href="/discover" />
               <button
                 onClick={handleSignOut}
-                className="text-sm font-medium text-text-sub hover:text-text-main transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-base transition-colors hover:bg-primary-light"
+                title="ログアウト"
               >
-                ログアウト
+                👤
               </button>
             </>
           ) : (
@@ -56,15 +50,21 @@ export function Header() {
               </Link>
               <Link
                 href="/auth/sign-up"
-                className="rounded-full px-4 py-1.5 text-sm font-bold text-white transition-all hover:opacity-90 hover:-translate-y-px"
+                className="rounded-full px-4 py-1.5 text-sm font-bold text-white transition-all hover:opacity-90"
                 style={{ background: 'linear-gradient(135deg, #FF6B35, #EF476F)', boxShadow: '0 4px 14px rgba(255,107,53,0.4)' }}
               >
                 はじめる
               </Link>
             </>
           )}
-        </nav>
+        </div>
       </div>
     </header>
   );
+}
+
+function IconButton({ emoji, href }: { emoji: string; href?: string }) {
+  const cls = "flex h-9 w-9 items-center justify-center rounded-full bg-surface text-base transition-colors hover:bg-primary-light";
+  if (href) return <Link href={href} className={cls}>{emoji}</Link>;
+  return <button className={cls}>{emoji}</button>;
 }
