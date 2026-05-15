@@ -8,10 +8,8 @@ export function PostCard({ post }: Props) {
   return (
     <Link
       href={`/posts/${post.id}`}
-      className="group block overflow-hidden rounded-2xl bg-white transition-all duration-200"
+      className="group block overflow-hidden rounded-2xl bg-white transition-all duration-200 hover:-translate-y-0.5"
       style={{ boxShadow: '0 2px 8px rgba(255,107,53,0.10)' }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 24px rgba(255,107,53,0.18)'; }}
-      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(255,107,53,0.10)'; }}
     >
       <div className="relative aspect-square overflow-hidden bg-surface">
         <Image
