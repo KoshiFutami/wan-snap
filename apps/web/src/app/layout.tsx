@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Header } from '../components/header';
+import { BottomNav } from '../components/bottom-nav';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -15,9 +16,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
-      <body className="bg-bg text-text-main antialiased" style={{ fontFamily: "'Hiragino Sans', 'Noto Sans JP', sans-serif" }}>
+      <body
+        className="bg-bg text-text-main antialiased"
+        style={{ fontFamily: "'Hiragino Sans', 'Noto Sans JP', sans-serif" }}
+      >
         <Header />
-        <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
+        <main className="mx-auto max-w-sm pb-28">{children}</main>
+        <BottomNav />
       </body>
     </html>
   );
