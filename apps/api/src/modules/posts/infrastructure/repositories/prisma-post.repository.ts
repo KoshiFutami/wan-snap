@@ -3,7 +3,9 @@ import { PrismaService } from '../../../../infrastructure/database/prisma.servic
 import type {
   FindAllOptions,
   FindAllResult,
+  FindAllWithRelationsResult,
   IPostRepository,
+  PostRelations,
 } from '../../domain/repositories/post.repository';
 import { Post } from '../../domain/entities/post.entity';
 import { PostId } from '../../domain/value-objects/post-id.vo';
@@ -22,6 +24,63 @@ export class PrismaPostRepository implements IPostRepository {
       include: { items: true },
     });
     return raw ? PostMapper.toDomain(raw) : null;
+  }
+
+  async findByIdWithRelations(id: PostId): Promise<{ post: Post; relations: PostRelations } | null> {
+    const raw = await this.prisma.post.findUnique({
+      where: { id: id.value },
+      include: {
+        items: true,
+        dog: { select: { name: true, breed: true, weightKg: true } },
+        author: { select: { displayName: true } },
+      },
+    });
+    if (!raw) return null;
+    return {
+      post: PostMapper.toDomain(raw),
+      relations: this.toRelations(raw),
+    };
+  }
+
+  async findAllWithRelations(options: FindAllOptions = {}): Promise<FindAllWithRelationsResult> {
+    const limit = Math.min(options.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
+    const cursor = options.cursor ? this.decodeCursor(options.cursor) : null;
+
+    const raws = await this.prisma.post.findMany({
+      take: limit + 1,
+      ...(cursor && { cursor: { id: cursor.id }, skip: 1 }),
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      include: {
+        items: true,
+        dog: { select: { name: true, breed: true, weightKg: true } },
+        author: { select: { displayName: true } },
+      },
+    });
+
+    const hasNext = raws.length > limit;
+    const sliced = raws.slice(0, limit);
+    const posts = sliced.map((r) => ({
+      post: PostMapper.toDomain(r),
+      relations: this.toRelations(r),
+    }));
+    const nextCursor =
+      hasNext && posts.length > 0
+        ? this.encodeCursor(posts[posts.length - 1].post)
+        : null;
+
+    return { posts, nextCursor };
+  }
+
+  private toRelations(raw: {
+    dog: { name: string; breed: string; weightKg: { toNumber(): number } | null };
+    author: { displayName: string };
+  }): PostRelations {
+    return {
+      dogName: raw.dog.name,
+      dogBreed: raw.dog.breed,
+      dogWeightKg: raw.dog.weightKg ? raw.dog.weightKg.toNumber() : null,
+      authorDisplayName: raw.author.displayName,
+    };
   }
 
   async findAll(options: FindAllOptions = {}): Promise<FindAllResult> {

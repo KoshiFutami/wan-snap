@@ -1,5 +1,6 @@
 import { Post } from '../../domain/entities/post.entity';
 import { PostItem } from '../../domain/entities/post-item.entity';
+import type { PostRelations } from '../../domain/repositories/post.repository';
 
 export class PostItemResponseDto {
   id: string;
@@ -25,6 +26,16 @@ export class PostItemResponseDto {
   }
 }
 
+export class PostDogDto {
+  name: string;
+  breed: string;
+  weightKg: number | null;
+}
+
+export class PostAuthorDto {
+  displayName: string;
+}
+
 export class PostResponseDto {
   id: string;
   authorId: string;
@@ -35,8 +46,10 @@ export class PostResponseDto {
   items: PostItemResponseDto[];
   createdAt: string;
   updatedAt: string;
+  dog: PostDogDto | null;
+  author: PostAuthorDto | null;
 
-  static from(this: void, post: Post): PostResponseDto {
+  static from(this: void, post: Post, relations?: PostRelations): PostResponseDto {
     const dto = new PostResponseDto();
     dto.id = post.id.value;
     dto.authorId = post.authorId;
@@ -47,6 +60,8 @@ export class PostResponseDto {
     dto.items = post.items.map(PostItemResponseDto.from);
     dto.createdAt = post.createdAt.toISOString();
     dto.updatedAt = post.updatedAt.toISOString();
+    dto.dog = relations ? { name: relations.dogName, breed: relations.dogBreed, weightKg: relations.dogWeightKg } : null;
+    dto.author = relations ? { displayName: relations.authorDisplayName } : null;
     return dto;
   }
 }

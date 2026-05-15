@@ -11,6 +11,16 @@ export type PostItem = {
   fitNote: string | null;
 };
 
+export type PostDog = {
+  name: string;
+  breed: string;
+  weightKg: number | null;
+};
+
+export type PostAuthor = {
+  displayName: string;
+};
+
 export type Post = {
   id: string;
   authorId: string;
@@ -21,6 +31,8 @@ export type Post = {
   items: PostItem[];
   createdAt: string;
   updatedAt: string;
+  dog: PostDog | null;
+  author: PostAuthor | null;
 };
 
 export type ListPostsResponse = {
