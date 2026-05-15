@@ -39,38 +39,41 @@ export default function NewDogPage() {
     }
   };
 
+  const inputClass = "w-full rounded-2xl border-2 border-border-warm bg-white px-4 py-3 text-sm font-medium text-text-main placeholder:text-text-muted focus:border-primary focus:outline-none transition-colors";
+
   return (
     <div className="mx-auto max-w-sm py-12">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight">愛犬を登録する</h1>
-        <p className="mt-1 text-sm text-gray-500">まず愛犬のプロフィールを作りましょう</p>
+        <span className="text-4xl">🐾</span>
+        <h1 className="mt-3 text-2xl font-black tracking-tight text-text-main">愛犬を登録する</h1>
+        <p className="mt-1 text-sm text-text-sub">まず愛犬のプロフィールを作りましょう</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">名前 *</label>
+          <label className="block text-xs font-black text-text-sub uppercase tracking-widest mb-1.5">名前 *</label>
           <input
             type="text"
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-gray-400 focus:outline-none"
+            className={inputClass}
             placeholder="むぎ"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">犬種 *</label>
+          <label className="block text-xs font-black text-text-sub uppercase tracking-widest mb-1.5">犬種 *</label>
           <input
             type="text"
             required
             value={breed}
             onChange={(e) => setBreed(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-gray-400 focus:outline-none"
+            className={inputClass}
             placeholder="柴犬"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">体重（kg）</label>
+          <label className="block text-xs font-black text-text-sub uppercase tracking-widest mb-1.5">体重（kg）</label>
           <input
             type="number"
             step="0.1"
@@ -78,29 +81,30 @@ export default function NewDogPage() {
             max="200"
             value={weightKg}
             onChange={(e) => setWeightKg(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-gray-400 focus:outline-none"
+            className={inputClass}
             placeholder="8.5"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">毛色（カンマ区切り）</label>
+          <label className="block text-xs font-black text-text-sub uppercase tracking-widest mb-1.5">毛色（カンマ区切り）</label>
           <input
             type="text"
             value={coatColors}
             onChange={(e) => setCoatColors(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-gray-400 focus:outline-none"
+            className={inputClass}
             placeholder="赤, クリーム"
           />
         </div>
 
         {error && (
-          <p className="rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">{error}</p>
+          <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600">{error}</p>
         )}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors disabled:opacity-50"
+          className="w-full rounded-2xl py-3 text-sm font-black text-white transition-all hover:opacity-90 hover:-translate-y-px disabled:opacity-50 disabled:translate-y-0"
+          style={{ background: 'linear-gradient(135deg, #FF6B35, #EF476F)', boxShadow: '0 6px 20px rgba(255,107,53,0.4)' }}
         >
           {loading ? '登録中...' : '登録する'}
         </button>
