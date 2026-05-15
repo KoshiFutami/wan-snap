@@ -22,7 +22,7 @@ CDK の deploy 前に、対象アカウント/リージョンで bootstrap が�
 pnpm --filter cdk exec cdk bootstrap
 ```
 
-`cdk bootstrap` では S3 バケットや ECR リポジトリなどの永続リソースが作成され、小額でも継続課金が発生します。検証終了後は不要な bootstrap リソースを削除してください。
+`cdk bootstrap` では S3 バケットや ECR リポジトリなどの永続リソースが作成され、少額でも継続課金が発生します。検証終了後は不要な bootstrap リソースを削除してください。
 
 ## よく使うコマンド
 
