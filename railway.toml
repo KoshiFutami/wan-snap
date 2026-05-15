@@ -4,7 +4,7 @@ dockerContext = "."
 dockerTarget = "production"
 
 [deploy]
-startCommand = "sh -c 'npx prisma migrate deploy && npx prisma db push && node dist/main'"
+startCommand = "sh -c 'npx prisma migrate deploy && node dist/main'"
 healthcheckPath = "/api/v1/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
