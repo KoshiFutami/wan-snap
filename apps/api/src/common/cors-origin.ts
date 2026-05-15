@@ -1,6 +1,12 @@
 export function resolveCorsOrigin(
   env: NodeJS.ProcessEnv,
-): string | string[] | boolean {
+):
+  | string
+  | string[]
+  | ((
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => void) {
   const configuredOrigins = env.CORS_ORIGIN?.split(',')
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0);
@@ -12,7 +18,14 @@ export function resolveCorsOrigin(
   }
 
   if (env.NODE_ENV === 'production') {
-    return true;
+    return (origin, callback) => {
+      if (!origin || origin.endsWith('.vercel.app')) {
+        callback(null, true);
+        return;
+      }
+
+      callback(null, false);
+    };
   }
 
   return 'http://localhost:3000';
