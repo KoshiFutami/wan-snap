@@ -7,7 +7,8 @@
     "dev:api": "pnpm --filter api run dev",
     "build": "pnpm --filter shared build && pnpm --parallel --filter !shared run build",
     "lint": "pnpm --recursive run lint",
-    "typecheck": "pnpm --recursive run typecheck"
+    "typecheck": "pnpm --recursive run typecheck",
+    "cdk:synth": "pnpm --filter cdk run synth"
   },
   "devDependencies": {
     "typescript": "^5.4.5"
