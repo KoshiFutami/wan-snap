@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '../../../lib/api';
-import { getAccessToken } from '../../../lib/auth-store';
+import { getValidToken } from '../../../lib/auth-store';
 
 export default function NewDogPage() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function NewDogPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = getAccessToken();
+    const token = await getValidToken();
     if (!token) { router.push('/auth/sign-in'); return; }
 
     setError('');
