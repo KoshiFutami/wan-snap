@@ -7,6 +7,7 @@ import { DeletePostUseCase } from './application/use-cases/delete-post.use-case'
 import { GetPostUseCase } from './application/use-cases/get-post.use-case';
 import { ListPostsUseCase } from './application/use-cases/list-posts.use-case';
 import { PostsController } from './presentation/posts.controller';
+import { PostImageStorageService } from './infrastructure/services/post-image-storage.service';
 
 @Module({
   imports: [PrismaModule],
@@ -17,6 +18,7 @@ import { PostsController } from './presentation/posts.controller';
     GetPostUseCase,
     ListPostsUseCase,
     DeletePostUseCase,
+    PostImageStorageService,
   ],
 })
 export class PostsModule {}
