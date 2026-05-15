@@ -41,15 +41,15 @@ export class PostsController {
   async list(@Query() query: ListPostsQueryDto): Promise<ListPostsResponseDto> {
     const result = await this.listPosts.execute(query);
     return {
-      posts: result.posts.map(PostResponseDto.from),
+      posts: result.posts.map(({ post, relations }) => PostResponseDto.from(post, relations)),
       nextCursor: result.nextCursor,
     };
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<PostResponseDto> {
-    const post = await this.getPost.execute(id);
-    return PostResponseDto.from(post);
+    const { post, relations } = await this.getPost.execute(id);
+    return PostResponseDto.from(post, relations ?? undefined);
   }
 
   @Post()
