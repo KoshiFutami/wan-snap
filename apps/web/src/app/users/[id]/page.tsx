@@ -20,12 +20,13 @@ const T = {
   hairlineStrong: 'rgba(31,26,20,0.14)',
 };
 
-const FOLLOWING_STORAGE_KEY = 'wan_snap_following_user_ids';
+const USER_PROFILE_POST_LIMIT = 60;
 
 export default function OtherUserProfilePage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
-  const userId = typeof params.id === 'string' ? params.id : '';
+  const userIdParam = params.id;
+  const userId = typeof userIdParam === 'string' ? userIdParam : '';
   const [status, setStatus] = useState<'loading' | 'ready' | 'not-found'>('loading');
   const [user, setUser] = useState<User | null>(null);
   const [dogs, setDogs] = useState<PublicDog[]>([]);
@@ -34,13 +35,10 @@ export default function OtherUserProfilePage() {
   const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
-    if (!userId || typeof window === 'undefined') return;
-    const followedIds = readFollowedUserIds();
-    setIsFollowing(followedIds.includes(userId));
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setStatus('not-found');
+      return;
+    }
     let cancelled = false;
 
     const load = async () => {
@@ -55,7 +53,7 @@ export default function OtherUserProfilePage() {
       const [me, targetUser, postResponse, dogsResponse] = await Promise.all([
         mePromise,
         api.users.getById(userId).catch(() => null),
-        api.posts.list({ limit: 60, authorId: userId }).catch(() => ({ posts: [] as Post[], nextCursor: null })),
+        api.posts.list({ limit: USER_PROFILE_POST_LIMIT, authorId: userId }).catch(() => ({ posts: [] as Post[], nextCursor: null })),
         api.dogs.listByUser(userId).catch(() => [] as PublicDog[]),
       ]);
 
@@ -90,10 +88,7 @@ export default function OtherUserProfilePage() {
   }, [router, userId]);
 
   const handleToggleFollow = () => {
-    if (!userId) return;
-    const next = !isFollowing;
-    setIsFollowing(next);
-    writeFollowedUserIds(userId, next);
+    setIsFollowing((prev) => !prev);
   };
 
   if (status === 'loading') {
@@ -131,7 +126,7 @@ export default function OtherUserProfilePage() {
           </svg>
         </button>
         <div style={{ flex: 1, textAlign: 'center', fontSize: 13, fontWeight: 700, color: T.ink }}>
-          @{userId}
+          @{user.displayName.trim().replace(/\s+/g, '_')}
         </div>
         <div style={{ width: 36, flexShrink: 0 }} />
       </div>
@@ -168,8 +163,8 @@ export default function OtherUserProfilePage() {
             gap: 8,
           }}>
             <ProfileStat value={formatCount(postCount)} label="投稿" />
-            <ProfileStat value="-" label="フォロワー" />
-            <ProfileStat value="-" label="フォロー中" />
+            <ProfileStat value="準備中" label="フォロワー" />
+            <ProfileStat value="準備中" label="フォロー中" />
           </div>
         </div>
 
@@ -200,21 +195,26 @@ export default function OtherUserProfilePage() {
             {isFollowing ? 'フォロー済み' : 'フォローする'}
           </button>
           <button
+            type="button"
+            disabled
             style={{
               flex: 1, padding: '10px 14px', borderRadius: 999,
               background: T.paper, color: T.ink,
               border: `1px solid ${T.hairlineStrong}`,
-              fontSize: 12.5, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+              fontSize: 12.5, fontWeight: 500, cursor: 'not-allowed', fontFamily: 'inherit',
+              opacity: 0.6,
             }}
           >
             メッセージ
           </button>
           <button
+            type="button"
             aria-label="その他"
+            disabled
             style={{
               width: 40, padding: '10px', borderRadius: 999,
               background: T.paper, border: `1px solid ${T.hairlineStrong}`,
-              color: T.ink, cursor: 'pointer',
+              color: T.ink, cursor: 'not-allowed', opacity: 0.6,
             }}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -223,6 +223,9 @@ export default function OtherUserProfilePage() {
               <circle cx="11" cy="7" r="1.2" fill="currentColor" />
             </svg>
           </button>
+        </div>
+        <div style={{ marginTop: 6, fontSize: 10.5, color: T.ink50 }}>
+          フォロー状態は将来API連携予定です（現在はこの画面内のみ反映）。
         </div>
       </div>
 
@@ -326,7 +329,7 @@ export default function OtherUserProfilePage() {
 
 function formatCount(value: number): string {
   if (value >= 1000) {
-    const rounded = Math.round((value / 1000) * 10) / 10;
+    const rounded = Number((value / 1000).toFixed(1));
     return `${rounded}k`;
   }
   return String(value);
@@ -426,7 +429,7 @@ function DogCard({ dog, active }: { dog: PublicDog; active: boolean }) {
         fontSize: 9, color: T.ink50, textAlign: 'center', marginTop: 2,
         fontFamily: 'var(--font-mono, monospace)',
       }}>
-        {dog.breed}{dog.weightKg != null ? ` · ${dog.weightKg}kg` : ''}
+        {dog.weightKg != null ? `${dog.breed} · ${dog.weightKg}kg` : dog.breed}
       </div>
     </div>
   );
@@ -447,28 +450,4 @@ function fallbackDogsFromPosts(posts: Post[], ownerDisplayName: string): PublicD
     }
   });
   return Array.from(dogMap.values());
-}
-
-function readFollowedUserIds(): string[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = localStorage.getItem(FOLLOWING_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((value): value is string => typeof value === 'string');
-  } catch {
-    return [];
-  }
-}
-
-function writeFollowedUserIds(userId: string, follow: boolean): void {
-  if (typeof window === 'undefined') return;
-  const followedIds = new Set(readFollowedUserIds());
-  if (follow) {
-    followedIds.add(userId);
-  } else {
-    followedIds.delete(userId);
-  }
-  localStorage.setItem(FOLLOWING_STORAGE_KEY, JSON.stringify(Array.from(followedIds)));
 }
