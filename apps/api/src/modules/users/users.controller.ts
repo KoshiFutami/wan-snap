@@ -17,6 +17,22 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersController {
   constructor(private readonly prisma: PrismaService) {}
 
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  getMe(@CurrentUser() user: JwtPayload) {
+    return this.prisma.user.findUnique({
+      where: { id: user.sub },
+      select: {
+        id: true,
+        displayName: true,
+        avatarUrl: true,
+        bio: true,
+        location: true,
+        createdAt: true,
+      },
+    });
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const user = await this.prisma.user.findUnique({
