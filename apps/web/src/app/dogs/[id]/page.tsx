@@ -39,6 +39,13 @@ async function getDogPosts(dogId: string) {
 
 const DOG_CODE_LENGTH = 3;
 
+function generateDogCode(dogId: string) {
+  const seed = dogId.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, DOG_CODE_LENGTH);
+  if (!seed) return '#DOG';
+
+  return `#${seed.padEnd(DOG_CODE_LENGTH, seed.at(-1) ?? 'G')}`;
+}
+
 export default async function DogDetailPage({ params }: Props) {
   const { id } = await params;
   const dog = await api.dogs.getPublic(id).catch(() => null);
@@ -49,9 +56,7 @@ export default async function DogDetailPage({ params }: Props) {
   const breed = dog.breed;
   const weightKg = dog.weightKg;
   const authorName = dog.ownerDisplayName;
-  const compactDogId = dog.id.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, DOG_CODE_LENGTH);
-  const dogCodeSeed = compactDogId || 'DOG';
-  const dogCode = `#${dogCodeSeed.slice(0, DOG_CODE_LENGTH).padEnd(DOG_CODE_LENGTH, dogCodeSeed.at(-1) ?? 'G')}`;
+  const dogCode = generateDogCode(dog.id);
 
   return (
     <div style={{ background: T.cream, minHeight: '100dvh', paddingBottom: 28, position: 'relative' }}>
