@@ -5,6 +5,7 @@ import { UsersModule } from './modules/users/users.module';
 import { DogsModule } from './modules/dogs/dogs.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { LikesModule } from './modules/likes/likes.module';
+import { CommentsModule } from './modules/comments/comments.module';
 import { PrismaModule } from './infrastructure/database/prisma.module';
 import { StorageModule } from './infrastructure/storage/storage.module';
 import { HealthController } from './health.controller';
@@ -19,6 +20,7 @@ import { HealthController } from './health.controller';
     DogsModule,
     PostsModule,
     LikesModule,
+    CommentsModule,
   ],
   controllers: [HealthController],
 })

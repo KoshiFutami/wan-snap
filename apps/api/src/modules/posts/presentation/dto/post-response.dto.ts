@@ -47,6 +47,7 @@ export class PostResponseDto {
   items: PostItemResponseDto[];
   likeCount: number;
   bookmarkCount: number;
+  commentCount: number;
   createdAt: string;
   updatedAt: string;
   dog: PostDogDto | null;
@@ -67,6 +68,7 @@ export class PostResponseDto {
     dto.items = post.items.map(PostItemResponseDto.from);
     dto.likeCount = relations?.likeCount ?? 0;
     dto.bookmarkCount = relations?.bookmarkCount ?? 0;
+    dto.commentCount = relations?.commentCount ?? 0;
     dto.createdAt = post.createdAt.toISOString();
     dto.updatedAt = post.updatedAt.toISOString();
     dto.dog = relations

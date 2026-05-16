@@ -1,5 +1,23 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
+export type CommentAuthor = {
+  id: string;
+  displayName: string;
+  avatarUrl: string | null;
+};
+
+export type Comment = {
+  id: string;
+  body: string;
+  createdAt: string;
+  author: CommentAuthor;
+};
+
+export type ListCommentsResponse = {
+  comments: Comment[];
+  nextCursor: string | null;
+};
+
 export type PostItem = {
   id: string;
   category: string;
@@ -32,6 +50,7 @@ export type Post = {
   items: PostItem[];
   likeCount: number;
   bookmarkCount: number;
+  commentCount: number;
   createdAt: string;
   updatedAt: string;
   dog: PostDog | null;
@@ -165,6 +184,22 @@ export const api = {
       request<void>(`/posts/${id}/bookmark`, { method: 'POST', token }),
     unbookmark: (id: string, token: string) =>
       request<void>(`/posts/${id}/bookmark`, { method: 'DELETE', token }),
+    listComments: (postId: string, params?: { limit?: number; cursor?: string }) => {
+      const qs = new URLSearchParams();
+      if (params?.limit) qs.set('limit', String(params.limit));
+      if (params?.cursor) qs.set('cursor', params.cursor);
+      return request<ListCommentsResponse>(`/posts/${postId}/comments?${qs.toString()}`);
+    },
+    createComment: (postId: string, body: string, token: string) =>
+      request<Comment>(`/posts/${postId}/comments`, {
+        method: 'POST',
+        body: JSON.stringify({ body }),
+        token,
+      }),
+  },
+  comments: {
+    delete: (id: string, token: string) =>
+      request<void>(`/comments/${id}`, { method: 'DELETE', token }),
   },
   auth: {
     signUp: (body: { email: string; password: string; displayName: string }) =>

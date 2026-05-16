@@ -22,6 +22,7 @@ export interface PostRelations {
   authorDisplayName: string;
   likeCount: number;
   bookmarkCount: number;
+  commentCount: number;
 }
 
 export interface FindAllWithRelationsResult {
