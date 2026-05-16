@@ -30,7 +30,12 @@ export class DogsController {
   }
 
   @Post()
-  create(@CurrentUser() user: JwtPayload, @Body() dto: CreateDogDto) {
+  async create(@CurrentUser() user: JwtPayload, @Body() dto: CreateDogDto) {
+    await this.prisma.breed.upsert({
+      where: { name: dto.breed },
+      update: {},
+      create: { name: dto.breed },
+    });
     return this.prisma.dog.create({
       data: {
         ...dto,

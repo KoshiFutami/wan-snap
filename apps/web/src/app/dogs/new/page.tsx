@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
+import { BreedCombobox } from '../../../components/breed-combobox';
 
 const T = {
   ink: '#1F1A14',
@@ -150,14 +151,7 @@ export default function NewDogPage() {
         </FieldRow>
 
         <FieldRow label="犬種" required>
-          <input
-            type="text"
-            required
-            value={breed}
-            onChange={(e) => setBreed(e.target.value)}
-            placeholder="柴犬"
-            style={inputStyle}
-          />
+          <BreedCombobox value={breed} onChange={setBreed} required />
         </FieldRow>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
