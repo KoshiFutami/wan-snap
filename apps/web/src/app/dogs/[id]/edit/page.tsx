@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getValidToken } from '../../../../lib/auth-store';
 import { api, type Dog } from '../../../../lib/api';
+import { ImageCropEditor } from '../../../../components/image-crop-editor';
 
 const T = {
   ink: '#1F1A14',
@@ -59,6 +60,11 @@ export default function DogEditPage() {
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
+  const [showCropEditor, setShowCropEditor] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const tokenRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -78,6 +84,24 @@ export default function DogEditPage() {
     });
   }, [id, router]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setRawImageSrc(ev.target?.result as string);
+      setShowCropEditor(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleCropComplete = (blob: Blob, previewUrl: string) => {
+    setImageFile(new File([blob], 'photo.jpg', { type: 'image/jpeg' }));
+    setImagePreview(previewUrl);
+    setShowCropEditor(false);
+  };
+
   const handleSave = async () => {
     if (!name.trim()) return;
     setError(null);
@@ -85,6 +109,12 @@ export default function DogEditPage() {
     try {
       const token = tokenRef.current ?? await getValidToken();
       if (!token) throw new Error('ログインが必要です');
+      if (imageFile) {
+        const uploaded = await api.dogs.uploadPhoto(id, imageFile, token);
+        setDog((prev) => (prev ? { ...prev, photoUrl: uploaded.photoUrl } : prev));
+        setImageFile(null);
+        setImagePreview(null);
+      }
       await api.dogs.update(id, {
         name: name.trim(),
         weightKg: weightKg ? parseFloat(weightKg) : undefined,
@@ -133,7 +163,21 @@ export default function DogEditPage() {
     return 'L';
   })();
 
+  const photoSrc = imagePreview ?? dog.photoUrl;
+
   return (
+    <>
+    {showCropEditor && rawImageSrc && (
+      <ImageCropEditor
+        imageSrc={rawImageSrc}
+        defaultAspect={1}
+        onComplete={handleCropComplete}
+        onCancel={() => {
+          setShowCropEditor(false);
+          setRawImageSrc(null);
+        }}
+      />
+    )}
     <div style={{ background: T.creamSoft, minHeight: '100dvh' }}>
       {/* AppBar */}
       <div style={{
@@ -186,23 +230,42 @@ export default function DogEditPage() {
           marginTop: 20, marginBottom: 24,
         }}>
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            <div style={{
-              width: 64, height: 64, borderRadius: 32,
-              background: T.ink10,
-              backgroundImage: dog.photoUrl ? `url(${dog.photoUrl})` : 'none',
-              backgroundSize: 'cover', backgroundPosition: 'center',
-            }} />
-            <div style={{
-              position: 'absolute', bottom: -4, right: -4,
-              width: 24, height: 24, borderRadius: 12,
-              background: T.ink, color: '#fff',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: `2px solid ${T.paper}`, cursor: 'pointer',
-            }}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{ display: 'none' }}
+              aria-hidden
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label="プロフィール写真を変更"
+              style={{
+                width: 64, height: 64, borderRadius: 32,
+                background: T.ink10,
+                backgroundImage: photoSrc ? `url(${photoSrc})` : 'none',
+                backgroundSize: 'cover', backgroundPosition: 'center',
+                border: 'none', padding: 0, cursor: 'pointer',
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label="プロフィール写真を変更"
+              style={{
+                position: 'absolute', bottom: -4, right: -4,
+                width: 24, height: 24, borderRadius: 12,
+                background: T.ink, color: '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: `2px solid ${T.paper}`, cursor: 'pointer', padding: 0,
+              }}
+            >
               <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
                 <path d="M2 4h2l1-1h2l1 1h2v6H2V4z" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" />
               </svg>
-            </div>
+            </button>
           </div>
           <div style={{ flex: 1 }}>
             <div style={{
@@ -371,6 +434,7 @@ export default function DogEditPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
 

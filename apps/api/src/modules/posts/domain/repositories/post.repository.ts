@@ -28,9 +28,13 @@ export const POST_REPOSITORY = Symbol('POST_REPOSITORY');
 
 export interface IPostRepository {
   findById(id: PostId): Promise<Post | null>;
-  findByIdWithRelations(id: PostId): Promise<{ post: Post; relations: PostRelations } | null>;
+  findByIdWithRelations(
+    id: PostId,
+  ): Promise<{ post: Post; relations: PostRelations } | null>;
   findAll(options?: FindAllOptions): Promise<FindAllResult>;
-  findAllWithRelations(options?: FindAllOptions): Promise<FindAllWithRelationsResult>;
+  findAllWithRelations(
+    options?: FindAllOptions,
+  ): Promise<FindAllWithRelationsResult>;
   save(post: Post): Promise<void>;
   delete(id: PostId): Promise<void>;
 }

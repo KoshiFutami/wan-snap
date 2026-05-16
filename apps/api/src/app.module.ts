@@ -6,12 +6,14 @@ import { DogsModule } from './modules/dogs/dogs.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { LikesModule } from './modules/likes/likes.module';
 import { PrismaModule } from './infrastructure/database/prisma.module';
+import { StorageModule } from './infrastructure/storage/storage.module';
 import { HealthController } from './health.controller';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
+    StorageModule,
     AuthModule,
     UsersModule,
     DogsModule,

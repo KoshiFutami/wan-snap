@@ -26,7 +26,9 @@ export class PrismaPostRepository implements IPostRepository {
     return raw ? PostMapper.toDomain(raw) : null;
   }
 
-  async findByIdWithRelations(id: PostId): Promise<{ post: Post; relations: PostRelations } | null> {
+  async findByIdWithRelations(
+    id: PostId,
+  ): Promise<{ post: Post; relations: PostRelations } | null> {
     const raw = await this.prisma.post.findUnique({
       where: { id: id.value },
       include: {
@@ -42,7 +44,9 @@ export class PrismaPostRepository implements IPostRepository {
     };
   }
 
-  async findAllWithRelations(options: FindAllOptions = {}): Promise<FindAllWithRelationsResult> {
+  async findAllWithRelations(
+    options: FindAllOptions = {},
+  ): Promise<FindAllWithRelationsResult> {
     const limit = Math.min(options.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const cursor = options.cursor ? this.decodeCursor(options.cursor) : null;
 
@@ -72,7 +76,11 @@ export class PrismaPostRepository implements IPostRepository {
   }
 
   private toRelations(raw: {
-    dog: { name: string; breed: string; weightKg: { toNumber(): number } | null };
+    dog: {
+      name: string;
+      breed: string;
+      weightKg: { toNumber(): number } | null;
+    };
     author: { displayName: string };
   }): PostRelations {
     return {
