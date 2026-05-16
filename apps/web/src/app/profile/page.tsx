@@ -113,7 +113,7 @@ export default function ProfilePage() {
     <div style={{ paddingBottom: 120 }}>
       {/* トップバー */}
       <div style={{
-        padding: '12px 12px 6px',
+        padding: '8px 12px 6px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -153,7 +153,7 @@ export default function ProfilePage() {
 
       {/* ユーザーヘッダー */}
       <div style={{ padding: '8px 12px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {/* アバター */}
           <div style={{
             width: 76, height: 76, borderRadius: 38,
