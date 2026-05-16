@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"/>
+<title>Type pairing</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html, body { margin: 0; }
+  body {
+    padding: 24px;
+    background: var(--ws-bg);
+    color: var(--ws-fg);
+    font-family: var(--ws-font-sans);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: var(--ws-track-body);
+    min-height: 360px;
+  }
+  * { box-sizing: border-box; }
+  .eb {
+    font: 500 9.5px/1 var(--ws-font-sans);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--ws-fg-faint);
+  }
+  .mono { font-family: var(--ws-font-mono); letter-spacing: -0.02em; }
+  .swatch {
+    border-radius: 10px;
+    border: 1px solid var(--ws-hairline);
+  }
+  .label-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 8px;
+  }
+  .label-row .name { font: 500 11px/1 var(--ws-font-sans); color: var(--ws-fg); }
+  .label-row .hex { font-family: var(--ws-font-mono); font-size: 10px; color: var(--ws-fg-faint); letter-spacing: -0.02em; }
+  .label-row .var { font-family: var(--ws-font-mono); font-size: 10px; color: var(--ws-fg-faint); letter-spacing: -0.02em; }
+</style></head>
+<body>
+
+    <div class="eb">Pairing · 編集的なリズム</div>
+    <div style="margin-top:14px;padding:24px;background:var(--ws-paper);border-radius:14px;border:1px solid var(--ws-hairline);">
+      <div class="eb">May 16, 2026 · #014</div>
+      <div style="font-family:var(--ws-font-serif);font-weight:500;font-size:48px;letter-spacing:-0.02em;color:var(--ws-fg);line-height:1;margin-top:8px;">
+        エマ<span style="font-style:italic;color:var(--ws-fg-faint);font-size:20px;margin-left:10px;font-weight:400;">Ema</span>
+      </div>
+      <div style="font-size:13px;color:var(--ws-fg-muted);margin-top:10px;line-height:1.55;max-width:520px;">
+        新宿在住、柴犬・赤。少しゆとりのある服が好み。リネン素材が大好物。
+      </div>
+      <div style="display:flex;gap:14px;margin-top:16px;font-family:var(--ws-font-mono);font-size:12px;color:var(--ws-fg);letter-spacing:-0.02em;">
+        <span>9.5kg</span>
+        <span style="color:var(--ws-fg-faint);">·</span>
+        <span>48cm</span>
+        <span style="color:var(--ws-fg-faint);">·</span>
+        <span>2y 4m</span>
+      </div>
+    </div>
+  
+</body></html>

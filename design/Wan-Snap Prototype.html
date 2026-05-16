@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Wan-Snap · Interactive Prototype</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+<style>
+  html, body, #root { height: 100%; margin: 0; }
+  body {
+    font-family: "Zen Kaku Gothic New", -apple-system, system-ui, sans-serif;
+    background: #ECE4D6;
+    -webkit-font-smoothing: antialiased;
+    color: #1F1A14;
+    overflow: hidden;
+  }
+  * { box-sizing: border-box; }
+  button { font-family: inherit; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: rgba(31,26,20,0.18); border-radius: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  img { -webkit-user-drag: none; user-select: none; }
+
+  /* Subtle entry transition between screens */
+  .screen-enter {
+    animation: screen-in 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes screen-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="tokens.jsx"></script>
+<script type="text/babel" src="nav.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel" src="screen-home.jsx"></script>
+<script type="text/babel" src="screen-explore.jsx"></script>
+<script type="text/babel" src="screen-search.jsx"></script>
+<script type="text/babel" src="screen-profile.jsx"></script>
+<script type="text/babel" src="screen-detail.jsx"></script>
+<script type="text/babel" src="screen-auth.jsx"></script>
+<script type="text/babel" src="screen-post.jsx"></script>
+<script type="text/babel" src="screen-dog.jsx"></script>
+<script type="text/babel" src="screen-user.jsx"></script>
+<script type="text/babel" src="screen-misc.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const T = WS_TOKENS;
+const F = WS_FONTS;
+
+// Screen registry
+const SCREENS = {
+  'sign-in':        { comp: SignInScreen,         label: 'サインイン',          group: 'オンボーディング' },
+  'sign-up':        { comp: SignUpScreen,         label: 'アカウント登録',      group: 'オンボーディング' },
+  'new-dog':        { comp: NewDogScreen,         label: '愛犬を登録',          group: 'オンボーディング' },
+  'home':           { comp: HomeScreen,           label: 'ホーム · フィード',   group: 'コア' },
+  'explore':        { comp: ExploreScreen,        label: '発見 · マソンリー',   group: 'コア' },
+  'search-results': { comp: SearchResultsScreen,  label: '検索結果',            group: 'コア' },
+  'search-modal':   { comp: SearchScreen,         label: '絞り込み',            group: 'コア' },
+  'detail':         { comp: DetailScreen,         label: 'スナップ詳細',        group: 'コア' },
+  'notifications':  { comp: NotificationsScreen,  label: '通知',                group: 'コア' },
+  'my-profile':     { comp: MyProfileScreen,      label: 'マイわん',            group: 'プロフィール' },
+  'other-profile':  { comp: OtherProfileScreen,   label: '他ユーザー',          group: 'プロフィール' },
+  'dog-profile':    { comp: ProfileScreen,        label: '愛犬プロフィール',    group: 'プロフィール' },
+  'album':          { comp: AlbumScreen,          label: 'アルバム',            group: 'プロフィール' },
+  'edit-profile':   { comp: EditProfileScreen,    label: 'プロフィール編集',    group: 'プロフィール' },
+  'edit-dog':       { comp: EditDogScreen,        label: '愛犬編集',            group: 'プロフィール' },
+  'new-post':       { comp: NewPostScreen,        label: '新規投稿',            group: '投稿' },
+  'edit-post':      { comp: EditPostScreen,       label: '投稿編集',            group: '投稿' },
+};
+
+const INITIAL = 'home';
+
+// ──────────────────────────────────────────────────────
+// Phone frame
+// ──────────────────────────────────────────────────────
+function Phone({ children, screenKey }) {
+  return (
+    <div style={{
+      width: 410, padding: 10, borderRadius: 50,
+      background: '#1B1612',
+      boxShadow: '0 40px 80px -30px rgba(31,26,20,0.5), 0 0 0 1px rgba(0,0,0,0.04)',
+    }}>
+      <div style={{
+        width: 390, height: 844, borderRadius: 42,
+        overflow: 'hidden', background: T.cream,
+        position: 'relative',
+      }}>
+        <div style={{
+          position: 'absolute', top: 12, left: '50%',
+          transform: 'translateX(-50%)',
+          width: 124, height: 36, borderRadius: 22,
+          background: '#000', zIndex: 50,
+          pointerEvents: 'none',
+        }}/>
+        <div key={screenKey} className="screen-enter" style={{ width: '100%', height: '100%' }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────
+// Screen jumper sidebar
+// ──────────────────────────────────────────────────────
+function ScreenJumper() {
+  const nav = useNav();
+  const grouped = React.useMemo(() => {
+    const map = {};
+    Object.entries(SCREENS).forEach(([k, v]) => {
+      (map[v.group] = map[v.group] || []).push({ k, ...v });
+    });
+    return map;
+  }, []);
+
+  return (
+    <div style={{
+      width: 240, height: '100%',
+      background: T.creamSoft,
+      borderRight: `1px solid ${T.hairline}`,
+      padding: '28px 0 16px',
+      display: 'flex', flexDirection: 'column',
+      overflow: 'hidden',
+    }}>
+      <div style={{ padding: '0 20px 18px' }}>
+        <div style={{
+          fontFamily: F.serif, fontSize: 22, fontWeight: 500,
+          color: T.ink, letterSpacing: '-0.01em', lineHeight: 1,
+        }}>Wan<span style={{ opacity: 0.5 }}>·</span>Snap<span style={{ color: T.terracotta }}>.</span></div>
+        <div style={{
+          fontSize: 10, color: T.ink50, letterSpacing: '0.18em',
+          textTransform: 'uppercase', marginTop: 6, fontWeight: 500,
+        }}>Prototype · v1</div>
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 12px 12px' }}>
+        {Object.entries(grouped).map(([g, items]) => (
+          <div key={g} style={{ marginBottom: 14 }}>
+            <div style={{
+              padding: '8px 10px 6px', fontSize: 9.5,
+              letterSpacing: '0.18em', textTransform: 'uppercase',
+              color: T.ink50, fontWeight: 600,
+            }}>{g}</div>
+            {items.map(({ k, label }) => {
+              const active = nav.current === k;
+              return (
+                <div key={k} onClick={() => nav.reset(k)} style={{
+                  padding: '8px 10px', borderRadius: 8,
+                  background: active ? T.ink : 'transparent',
+                  color: active ? T.cream : T.ink,
+                  fontSize: 12, fontWeight: active ? 600 : 500,
+                  cursor: 'pointer', marginBottom: 2,
+                  display: 'flex', alignItems: 'center', gap: 8,
+                }}>
+                  <span style={{
+                    width: 4, height: 4, borderRadius: 4,
+                    background: active ? T.cream : T.ink30,
+                  }}/>
+                  {label}
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+
+      <div style={{
+        padding: '14px 20px 0', borderTop: `1px solid ${T.hairline}`,
+        fontSize: 10.5, color: T.ink50, lineHeight: 1.5,
+      }}>
+        画面をタップで遷移。<br/>戻る矢印・タブで通常ナビ。
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────
+// History breadcrumb (top right)
+// ──────────────────────────────────────────────────────
+function HistoryBar() {
+  const nav = useNav();
+  return (
+    <div style={{
+      position: 'absolute', top: 22, right: 22,
+      display: 'flex', alignItems: 'center', gap: 10,
+    }}>
+      <button onClick={() => nav.back()} disabled={!nav.canBack} style={{
+        padding: '8px 14px', borderRadius: 999,
+        background: nav.canBack ? T.paper : 'transparent',
+        color: nav.canBack ? T.ink : T.ink30,
+        border: `1px solid ${nav.canBack ? T.hairlineStrong : T.hairline}`,
+        fontSize: 12, fontWeight: 500,
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        cursor: nav.canBack ? 'pointer' : 'not-allowed',
+      }}>
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+          <path d="M10 4l-4 4 4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        戻る
+      </button>
+      <button onClick={() => nav.reset(INITIAL)} style={{
+        padding: '8px 14px', borderRadius: 999,
+        background: T.ink, color: T.cream, border: 'none',
+        fontSize: 12, fontWeight: 600, cursor: 'pointer',
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+      }}>
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+          <path d="M2 8c0-3 2.5-5.5 5.5-5.5 2 0 3.8 1 4.8 2.7M14 2v3h-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M14 8c0 3-2.5 5.5-5.5 5.5-2 0-3.8-1-4.8-2.7M2 14v-3h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        リセット
+      </button>
+    </div>
+  );
+}
+
+// Current path indicator (bottom)
+function PathIndicator() {
+  const nav = useNav();
+  const current = SCREENS[nav.current];
+  return (
+    <div style={{
+      position: 'absolute', bottom: 24, left: '50%',
+      transform: 'translateX(-50%)',
+      padding: '8px 16px', borderRadius: 999,
+      background: 'rgba(31,26,20,0.85)',
+      backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+      color: T.cream, display: 'inline-flex', alignItems: 'center', gap: 8,
+      fontSize: 11,
+    }}>
+      <span style={{
+        width: 5, height: 5, borderRadius: 5, background: '#7ABA84',
+        animation: 'pulse 2s infinite',
+      }}/>
+      <span style={{ fontFamily: F.mono, opacity: 0.5 }}>/</span>
+      <span style={{ fontFamily: F.mono, letterSpacing: '0.02em' }}>{nav.current}</span>
+      <span style={{ opacity: 0.5, margin: '0 2px' }}>·</span>
+      <span style={{ fontWeight: 500 }}>{current?.label || '—'}</span>
+      <span style={{
+        fontFamily: F.mono, fontSize: 9, opacity: 0.5, marginLeft: 6,
+        padding: '2px 6px', borderRadius: 6, background: 'rgba(255,255,255,0.08)',
+      }}>{nav.stack.length} stack</span>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────
+// Active screen
+// ──────────────────────────────────────────────────────
+function ActiveScreen() {
+  const nav = useNav();
+  const def = SCREENS[nav.current] || SCREENS[INITIAL];
+  const C = def.comp;
+  return <Phone screenKey={nav.current}><C/></Phone>;
+}
+
+// ──────────────────────────────────────────────────────
+// App shell
+// ──────────────────────────────────────────────────────
+function PrototypeApp() {
+  return (
+    <NavProvider initial={INITIAL}>
+      <div style={{
+        position: 'fixed', inset: 0,
+        background: '#ECE4D6',
+        display: 'flex', overflow: 'hidden',
+      }}>
+        {/* Background subtle pattern */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: `radial-gradient(circle at 20% 30%, rgba(185,90,61,0.05), transparent 50%),
+                            radial-gradient(circle at 80% 70%, rgba(63,90,64,0.05), transparent 50%)`,
+        }}/>
+        <ScreenJumper/>
+        <div style={{
+          flex: 1, position: 'relative',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <ActiveScreen/>
+          <HistoryBar/>
+          <PathIndicator/>
+        </div>
+      </div>
+    </NavProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<PrototypeApp/>);
+</script>
+</body>
+</html>

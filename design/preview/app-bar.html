@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"/>
+<title>App bar / header</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html, body { margin: 0; }
+  body {
+    padding: 24px; background: var(--ws-bg);
+    color: var(--ws-fg); font-family: var(--ws-font-sans);
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.005em;
+    min-height: 220px;
+  }
+  * { box-sizing: border-box; }
+  .eb {
+    font: 500 9.5px/1 var(--ws-font-sans);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--ws-fg-faint);
+  }
+  .mono { font-family: var(--ws-font-mono); letter-spacing: -0.02em; }
+</style></head>
+<body>
+
+    <div class="eb">App bar · モバイル上部</div>
+    <div style="margin-top:14px;width:390px;background:var(--ws-paper);border-radius:14px;border:1px solid var(--ws-hairline);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+      <div style="width:40px;height:40px;border-radius:20px;background:transparent;border:1px solid var(--ws-hairline);display:flex;align-items:center;justify-content:center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 5l-7 7 7 7" stroke="var(--ws-ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div class="eb">プロフィール</div>
+        <div style="font-size:14px;font-weight:600;color:var(--ws-fg);letter-spacing:0.01em;margin-top:2px;">エマのプロフィール</div>
+      </div>
+      <button style="padding:7px 14px;border-radius:9999px;background:var(--ws-ink);color:var(--ws-cream);font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:var(--ws-font-sans);">保存</button>
+    </div>
+
+    <div class="eb" style="margin-top:18px;">PC top header</div>
+    <div style="margin-top:8px;background:var(--ws-cream);padding:18px 24px;border-radius:14px;border:1px solid var(--ws-hairline);display:flex;align-items:flex-end;justify-content:space-between;gap:24px;">
+      <div>
+        <div class="eb" style="margin-bottom:6px;">May 16, 2026 · Saturday</div>
+        <div style="font-family:var(--ws-font-serif);font-weight:500;font-size:28px;color:var(--ws-fg);letter-spacing:-0.015em;line-height:1;">今日のスナップ</div>
+      </div>
+      <div style="flex:1;max-width:280px;background:var(--ws-paper);border-radius:9999px;border:1px solid var(--ws-hairline);padding:9px 14px;display:flex;align-items:center;gap:10px;">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="var(--ws-ink-50)" stroke-width="1.6"/><path d="M13.5 13.5L17 17" stroke="var(--ws-ink-50)" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <span style="flex:1;font-size:12.5px;color:var(--ws-fg-faint);">犬種・ブランド・タグ</span>
+        <span class="mono" style="padding:2px 6px;border-radius:4px;font-size:10px;color:var(--ws-fg-faint);background:var(--ws-cream);">⌘ K</span>
+      </div>
+    </div>
+  
+</body></html>

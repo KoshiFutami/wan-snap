@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Wan-Snap · Desktop</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+<style>
+  html, body, #root { height: 100%; }
+  body {
+    margin: 0;
+    font-family: "Zen Kaku Gothic New", -apple-system, system-ui, sans-serif;
+    background: #ECE4D6;
+    -webkit-font-smoothing: antialiased;
+    color: #1F1A14;
+  }
+  * { box-sizing: border-box; }
+  button { font-family: inherit; }
+  ::-webkit-scrollbar { display: none; }
+  img { -webkit-user-drag: none; user-select: none; }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="browser-window.jsx"></script>
+<script type="text/babel" src="tokens.jsx"></script>
+<script type="text/babel" src="nav.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel" src="screen-detail.jsx"></script>
+<script type="text/babel" src="pc-shell.jsx"></script>
+<script type="text/babel" src="pc-screen-feed.jsx"></script>
+<script type="text/babel" src="pc-screen-detail.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const T = WS_TOKENS;
+const F = WS_FONTS;
+
+// Browser frame wrapper sized for 1440x900 inner
+function Win({ url, children }) {
+  return (
+    <ChromeWindow
+      tabs={[{ title: 'Wan-Snap' }]} activeIndex={0}
+      url={url}
+      width={1440} height={984}
+    >
+      <div style={{
+        width: 1440, height: 900,
+        overflow: 'hidden',
+      }}>
+        {children}
+      </div>
+    </ChromeWindow>
+  );
+}
+
+// Cover artboard intro
+function PCCover() {
+  return (
+    <div style={{
+      width: 1440, height: 984, padding: '90px 100px',
+      background: T.creamSoft, borderRadius: 10,
+      display: 'flex', justifyContent: 'space-between', alignItems: 'stretch',
+      fontFamily: F.sans, position: 'relative', overflow: 'hidden',
+    }}>
+      <div style={{
+        position: 'absolute', bottom: -180, right: -100,
+        fontFamily: F.serif, fontSize: 900, color: T.terracotta,
+        opacity: 0.1, fontWeight: 500, lineHeight: 0.7, letterSpacing: '-0.05em',
+      }}>。</div>
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{
+            fontSize: 12, letterSpacing: '0.24em', textTransform: 'uppercase',
+            color: T.ink50, fontWeight: 500, marginBottom: 24,
+          }}>Wan-Snap · Desktop · May 2026</div>
+          <div style={{
+            fontFamily: F.serif, fontSize: 128, fontWeight: 500,
+            color: T.ink, letterSpacing: '-0.03em', lineHeight: 0.92,
+          }}>Bigger<br/>canvas<span style={{ color: T.terracotta }}>,</span><br/>same warmth<span style={{ color: T.terracotta }}>.</span></div>
+        </div>
+        <div style={{
+          fontSize: 18, color: T.ink70, lineHeight: 1.6, maxWidth: 560,
+        }}>
+          モバイルと同じウォームトーンとSerifタイポを保ちつつ、<br/>
+          3カラム構成（ナビ・コンテンツ・コンテキスト）で<br/>
+          一覧性と発見性を最大化したPCレイアウト。
+        </div>
+      </div>
+
+      {/* Right side: layout system */}
+      <div style={{ position: 'relative', width: 540, display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <div style={{
+          fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase',
+          color: T.ink50, marginBottom: -4, fontWeight: 500,
+        }}>Layout System</div>
+        {/* Layout diagram */}
+        <div style={{
+          background: T.paper, border: `1px solid ${T.hairline}`,
+          borderRadius: 14, padding: 18, display: 'flex', gap: 10,
+          height: 320,
+        }}>
+          <div style={{
+            width: 80, background: T.cream, borderRadius: 8,
+            display: 'flex', flexDirection: 'column', padding: 8, gap: 4,
+          }}>
+            <div style={{ height: 6, borderRadius: 3, background: T.ink, width: '60%' }}/>
+            <div style={{ height: 24, borderRadius: 4, background: T.terracotta, opacity: 0.15, marginTop: 12 }}/>
+            <div style={{ height: 4, borderRadius: 2, background: T.ink30 }}/>
+            <div style={{ height: 4, borderRadius: 2, background: T.ink30, width: '70%' }}/>
+            <div style={{ height: 4, borderRadius: 2, background: T.ink30 }}/>
+            <div style={{ flex: 1 }}/>
+            <div style={{ height: 20, borderRadius: 10, background: T.terracotta }}/>
+          </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ height: 30, background: T.cream, borderRadius: 6 }}/>
+            <div style={{
+              flex: 1, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6,
+            }}>
+              <div style={{ background: T.terracottaSoft, borderRadius: 6, opacity: 0.4 }}/>
+              <div style={{ background: T.forestSoft, borderRadius: 6, opacity: 0.4 }}/>
+              <div style={{ background: T.forestSoft, borderRadius: 6, opacity: 0.4 }}/>
+              <div style={{ background: T.terracottaSoft, borderRadius: 6, opacity: 0.4 }}/>
+            </div>
+          </div>
+          <div style={{
+            width: 120, background: T.cream, borderRadius: 8, padding: 8,
+            display: 'flex', flexDirection: 'column', gap: 4,
+          }}>
+            <div style={{ height: 5, width: '50%', background: T.ink30, borderRadius: 3 }}/>
+            <div style={{
+              height: 70, background: T.terracotta, opacity: 0.2, borderRadius: 6, marginTop: 6,
+            }}/>
+            <div style={{ height: 5, width: '70%', background: T.ink30, borderRadius: 3, marginTop: 12 }}/>
+            <div style={{ height: 30, background: T.paper, borderRadius: 6, border: `1px solid ${T.hairline}`, marginTop: 4 }}/>
+            <div style={{ height: 30, background: T.paper, borderRadius: 6, border: `1px solid ${T.hairline}` }}/>
+            <div style={{ height: 30, background: T.paper, borderRadius: 6, border: `1px solid ${T.hairline}` }}/>
+          </div>
+        </div>
+
+        {/* Specs */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12,
+        }}>
+          {[
+            ['Sidebar', '220 px'],
+            ['Content', 'fluid'],
+            ['Right Rail', '300 px'],
+            ['Viewport', '1440 × 900'],
+            ['Gutter', '40 px'],
+            ['Base radius', '14 px'],
+          ].map(([l, v]) => (
+            <div key={l} style={{
+              padding: '10px 14px', background: T.paper, borderRadius: 10,
+              border: `1px solid ${T.hairline}`,
+            }}>
+              <div style={{ fontSize: 9.5, color: T.ink50, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 500 }}>{l}</div>
+              <div style={{ fontSize: 16, color: T.ink, fontFamily: F.mono, marginTop: 4, letterSpacing: '-0.02em' }}>{v}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <DesignCanvas minScale={0.08} maxScale={1.5}>
+      <DCSection
+        id="pc-overview"
+        title="00 · Desktop overview"
+        subtitle="モバイル版と同じデザインDNAを、横長キャンバスに翻訳。"
+      >
+        <DCArtboard id="pc-cover" label="Cover" width={1440} height={984}>
+          <PCCover/>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection
+        id="pc-core"
+        title="01 · コア画面"
+        subtitle="3カラム構成（ナビ・コンテンツ・コンテキスト）。"
+      >
+        <DCArtboard id="pc-home" label="ホーム · フィード" width={1440} height={984}>
+          <Win url="wan-snap.app/">
+            <PCHomeScreen/>
+          </Win>
+        </DCArtboard>
+        <DCArtboard id="pc-explore" label="さがす · マソンリー4列" width={1440} height={984}>
+          <Win url="wan-snap.app/discover">
+            <PCExploreScreen/>
+          </Win>
+        </DCArtboard>
+        <DCArtboard id="pc-search" label="検索結果" width={1440} height={984}>
+          <Win url='wan-snap.app/search?q=柴犬+バンダナ'>
+            <PCSearchResultsScreen/>
+          </Win>
+        </DCArtboard>
+        <DCArtboard id="pc-detail" label="スナップ詳細 · モーダル" width={1440} height={984}>
+          <Win url="wan-snap.app/posts/ema-2026-05-16">
+            <PCDetailScreen/>
+          </Win>
+        </DCArtboard>
+        <DCArtboard id="pc-profile" label="愛犬プロフィール" width={1440} height={984}>
+          <Win url="wan-snap.app/dogs/ema">
+            <PCProfileScreen/>
+          </Win>
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

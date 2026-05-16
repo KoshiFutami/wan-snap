@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"/>
+<title>Dog avatars</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html, body { margin: 0; }
+  body {
+    padding: 24px; background: var(--ws-bg);
+    color: var(--ws-fg); font-family: var(--ws-font-sans);
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.005em;
+    min-height: 200px;
+  }
+  * { box-sizing: border-box; }
+  .eb {
+    font: 500 9.5px/1 var(--ws-font-sans);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--ws-fg-faint);
+  }
+  .mono { font-family: var(--ws-font-mono); letter-spacing: -0.02em; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .btn {
+    padding: 12px 22px; border-radius: 9999px; border: none;
+    font: 600 13px/1 var(--ws-font-sans); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary { background: var(--ws-ink); color: var(--ws-cream); }
+  .btn-terra   { background: var(--ws-terracotta); color: #fff; box-shadow: 0 6px 18px rgba(185,90,61,0.35); }
+  .btn-ghost   { background: var(--ws-paper); color: var(--ws-fg); border: 1px solid var(--ws-hairline-strong); }
+  .btn-danger  { background: transparent; color: var(--ws-terracotta); border: 1px solid var(--ws-terracotta); }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 20px;
+    background: var(--ws-paper); border: 1px solid var(--ws-hairline);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ws-fg); cursor: pointer; padding: 0;
+  }
+  .chip {
+    padding: 7px 13px; border-radius: 9999px;
+    border: 1px solid var(--ws-hairline-strong);
+    background: transparent; color: var(--ws-fg);
+    font-size: 12.5px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .chip-on { background: var(--ws-ink); color: var(--ws-cream); border-color: var(--ws-ink); }
+  .chip-on-terra { background: var(--ws-terracotta); color: #fff; border-color: var(--ws-terracotta); }
+  .dot { width: 6px; height: 6px; border-radius: 6px; background: var(--ws-terracotta); }
+</style></head>
+<body>
+
+    <div class="eb">Dog avatars · 4 sizes · with ring states</div>
+    <div style="display:flex;gap:18px;align-items:flex-end;margin-top:16px;">
+      
+        <div style="text-align:center;">
+          <div style="width:76px;height:76px;border-radius:38px;background:url('https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?w=300&auto=format') center/cover;border:1px solid var(--ws-hairline);"></div>
+          <div class="mono" style="font-size:10px;color:var(--ws-fg-faint);margin-top:6px;">76px</div>
+        </div>
+      
+        <div style="text-align:center;">
+          <div style="width:56px;height:56px;border-radius:28px;background:url('https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?w=300&auto=format') center/cover;border:1px solid var(--ws-hairline);"></div>
+          <div class="mono" style="font-size:10px;color:var(--ws-fg-faint);margin-top:6px;">56px</div>
+        </div>
+      
+        <div style="text-align:center;">
+          <div style="width:40px;height:40px;border-radius:20px;background:url('https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?w=300&auto=format') center/cover;border:1px solid var(--ws-hairline);"></div>
+          <div class="mono" style="font-size:10px;color:var(--ws-fg-faint);margin-top:6px;">40px</div>
+        </div>
+      
+        <div style="text-align:center;">
+          <div style="width:28px;height:28px;border-radius:14px;background:url('https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?w=300&auto=format') center/cover;border:1px solid var(--ws-hairline);"></div>
+          <div class="mono" style="font-size:10px;color:var(--ws-fg-faint);margin-top:6px;">28px</div>
+        </div>
+      
+      <div style="text-align:center;">
+        <div style="width:56px;height:56px;border-radius:28px;background:url('https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=300&auto=format') center/cover;box-shadow:0 0 0 2px var(--ws-cream),0 0 0 3.5px var(--ws-terracotta);"></div>
+        <div class="mono" style="font-size:10px;color:var(--ws-fg-faint);margin-top:8px;">+ ring</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:56px;height:56px;border-radius:28px;background:var(--ws-cream);border:1px dashed var(--ws-hairline-strong);display:flex;align-items:center;justify-content:center;color:var(--ws-fg-faint);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <div class="mono" style="font-size:10px;color:var(--ws-fg-faint);margin-top:8px;">empty</div>
+      </div>
+    </div>
+  
+</body></html>

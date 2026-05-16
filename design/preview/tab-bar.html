@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"/>
+<title>Tab bar</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html, body { margin: 0; }
+  body {
+    padding: 24px; background: var(--ws-bg);
+    color: var(--ws-fg); font-family: var(--ws-font-sans);
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.005em;
+    min-height: 220px;
+  }
+  * { box-sizing: border-box; }
+  .eb {
+    font: 500 9.5px/1 var(--ws-font-sans);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--ws-fg-faint);
+  }
+  .mono { font-family: var(--ws-font-mono); letter-spacing: -0.02em; }
+</style></head>
+<body>
+
+    <div class="eb">Tab bar · モバイル底部（モバイルのみ）</div>
+    <div style="margin-top:14px;position:relative;width:390px;background:var(--ws-paper);border-radius:14px;border:1px solid var(--ws-hairline);overflow:visible;padding-top:24px;padding-bottom:18px;display:flex;align-items:flex-start;">
+      
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ws-fg);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4v-9z"/></svg>
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.04em;">フィード</div>
+        </div>
+      
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ws-fg-faint);">
+          <svg width="22" height="22" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.6"/><path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.04em;">さがす</div>
+        </div>
+      
+      <div style="flex:1;display:flex;justify-content:center;margin-top:-22px;">
+        <div style="width:52px;height:52px;border-radius:26px;background:var(--ws-terracotta);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(185,90,61,0.35),0 0 0 4px var(--ws-paper);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ws-fg-faint);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 4h12v17l-6-3.5L6 21V4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.04em;">お知らせ</div>
+        </div>
+      
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ws-fg-faint);">
+          <svg width="22" height="22" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.2" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 17c.8-3.4 3.5-5 6.5-5s5.7 1.6 6.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.04em;">マイわん</div>
+        </div>
+      
+    </div>
+    <div style="margin-top:12px;font-size:10.5px;color:var(--ws-fg-faint);line-height:1.5;max-width:520px;">
+      4タブ + 中央 FAB (テラコッタ)。FAB は上に -22px オフセットして突き出す。
+    </div>
+  
+</body></html>
