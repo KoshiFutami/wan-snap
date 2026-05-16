@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
 import { BreedCombobox } from '../../../components/breed-combobox';
+import { FloatingFormFooter } from '../../../components/floating-form-footer';
 import { ImageCropEditor } from '../../../components/image-crop-editor';
 
 const T = {
@@ -318,16 +319,7 @@ export default function NewDogPage() {
         )}
 
         {/* 固定CTAフッター */}
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: '16px 12px 32px',
-            background: `linear-gradient(180deg, transparent, ${T.cream} 30%)`,
-          }}
-        >
+        <FloatingFormFooter>
           <button
             type="submit"
             disabled={loading}
@@ -359,7 +351,7 @@ export default function NewDogPage() {
               </svg>
             )}
           </button>
-        </div>
+        </FloatingFormFooter>
       </form>
     </div>
     </>

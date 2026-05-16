@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '../../../lib/api';
 import { saveTokens } from '../../../lib/auth-store';
+import { FloatingFormFooter } from '../../../components/floating-form-footer';
 
 const T = {
   ink: '#1F1A14',
@@ -180,16 +181,7 @@ export default function SignUpPage() {
         )}
 
         {/* CTA — 固定フッター */}
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: '16px 12px 32px',
-            background: `linear-gradient(180deg, transparent, ${T.cream} 30%)`,
-          }}
-        >
+        <FloatingFormFooter>
           <button
             type="submit"
             disabled={loading || !agreed}
@@ -219,7 +211,7 @@ export default function SignUpPage() {
               </svg>
             )}
           </button>
-        </div>
+        </FloatingFormFooter>
       </form>
 
       <div style={{ marginTop: 16, textAlign: 'center', fontSize: 12.5, color: T.ink50 }}>

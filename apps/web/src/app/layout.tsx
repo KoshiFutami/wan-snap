@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Noto_Serif_JP, Zen_Kaku_Gothic_New, JetBrains_Mono } from 'next/font/google';
-import { Header } from '../components/header';
-import { BottomNav } from '../components/bottom-nav';
+import { AppShell } from '../components/app-shell';
 import './globals.css';
 
 const notoSerifJP = Noto_Serif_JP({
@@ -47,9 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           letterSpacing: '0.005em',
         }}
       >
-        <Header />
-        <main style={{ width: '100%', maxWidth: 390, margin: '0 auto', paddingBottom: 112 }}>{children}</main>
-        <BottomNav />
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );
