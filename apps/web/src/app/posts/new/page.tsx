@@ -34,6 +34,8 @@ const inputStyle: CSSProperties = {
   boxSizing: 'border-box',
 };
 
+const tagHintTop = '78%';
+
 const imageActionButtonStyle: CSSProperties = {
   padding: '6px 12px',
   borderRadius: 999,
@@ -283,7 +285,7 @@ export default function NewPostPage() {
                   <span style={{ fontSize: 13, fontWeight: 500, color: T.ink70 }}>写真を選ぶ</span>
                   <span style={{ fontSize: 11, color: T.ink50 }}>タップして選択</span>
                 </div>
-                <div style={{ position: 'absolute', left: '50%', top: '78%', transform: 'translate(-50%, -50%)' }}>
+                <div style={{ position: 'absolute', left: '50%', top: tagHintTop, transform: 'translate(-50%, -50%)' }}>
                   <div style={{
                     width: 36,
                     height: 36,
@@ -315,7 +317,7 @@ export default function NewPostPage() {
                     whiteSpace: 'nowrap',
                   }}
                   >
-                    タップしてタグ付け
+                    タップして写真を選ぶ
                   </div>
                 </div>
               </div>
