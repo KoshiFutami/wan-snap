@@ -278,7 +278,7 @@ export default function ProfilePage() {
           overflowX: 'auto',
         }}>
           {dogs.map((dog, i) => (
-            <Link key={dog.id} href={`/dogs/${dog.id}/edit`} style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <Link key={dog.id} href={`/dogs/${dog.id}`} style={{ textDecoration: 'none', flexShrink: 0 }}>
               <DogCard dog={dog} active={i === 0} />
             </Link>
           ))}
