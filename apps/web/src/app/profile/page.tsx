@@ -26,6 +26,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [dogs, setDogs] = useState<Dog[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [activeTab, setActiveTab] = useState<'snaps' | 'items' | 'saved'>('snaps');
 
   useEffect(() => {
@@ -39,10 +40,12 @@ export default function ProfilePage() {
         return Promise.all([
           api.dogs.list(t),
           api.posts.list({ limit: 20, authorId: u.id }),
+          api.users.getMyBookmarks(t, { limit: 20 }),
         ]);
-      }).then(([d, postResponse]) => {
+      }).then(([d, postResponse, bookmarkResponse]) => {
         setDogs(d);
         setPosts(postResponse.posts);
+        setSavedPosts(bookmarkResponse.posts);
       }).catch(() => null);
     });
   }, []);
@@ -108,6 +111,7 @@ export default function ProfilePage() {
   const postCount = posts.length;
   const itemCount = posts.reduce((count, post) => count + post.items.length, 0);
   const dogNames = dogs.map((dog) => dog.name).join('・');
+  const savedCount = savedPosts.length;
 
   return (
     <div style={{ paddingBottom: 120 }}>
@@ -308,7 +312,7 @@ export default function ProfilePage() {
           />
           <ProfileTab
             label="保存"
-            count={0}
+            count={savedCount}
             active={activeTab === 'saved'}
             onClick={() => setActiveTab('saved')}
           />
@@ -325,6 +329,40 @@ export default function ProfilePage() {
             overflow: 'hidden',
           }}>
             {posts.map((post) => (
+              <Link
+                key={post.id}
+                href={`/posts/${post.id}`}
+                style={{ textDecoration: 'none', display: 'block', minWidth: 0 }}
+              >
+                <div style={{
+                  position: 'relative',
+                  width: '100%',
+                  aspectRatio: '1',
+                  background: T.ink10,
+                  overflow: 'hidden',
+                }}>
+                  <Image
+                    src={post.imageUrl}
+                    alt={post.caption ?? '投稿画像'}
+                    fill
+                    sizes="33vw"
+                    style={{ objectFit: 'cover' }}
+                  />
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : activeTab === 'saved' && savedPosts.length > 0 ? (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            gap: 4,
+            width: '100%',
+            boxSizing: 'border-box',
+            padding: '12px 12px 16px',
+            overflow: 'hidden',
+          }}>
+            {savedPosts.map((post) => (
               <Link
                 key={post.id}
                 href={`/posts/${post.id}`}

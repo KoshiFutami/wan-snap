@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -129,5 +130,82 @@ export class UsersController {
       await this.profileImageStorage.deleteImage(current.avatarUrl);
     }
     return updated;
+  }
+
+  @Get('me/bookmarks')
+  @UseGuards(JwtAuthGuard)
+  async getMyBookmarks(
+    @CurrentUser() user: JwtPayload,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limitStr?: string,
+  ) {
+    const limit = Math.min(Number(limitStr) || 20, 100);
+    const cursorId = cursor
+      ? (
+          JSON.parse(Buffer.from(cursor, 'base64url').toString('utf-8')) as {
+            id: string;
+          }
+        ).id
+      : undefined;
+
+    const bookmarks = await this.prisma.bookmark.findMany({
+      take: limit + 1,
+      ...(cursorId && {
+        cursor: { userId_postId: { userId: user.sub, postId: cursorId } },
+        skip: 1,
+      }),
+      where: { userId: user.sub },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        post: {
+          include: {
+            items: true,
+            dog: {
+              select: {
+                name: true,
+                breed: true,
+                weightKg: true,
+                photoUrl: true,
+              },
+            },
+            author: { select: { displayName: true } },
+            _count: { select: { likes: true, bookmarks: true } },
+          },
+        },
+      },
+    });
+
+    const hasNext = bookmarks.length > limit;
+    const sliced = bookmarks.slice(0, limit);
+
+    const posts = sliced.map(({ post }) => ({
+      id: post.id,
+      authorId: post.authorId,
+      dogId: post.dogId,
+      imageUrl: post.imageUrl,
+      caption: post.caption,
+      tags: post.tags as string[],
+      items: post.items,
+      likeCount: post._count.likes,
+      bookmarkCount: post._count.bookmarks,
+      createdAt: post.createdAt.toISOString(),
+      updatedAt: post.updatedAt.toISOString(),
+      dog: {
+        name: post.dog.name,
+        breed: post.dog.breed,
+        weightKg: post.dog.weightKg ? Number(post.dog.weightKg) : null,
+        photoUrl: post.dog.photoUrl,
+      },
+      author: { displayName: post.author.displayName },
+    }));
+
+    const nextCursor =
+      hasNext && sliced.length > 0
+        ? Buffer.from(
+            JSON.stringify({ id: sliced[sliced.length - 1].postId }),
+          ).toString('base64url')
+        : null;
+
+    return { posts, nextCursor };
   }
 }

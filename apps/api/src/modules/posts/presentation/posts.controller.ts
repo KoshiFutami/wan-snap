@@ -1,11 +1,13 @@
 import {
   BadRequestException,
   Body,
+  ConflictException,
   Controller,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -18,6 +20,7 @@ import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { imageFileInterceptor } from '../../../common/interceptors/image-file.interceptor';
 import type { JwtPayload } from '../../../common/decorators/current-user.decorator';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
+import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { CreatePostUseCase } from '../application/use-cases/create-post.use-case';
 import { DeletePostUseCase } from '../application/use-cases/delete-post.use-case';
 import { GetPostUseCase } from '../application/use-cases/get-post.use-case';
@@ -39,6 +42,7 @@ export class PostsController {
     private readonly deletePost: DeletePostUseCase,
     private readonly updatePost: UpdatePostUseCase,
     private readonly postImageStorage: PostImageStorageService,
+    private readonly prisma: PrismaService,
   ) {}
 
   @Get()
@@ -104,5 +108,47 @@ export class PostsController {
     @CurrentUser() user: JwtPayload,
   ): Promise<void> {
     await this.deletePost.execute(id, user.sub);
+  }
+
+  @Post(':id/bookmark')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async bookmark(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    const post = await this.prisma.post.findUnique({ where: { id } });
+    if (!post) throw new NotFoundException('投稿が見つかりません');
+    try {
+      await this.prisma.bookmark.create({
+        data: { userId: user.sub, postId: id },
+      });
+    } catch (err: unknown) {
+      // P2002: ユニーク制約違反（重複ブックマーク）
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'code' in err &&
+        (err as { code: string }).code === 'P2002'
+      ) {
+        throw new ConflictException('すでにブックマーク済みです');
+      }
+      throw err;
+    }
+  }
+
+  @Delete(':id/bookmark')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async unbookmark(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    const deleted = await this.prisma.bookmark.deleteMany({
+      where: { userId: user.sub, postId: id },
+    });
+    if (deleted.count === 0) {
+      throw new NotFoundException('ブックマークが見つかりません');
+    }
   }
 }

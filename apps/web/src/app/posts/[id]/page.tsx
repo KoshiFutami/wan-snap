@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { api } from '../../../lib/api';
 import { EditButton } from './EditButton';
+import { BookmarkButton } from './BookmarkButton';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -54,7 +55,10 @@ export default async function PostDetailPage({ params }: Props) {
             <path d="M14 5l-7 7 7 7" stroke={T.ink} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
-        <EditButton postId={post.id} authorId={post.authorId} />
+        <div style={{ display: 'flex', gap: 8 }}>
+          <BookmarkButton postId={post.id} initialCount={post.bookmarkCount ?? 0} />
+          <EditButton postId={post.id} authorId={post.authorId} />
+        </div>
       </div>
 
       {/* メイン写真 */}
