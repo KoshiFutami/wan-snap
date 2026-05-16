@@ -68,7 +68,7 @@ export default async function PostDetailPage({ params }: Props) {
           alt={post.caption ?? 'スナップ写真'}
           fill
           sizes="(max-width: 390px) 100vw, 390px"
-          style={{ objectFit: 'cover' }}
+          style={{ objectFit: 'contain' }}
           priority
         />
       </div>

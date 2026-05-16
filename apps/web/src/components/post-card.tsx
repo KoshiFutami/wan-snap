@@ -200,7 +200,7 @@ export function PostCard({ post }: Props) {
             alt={post.caption ?? `${dogName}のスナップ`}
             fill
             sizes="(max-width: 390px) 100vw, 390px"
-            style={{ objectFit: 'cover' }}
+            style={{ objectFit: 'contain' }}
           />
           {post.items.length > 0 && (
             <div
