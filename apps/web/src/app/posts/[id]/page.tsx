@@ -284,7 +284,7 @@ export default async function PostDetailPage({ params }: Props) {
 
       {/* 日付 */}
       <div style={{ padding: '16px 12px 0', fontSize: 10.5, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>
-        {new Date(post.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}
+        {new Date(post.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Tokyo' })}
       </div>
     </div>
   );
