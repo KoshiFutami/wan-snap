@@ -34,7 +34,8 @@ const inputStyle: CSSProperties = {
   boxSizing: 'border-box',
 };
 
-const tagHintTop = '78%';
+const IMAGE_TAG_HINT_TOP_OFFSET = '78%';
+const UNSET_DETAIL_TEXT = '未設定';
 
 const imageActionButtonStyle: CSSProperties = {
   padding: '6px 12px',
@@ -53,8 +54,8 @@ const imageActionButtonStyle: CSSProperties = {
 };
 
 const settingRows = [
-  { label: '場所', detail: '未設定' },
-  { label: 'サイズ感', detail: '未設定' },
+  { label: '場所', detail: UNSET_DETAIL_TEXT },
+  { label: 'サイズ感', detail: UNSET_DETAIL_TEXT },
   { label: '公開範囲', detail: '全員に公開' },
 ];
 
@@ -285,7 +286,7 @@ export default function NewPostPage() {
                   <span style={{ fontSize: 13, fontWeight: 500, color: T.ink70 }}>写真を選ぶ</span>
                   <span style={{ fontSize: 11, color: T.ink50 }}>タップして選択</span>
                 </div>
-                <div style={{ position: 'absolute', left: '50%', top: tagHintTop, transform: 'translate(-50%, -50%)' }}>
+                <div style={{ position: 'absolute', left: '50%', top: IMAGE_TAG_HINT_TOP_OFFSET, transform: 'translate(-50%, -50%)' }}>
                   <div style={{
                     width: 36,
                     height: 36,
