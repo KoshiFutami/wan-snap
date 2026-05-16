@@ -50,18 +50,12 @@ export default function OtherUserProfilePage() {
       const accessToken = getAccessToken();
       const tokenPromise = accessToken ? getValidToken().catch(() => null) : Promise.resolve(null);
 
-      const [token, meResult] = await Promise.all([
-        tokenPromise,
-        accessToken
-          ? tokenPromise
-              .then((t) => (t ? api.users.getMe(t).catch(() => null) : null))
-              .catch(() => null)
-          : Promise.resolve(null),
-      ]);
+      const token = await tokenPromise;
+      const meResult = token ? await api.users.getMe(token).catch(() => null) : null;
 
       if (cancelled) return;
 
-      if ((meResult as User | null)?.id === userId) {
+      if (meResult?.id === userId) {
         router.replace('/profile');
         return;
       }

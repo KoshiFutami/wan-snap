@@ -78,7 +78,8 @@ export default function HomePage() {
           return (
             <button
               key={label}
-              onClick={() => available ? handleFilterClick(label) : undefined}
+              onClick={() => { if (available) handleFilterClick(label); }}
+              disabled={!available}
               style={{
                 padding: '7px 13px',
                 borderRadius: 999,

@@ -12,6 +12,7 @@ export class OptionalJwtAuthGuard extends AuthGuard('jwt') {
   }
 
   handleRequest<TUser>(_err: Error | null, user: TUser | false): TUser | null {
+    // 認証エラーや未認証は null として扱い、ハンドラに委ねる
     return user || null;
   }
 }

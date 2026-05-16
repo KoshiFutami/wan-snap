@@ -21,19 +21,23 @@ export function FollowButton({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     const accessToken = getAccessToken();
     if (!accessToken) return;
     getValidToken()
       .then(async (t) => {
-        if (!t) return;
+        if (!t || cancelled) return;
         setToken(t);
         const me = await api.users.getMe(t).catch(() => null);
-        if (!me || me.id === authorId) return;
+        if (!me || me.id === authorId || cancelled) return;
         setMyId(me.id);
         const userInfo = await api.users.getById(authorId, t).catch(() => null);
-        if (userInfo) setIsFollowing(userInfo.isFollowing ?? false);
+        if (!cancelled && userInfo) setIsFollowing(userInfo.isFollowing ?? false);
       })
       .catch(() => null);
+    return () => {
+      cancelled = true;
+    };
   }, [authorId]);
 
   const handleToggle = useCallback(async () => {
