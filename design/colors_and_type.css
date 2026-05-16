@@ -1,0 +1,136 @@
+/* Wan-Snap Design System — colors & type tokens
+   Source of truth for all visual primitives.
+   Import or @import in production: @import "wan-snap/colors_and_type.css";
+*/
+
+/* ─── Webfonts ───────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ─── Base colors ────────────────────────────────────── */
+  /* Warm naturals (background tones) */
+  --ws-cream:        #F4EDE0;  /* default app background */
+  --ws-cream-soft:   #FAF5EA;  /* lifted surface, sidebars */
+  --ws-paper:        #FFFEFB;  /* cards, inputs, modal */
+
+  /* Ink (text + outlines, on warm bg) */
+  --ws-ink:          #1F1A14;  /* primary text */
+  --ws-ink-70:       #4A4239;  /* secondary text */
+  --ws-ink-50:       #7E7567;  /* muted, eyebrows, captions */
+  --ws-ink-30:       #B8AE9E;  /* disabled, separators (visible) */
+  --ws-ink-10:       #E8E0D0;  /* image placeholders */
+
+  /* Accents (used sparingly) */
+  --ws-terracotta:        #B95A3D;  /* primary accent — likes, CTAs, brand dot */
+  --ws-terracotta-soft:   #E8C9B7;  /* hero gradients only */
+  --ws-forest:            #3F5A40;  /* secondary accent — comments, sizing */
+  --ws-forest-soft:       #C9D4C0;  /* sub-tints */
+  --ws-ochre:             #B88A3C;  /* tertiary accent — follow, ranking */
+
+  /* Hairlines (separators on warm bg) */
+  --ws-hairline:           rgba(31, 26, 20, 0.08);
+  --ws-hairline-strong:    rgba(31, 26, 20, 0.14);
+
+  /* ─── Semantic colors ────────────────────────────────── */
+  --ws-bg:              var(--ws-cream);
+  --ws-bg-elevated:     var(--ws-cream-soft);
+  --ws-bg-surface:      var(--ws-paper);
+  --ws-fg:              var(--ws-ink);
+  --ws-fg-muted:        var(--ws-ink-70);
+  --ws-fg-faint:        var(--ws-ink-50);
+  --ws-fg-disabled:     var(--ws-ink-30);
+  --ws-accent:          var(--ws-terracotta);
+  --ws-accent-2:        var(--ws-forest);
+  --ws-accent-3:        var(--ws-ochre);
+  --ws-border:          var(--ws-hairline);
+  --ws-border-strong:   var(--ws-hairline-strong);
+
+  --ws-like:        var(--ws-terracotta);
+  --ws-comment:     var(--ws-forest);
+  --ws-follow:      var(--ws-ochre);
+  --ws-success:     var(--ws-forest);
+  --ws-danger:      var(--ws-terracotta);
+
+  /* ─── Type stacks ────────────────────────────────────── */
+  --ws-font-serif: "Noto Serif JP", "Times New Roman", serif;
+  --ws-font-sans:  "Zen Kaku Gothic New", -apple-system, "SF Pro Text", system-ui, sans-serif;
+  --ws-font-mono:  "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* ─── Type scale ─────────────────────────────────────── */
+  /* Display — Noto Serif JP, 500 weight, tight tracking */
+  --ws-display-xl:   /* hero */ 68px / 0.95 var(--ws-font-serif);
+  --ws-display-l:    /* page title */ 42px / 0.95 var(--ws-font-serif);
+  --ws-display-m:    /* section */ 28px / 1.05 var(--ws-font-serif);
+  --ws-display-s:    /* card head */ 20px / 1.1 var(--ws-font-serif);
+
+  /* Body — Zen Kaku Gothic New, 500 weight default */
+  --ws-text-l:       16px / 1.55 var(--ws-font-sans);
+  --ws-text-m:       14px / 1.55 var(--ws-font-sans);
+  --ws-text-s:       13px / 1.5 var(--ws-font-sans);
+  --ws-text-xs:      11.5px / 1.45 var(--ws-font-sans);
+
+  /* Eyebrow / overline — uppercase, wide tracking */
+  --ws-eyebrow:      10px / 1 var(--ws-font-sans);
+
+  /* Mono numbers — JetBrains Mono */
+  --ws-mono-m:       13px / 1.4 var(--ws-font-mono);
+  --ws-mono-s:       10.5px / 1.4 var(--ws-font-mono);
+
+  /* ─── Letter spacing ─────────────────────────────────── */
+  --ws-track-display: -0.015em;
+  --ws-track-display-tight: -0.025em;
+  --ws-track-body:    0.005em;
+  --ws-track-eyebrow: 0.2em;       /* uppercase eyebrows */
+  --ws-track-mono:    -0.02em;     /* tabular numbers */
+
+  /* ─── Spacing ────────────────────────────────────────── */
+  --ws-sp-1:  4px;
+  --ws-sp-2:  8px;
+  --ws-sp-3:  12px;
+  --ws-sp-4:  16px;
+  --ws-sp-5:  20px;
+  --ws-sp-6:  24px;
+  --ws-sp-7:  32px;
+  --ws-sp-8:  40px;
+  --ws-sp-9:  56px;
+  --ws-sp-10: 72px;
+
+  /* ─── Radii ──────────────────────────────────────────── */
+  --ws-r-xs:  6px;   /* small chips */
+  --ws-r-s:   8px;   /* nav items */
+  --ws-r-m:   10px;  /* sidebar nav */
+  --ws-r-l:   14px;  /* cards (default) */
+  --ws-r-xl:  18px;  /* feed cards, modals */
+  --ws-r-2xl: 22px;  /* hero containers */
+  --ws-r-pill: 9999px;
+
+  /* ─── Shadows ────────────────────────────────────────── */
+  --ws-shadow-card:    0 4px 14px rgba(31, 26, 20, 0.06);
+  --ws-shadow-pop:     0 6px 18px rgba(31, 26, 20, 0.10);
+  --ws-shadow-modal:   0 30px 80px rgba(0, 0, 0, 0.4);
+  --ws-shadow-cta-terra: 0 6px 18px rgba(185, 90, 61, 0.35);
+}
+
+/* ─── Semantic typography ──────────────────────────────── */
+.ws-h1 { font: 500 42px/0.95 var(--ws-font-serif); letter-spacing: var(--ws-track-display); color: var(--ws-fg); }
+.ws-h2 { font: 500 28px/1.05 var(--ws-font-serif); letter-spacing: var(--ws-track-display); color: var(--ws-fg); }
+.ws-h3 { font: 500 20px/1.1 var(--ws-font-serif); letter-spacing: var(--ws-track-display); color: var(--ws-fg); }
+.ws-body { font: var(--ws-text-m); color: var(--ws-fg); }
+.ws-body-muted { font: var(--ws-text-m); color: var(--ws-fg-muted); }
+.ws-caption { font: var(--ws-text-xs); color: var(--ws-fg-faint); }
+.ws-eyebrow {
+  font: 500 10px/1 var(--ws-font-sans);
+  text-transform: uppercase;
+  letter-spacing: var(--ws-track-eyebrow);
+  color: var(--ws-fg-faint);
+}
+.ws-num { font: var(--ws-mono-m); letter-spacing: var(--ws-track-mono); color: var(--ws-fg); }
+
+/* ─── Reset bits ───────────────────────────────────────── */
+.ws-app {
+  background: var(--ws-bg);
+  color: var(--ws-fg);
+  font-family: var(--ws-font-sans);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: var(--ws-track-body);
+}

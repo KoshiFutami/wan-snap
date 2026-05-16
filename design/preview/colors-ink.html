@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"/>
+<title>Ink scale</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html, body { margin: 0; }
+  body {
+    padding: 24px;
+    background: var(--ws-bg);
+    color: var(--ws-fg);
+    font-family: var(--ws-font-sans);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: var(--ws-track-body);
+    min-height: 200px;
+  }
+  * { box-sizing: border-box; }
+  .eb {
+    font: 500 9.5px/1 var(--ws-font-sans);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--ws-fg-faint);
+  }
+  .mono { font-family: var(--ws-font-mono); letter-spacing: -0.02em; }
+  .swatch {
+    border-radius: 10px;
+    border: 1px solid var(--ws-hairline);
+  }
+  .label-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 8px;
+  }
+  .label-row .name { font: 500 11px/1 var(--ws-font-sans); color: var(--ws-fg); }
+  .label-row .hex { font-family: var(--ws-font-mono); font-size: 10px; color: var(--ws-fg-faint); letter-spacing: -0.02em; }
+  .label-row .var { font-family: var(--ws-font-mono); font-size: 10px; color: var(--ws-fg-faint); letter-spacing: -0.02em; }
+</style></head>
+<body>
+
+    <div class="eb">Ink · Foreground & separators</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px;">
+      
+        <div>
+          <div class="swatch" style="background:#1F1A14;height:80px;"></div>
+          <div class="label-row"><span class="name">Ink</span><span class="hex" style="font-size:9px;">#1F1A14</span></div>
+          <div style="font-size:10px;color:var(--ws-fg-faint);margin-top:6px;line-height:1.4;">Primary text</div>
+        </div>
+      
+        <div>
+          <div class="swatch" style="background:#4A4239;height:80px;"></div>
+          <div class="label-row"><span class="name">Ink 70</span><span class="hex" style="font-size:9px;">#4A4239</span></div>
+          <div style="font-size:10px;color:var(--ws-fg-faint);margin-top:6px;line-height:1.4;">Secondary text</div>
+        </div>
+      
+        <div>
+          <div class="swatch" style="background:#7E7567;height:80px;"></div>
+          <div class="label-row"><span class="name">Ink 50</span><span class="hex" style="font-size:9px;">#7E7567</span></div>
+          <div style="font-size:10px;color:var(--ws-fg-faint);margin-top:6px;line-height:1.4;">Captions, eyebrows</div>
+        </div>
+      
+        <div>
+          <div class="swatch" style="background:#B8AE9E;height:80px;"></div>
+          <div class="label-row"><span class="name">Ink 30</span><span class="hex" style="font-size:9px;">#B8AE9E</span></div>
+          <div style="font-size:10px;color:var(--ws-fg-faint);margin-top:6px;line-height:1.4;">Disabled, dividers</div>
+        </div>
+      
+        <div>
+          <div class="swatch" style="background:#E8E0D0;height:80px;"></div>
+          <div class="label-row"><span class="name">Ink 10</span><span class="hex" style="font-size:9px;">#E8E0D0</span></div>
+          <div style="font-size:10px;color:var(--ws-fg-faint);margin-top:6px;line-height:1.4;">Image placeholders</div>
+        </div>
+      
+    </div>
+  
+</body></html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"/>
+<title>Warm naturals</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html, body { margin: 0; }
+  body {
+    padding: 24px;
+    background: var(--ws-bg);
+    color: var(--ws-fg);
+    font-family: var(--ws-font-sans);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: var(--ws-track-body);
+    min-height: 200px;
+  }
+  * { box-sizing: border-box; }
+  .eb {
+    font: 500 9.5px/1 var(--ws-font-sans);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--ws-fg-faint);
+  }
+  .mono { font-family: var(--ws-font-mono); letter-spacing: -0.02em; }
+  .swatch {
+    border-radius: 10px;
+    border: 1px solid var(--ws-hairline);
+  }
+  .label-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 8px;
+  }
+  .label-row .name { font: 500 11px/1 var(--ws-font-sans); color: var(--ws-fg); }
+  .label-row .hex { font-family: var(--ws-font-mono); font-size: 10px; color: var(--ws-fg-faint); letter-spacing: -0.02em; }
+  .label-row .var { font-family: var(--ws-font-mono); font-size: 10px; color: var(--ws-fg-faint); letter-spacing: -0.02em; }
+</style></head>
+<body>
+
+    <div class="eb">Warm naturals · Backgrounds</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px;">
+      
+        <div>
+          <div class="swatch" style="background:#F4EDE0;height:90px;"></div>
+          <div class="label-row"><span class="name">Cream</span><span class="hex">#F4EDE0</span></div>
+          <div class="label-row" style="margin-top:2px;"><span class="var">--ws-cream</span></div>
+          <div style="font-size:10.5px;color:var(--ws-fg-faint);margin-top:6px;line-height:1.4;">App background, default</div>
+        </div>
+      
+        <div>
+          <div class="swatch" style="background:#FAF5EA;height:90px;"></div>
+          <div class="label-row"><span class="name">Cream soft</span><span class="hex">#FAF5EA</span></div>
+          <div class="label-row" style="margin-top:2px;"><span class="var">--ws-cream-soft</span></div>
+          <div style="font-size:10.5px;color:var(--ws-fg-faint);margin-top:6px;line-height:1.4;">Sidebars, modals, lifted surfaces</div>
+        </div>
+      
+        <div>
+          <div class="swatch" style="background:#FFFEFB;height:90px;"></div>
+          <div class="label-row"><span class="name">Paper</span><span class="hex">#FFFEFB</span></div>
+          <div class="label-row" style="margin-top:2px;"><span class="var">--ws-paper</span></div>
+          <div style="font-size:10.5px;color:var(--ws-fg-faint);margin-top:6px;line-height:1.4;">Cards, inputs, content surfaces</div>
+        </div>
+      
+    </div>
+  
+</body></html>

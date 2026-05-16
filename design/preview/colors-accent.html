@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"/>
+<title>Accents</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html, body { margin: 0; }
+  body {
+    padding: 24px;
+    background: var(--ws-bg);
+    color: var(--ws-fg);
+    font-family: var(--ws-font-sans);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: var(--ws-track-body);
+    min-height: 200px;
+  }
+  * { box-sizing: border-box; }
+  .eb {
+    font: 500 9.5px/1 var(--ws-font-sans);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--ws-fg-faint);
+  }
+  .mono { font-family: var(--ws-font-mono); letter-spacing: -0.02em; }
+  .swatch {
+    border-radius: 10px;
+    border: 1px solid var(--ws-hairline);
+  }
+  .label-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 8px;
+  }
+  .label-row .name { font: 500 11px/1 var(--ws-font-sans); color: var(--ws-fg); }
+  .label-row .hex { font-family: var(--ws-font-mono); font-size: 10px; color: var(--ws-fg-faint); letter-spacing: -0.02em; }
+  .label-row .var { font-family: var(--ws-font-mono); font-size: 10px; color: var(--ws-fg-faint); letter-spacing: -0.02em; }
+</style></head>
+<body>
+
+    <div class="eb">Accents · Used sparingly, never gradients</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px;">
+      
+        <div>
+          <div class="swatch" style="background:#B95A3D;height:90px;"></div>
+          <div class="label-row"><span class="name">Terracotta</span><span class="hex">#B95A3D</span></div>
+          <div class="label-row" style="margin-top:2px;"><span class="var">--ws-terracotta</span></div>
+          <div style="font-size:10.5px;color:var(--ws-fg-faint);margin-top:6px;line-height:1.4;">CTAs · likes · brand accent · "。"</div>
+        </div>
+      
+        <div>
+          <div class="swatch" style="background:#3F5A40;height:90px;"></div>
+          <div class="label-row"><span class="name">Forest</span><span class="hex">#3F5A40</span></div>
+          <div class="label-row" style="margin-top:2px;"><span class="var">--ws-forest</span></div>
+          <div style="font-size:10.5px;color:var(--ws-fg-faint);margin-top:6px;line-height:1.4;">Comments · sizing fit · success</div>
+        </div>
+      
+        <div>
+          <div class="swatch" style="background:#B88A3C;height:90px;"></div>
+          <div class="label-row"><span class="name">Ochre</span><span class="hex">#B88A3C</span></div>
+          <div class="label-row" style="margin-top:2px;"><span class="var">--ws-ochre</span></div>
+          <div style="font-size:10.5px;color:var(--ws-fg-faint);margin-top:6px;line-height:1.4;">Follow · ranking · tertiary</div>
+        </div>
+      
+    </div>
+  
+</body></html>

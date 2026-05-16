@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"/>
+<title>Meta chips</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html, body { margin: 0; }
+  body {
+    padding: 24px; background: var(--ws-bg);
+    color: var(--ws-fg); font-family: var(--ws-font-sans);
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.005em;
+    min-height: 200px;
+  }
+  * { box-sizing: border-box; }
+  .eb {
+    font: 500 9.5px/1 var(--ws-font-sans);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--ws-fg-faint);
+  }
+  .mono { font-family: var(--ws-font-mono); letter-spacing: -0.02em; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .btn {
+    padding: 12px 22px; border-radius: 9999px; border: none;
+    font: 600 13px/1 var(--ws-font-sans); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary { background: var(--ws-ink); color: var(--ws-cream); }
+  .btn-terra   { background: var(--ws-terracotta); color: #fff; box-shadow: 0 6px 18px rgba(185,90,61,0.35); }
+  .btn-ghost   { background: var(--ws-paper); color: var(--ws-fg); border: 1px solid var(--ws-hairline-strong); }
+  .btn-danger  { background: transparent; color: var(--ws-terracotta); border: 1px solid var(--ws-terracotta); }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 20px;
+    background: var(--ws-paper); border: 1px solid var(--ws-hairline);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--ws-fg); cursor: pointer; padding: 0;
+  }
+  .chip {
+    padding: 7px 13px; border-radius: 9999px;
+    border: 1px solid var(--ws-hairline-strong);
+    background: transparent; color: var(--ws-fg);
+    font-size: 12.5px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .chip-on { background: var(--ws-ink); color: var(--ws-cream); border-color: var(--ws-ink); }
+  .chip-on-terra { background: var(--ws-terracotta); color: #fff; border-color: var(--ws-terracotta); }
+  .dot { width: 6px; height: 6px; border-radius: 6px; background: var(--ws-terracotta); }
+</style></head>
+<body>
+
+    <div class="eb">Meta chips · 犬種 / 毛色 / 体重</div>
+    <div style="margin-top:14px;padding:18px 20px;background:var(--ws-paper);border-radius:14px;border:1px solid var(--ws-hairline);max-width:600px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ws-fg-muted);font-weight:500;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--ws-terracotta)"><ellipse cx="6" cy="9" rx="2" ry="2.6"/><ellipse cx="11" cy="6.4" rx="2" ry="2.6"/><ellipse cx="16.3" cy="7.6" rx="2" ry="2.6"/><ellipse cx="20" cy="11.5" rx="1.8" ry="2.3"/><path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z"/></svg>
+          柴犬
+        </span>
+        <span style="width:2px;height:2px;border-radius:2px;background:var(--ws-ink-30);"></span>
+        <span style="font-size:12px;color:var(--ws-fg-muted);">赤</span>
+        <span style="width:2px;height:2px;border-radius:2px;background:var(--ws-ink-30);"></span>
+        <span class="mono" style="font-size:12px;color:var(--ws-fg-muted);font-weight:500;">9.5kg</span>
+      </div>
+    </div>
+
+    <div class="eb" style="margin-top:18px;">In dark background (pill)</div>
+    <div style="margin-top:8px;padding:14px;background:var(--ws-ink);border-radius:14px;display:inline-flex;align-items:center;gap:10px;">
+      <span style="padding:2px 7px;border-radius:4px;background:var(--ws-cream);font-size:10px;color:var(--ws-ink);">柴犬</span>
+      <span style="font-size:10.5px;color:rgba(244,237,224,0.7);">赤 · ♀</span>
+      <span class="mono" style="font-size:10.5px;color:var(--ws-cream);font-weight:500;">9.5kg · 胴囲48cm</span>
+    </div>
+  
+</body></html>

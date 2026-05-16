@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"/>
+<title>Logo & wordmark</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html, body { margin: 0; }
+  body {
+    padding: 24px; background: var(--ws-bg);
+    color: var(--ws-fg); font-family: var(--ws-font-sans);
+    -webkit-font-smoothing: antialiased; letter-spacing: 0.005em;
+    min-height: 220px;
+  }
+  * { box-sizing: border-box; }
+  .eb {
+    font: 500 9.5px/1 var(--ws-font-sans);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--ws-fg-faint);
+  }
+  .mono { font-family: var(--ws-font-mono); letter-spacing: -0.02em; }
+</style></head>
+<body>
+
+    <div class="eb">Wordmark · 肉球 + Serif</div>
+    <div style="margin-top:16px;display:flex;flex-direction:column;gap:18px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <ellipse cx="6" cy="9" rx="2" ry="2.6" fill="var(--ws-ink)"/>
+          <ellipse cx="11" cy="6.4" rx="2" ry="2.6" fill="var(--ws-ink)"/>
+          <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" fill="var(--ws-ink)"/>
+          <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" fill="var(--ws-ink)"/>
+          <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" fill="var(--ws-ink)"/>
+        </svg>
+        <div style="font-family:var(--ws-font-serif);font-weight:500;font-size:40px;color:var(--ws-ink);letter-spacing:-0.015em;line-height:1;">Wan<span style="opacity:0.5;margin:0 2px;">·</span>Snap<span style="color:var(--ws-terracotta);">.</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <ellipse cx="6" cy="9" rx="2" ry="2.6" fill="var(--ws-ink)"/>
+          <ellipse cx="11" cy="6.4" rx="2" ry="2.6" fill="var(--ws-ink)"/>
+          <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" fill="var(--ws-ink)"/>
+          <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" fill="var(--ws-ink)"/>
+          <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" fill="var(--ws-ink)"/>
+        </svg>
+        <div style="font-family:var(--ws-font-serif);font-weight:500;font-size:22px;color:var(--ws-ink);letter-spacing:-0.01em;line-height:1;">Wan<span style="opacity:0.5;margin:0 1px;">·</span>Snap<span style="color:var(--ws-terracotta);">.</span></div>
+      </div>
+    </div>
+    <div style="margin-top:18px;font-size:11px;color:var(--ws-fg-faint);line-height:1.55;max-width:560px;">
+      肉球マーク（ink単色） + Noto Serif JP 500 「Wan・Snap」 + テラコッタの句点「.」がセット。
+      ロゴ単体での使用は最小24px。中黒は opacity 0.5。
+    </div>
+  
+</body></html>

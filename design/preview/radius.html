@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"/>
+<title>Radius scale</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html, body { margin: 0; }
+  body {
+    padding: 24px;
+    background: var(--ws-bg);
+    color: var(--ws-fg);
+    font-family: var(--ws-font-sans);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: var(--ws-track-body);
+    min-height: 180px;
+  }
+  * { box-sizing: border-box; }
+  .eb {
+    font: 500 9.5px/1 var(--ws-font-sans);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--ws-fg-faint);
+  }
+  .mono { font-family: var(--ws-font-mono); letter-spacing: -0.02em; }
+  .swatch {
+    border-radius: 10px;
+    border: 1px solid var(--ws-hairline);
+  }
+  .label-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 8px;
+  }
+  .label-row .name { font: 500 11px/1 var(--ws-font-sans); color: var(--ws-fg); }
+  .label-row .hex { font-family: var(--ws-font-mono); font-size: 10px; color: var(--ws-fg-faint); letter-spacing: -0.02em; }
+  .label-row .var { font-family: var(--ws-font-mono); font-size: 10px; color: var(--ws-fg-faint); letter-spacing: -0.02em; }
+</style></head>
+<body>
+
+    <div class="eb">Radius scale · 6 steps + pill</div>
+    <div style="display:flex;gap:14px;margin-top:14px;align-items:flex-end;">
+      
+        <div style="text-align:center;">
+          <div style="width:72px;height:72px;background:var(--ws-paper);border:1px solid var(--ws-hairline);border-radius:6px;"></div>
+          <div class="mono" style="font-size:11px;color:var(--ws-fg);margin-top:8px;">xs · 6px</div>
+          <div style="font-size:9.5px;color:var(--ws-fg-faint);margin-top:3px;">chips</div>
+        </div>
+      
+        <div style="text-align:center;">
+          <div style="width:72px;height:72px;background:var(--ws-paper);border:1px solid var(--ws-hairline);border-radius:8px;"></div>
+          <div class="mono" style="font-size:11px;color:var(--ws-fg);margin-top:8px;">s · 8px</div>
+          <div style="font-size:9.5px;color:var(--ws-fg-faint);margin-top:3px;">small</div>
+        </div>
+      
+        <div style="text-align:center;">
+          <div style="width:72px;height:72px;background:var(--ws-paper);border:1px solid var(--ws-hairline);border-radius:10px;"></div>
+          <div class="mono" style="font-size:11px;color:var(--ws-fg);margin-top:8px;">m · 10px</div>
+          <div style="font-size:9.5px;color:var(--ws-fg-faint);margin-top:3px;">nav</div>
+        </div>
+      
+        <div style="text-align:center;">
+          <div style="width:72px;height:72px;background:var(--ws-paper);border:1px solid var(--ws-hairline);border-radius:14px;"></div>
+          <div class="mono" style="font-size:11px;color:var(--ws-fg);margin-top:8px;">l · 14px</div>
+          <div style="font-size:9.5px;color:var(--ws-fg-faint);margin-top:3px;">cards</div>
+        </div>
+      
+        <div style="text-align:center;">
+          <div style="width:72px;height:72px;background:var(--ws-paper);border:1px solid var(--ws-hairline);border-radius:18px;"></div>
+          <div class="mono" style="font-size:11px;color:var(--ws-fg);margin-top:8px;">xl · 18px</div>
+          <div style="font-size:9.5px;color:var(--ws-fg-faint);margin-top:3px;">feed</div>
+        </div>
+      
+        <div style="text-align:center;">
+          <div style="width:72px;height:72px;background:var(--ws-paper);border:1px solid var(--ws-hairline);border-radius:22px;"></div>
+          <div class="mono" style="font-size:11px;color:var(--ws-fg);margin-top:8px;">2xl · 22px</div>
+          <div style="font-size:9.5px;color:var(--ws-fg-faint);margin-top:3px;">hero</div>
+        </div>
+      
+        <div style="text-align:center;">
+          <div style="width:72px;height:72px;background:var(--ws-paper);border:1px solid var(--ws-hairline);border-radius:9999px;"></div>
+          <div class="mono" style="font-size:11px;color:var(--ws-fg);margin-top:8px;">pill · ∞</div>
+          <div style="font-size:9.5px;color:var(--ws-fg-faint);margin-top:3px;">button</div>
+        </div>
+      
+    </div>
+  
+</body></html>

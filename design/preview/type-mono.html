@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"/>
+<title>Mono / numbers</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html, body { margin: 0; }
+  body {
+    padding: 24px;
+    background: var(--ws-bg);
+    color: var(--ws-fg);
+    font-family: var(--ws-font-sans);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: var(--ws-track-body);
+    min-height: 200px;
+  }
+  * { box-sizing: border-box; }
+  .eb {
+    font: 500 9.5px/1 var(--ws-font-sans);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--ws-fg-faint);
+  }
+  .mono { font-family: var(--ws-font-mono); letter-spacing: -0.02em; }
+  .swatch {
+    border-radius: 10px;
+    border: 1px solid var(--ws-hairline);
+  }
+  .label-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 8px;
+  }
+  .label-row .name { font: 500 11px/1 var(--ws-font-sans); color: var(--ws-fg); }
+  .label-row .hex { font-family: var(--ws-font-mono); font-size: 10px; color: var(--ws-fg-faint); letter-spacing: -0.02em; }
+  .label-row .var { font-family: var(--ws-font-mono); font-size: 10px; color: var(--ws-fg-faint); letter-spacing: -0.02em; }
+</style></head>
+<body>
+
+    <div class="eb">Mono · JetBrains Mono · タビュラー</div>
+    <div style="margin-top:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+      <div>
+        <div class="mono" style="font-size:28px;color:var(--ws-fg);letter-spacing:-0.02em;font-weight:500;">9.5<span style="font-size:13px;color:var(--ws-fg-faint);">kg</span></div>
+        <div class="eb" style="margin-top:6px;">体重</div>
+      </div>
+      <div>
+        <div class="mono" style="font-size:28px;color:var(--ws-fg);letter-spacing:-0.02em;font-weight:500;">48<span style="font-size:13px;color:var(--ws-fg-faint);">cm</span></div>
+        <div class="eb" style="margin-top:6px;">胴囲</div>
+      </div>
+      <div>
+        <div class="mono" style="font-size:28px;color:var(--ws-forest);letter-spacing:-0.02em;font-weight:500;">+18%</div>
+        <div class="eb" style="margin-top:6px;">トレンド</div>
+      </div>
+      <div>
+        <div class="mono" style="font-size:28px;color:var(--ws-fg);letter-spacing:-0.02em;font-weight:500;">1,284</div>
+        <div class="eb" style="margin-top:6px;">件</div>
+      </div>
+    </div>
+    <div style="margin-top:18px;padding:10px 14px;background:var(--ws-paper);border:1px solid var(--ws-hairline);border-radius:10px;font-family:var(--ws-font-mono);font-size:11px;color:var(--ws-fg-muted);letter-spacing:-0.02em;">
+      0123456789 · /kg /cm /件 · ¥3,200 · @koushi_to_ema
+    </div>
+  
+</body></html>
