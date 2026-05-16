@@ -1,21 +1,39 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #FF6B35;
-  --color-primary-light: #FFE0D0;
-  --color-primary-dark: #E0521C;
-  --color-accent-pink: #EF476F;
-  --color-accent-pink-light: #FFD6E0;
-  --color-accent-yellow: #FFD166;
-  --color-accent-yellow-light: #FFF4CC;
-  --color-accent-mint: #06D6A0;
-  --color-accent-mint-light: #D0FFF4;
-  --color-accent-blue: #118AB2;
-  --color-accent-blue-light: #D0EEFF;
-  --color-bg: #FFF9F5;
-  --color-surface: #F5EEE8;
-  --color-text-main: #1A1A2E;
-  --color-text-sub: #6B6B80;
-  --color-text-muted: #ABABBA;
-  --color-border-warm: #EDE8E3;
+  /* Wan-Snap v2 — Warm Naturals */
+  --color-cream: #F4EDE0;
+  --color-cream-soft: #FAF5EA;
+  --color-paper: #FFFEFB;
+
+  /* Ink scale */
+  --color-ink: #1F1A14;
+  --color-ink-70: #4A4239;
+  --color-ink-50: #7E7567;
+  --color-ink-30: #B8AE9E;
+  --color-ink-10: #E8E0D0;
+
+  /* Accents */
+  --color-terracotta: #B95A3D;
+  --color-terracotta-soft: #E8C9B7;
+  --color-forest: #3F5A40;
+  --color-forest-soft: #C9D4C0;
+  --color-ochre: #B88A3C;
+
+  /* Aliases for backward-compat */
+  --color-bg: #F4EDE0;
+  --color-surface: #FAF5EA;
+  --color-paper-white: #FFFEFB;
+  --color-primary: #B95A3D;
+  --color-primary-light: #E8C9B7;
+  --color-primary-dark: #8E3D25;
+  --color-text-main: #1F1A14;
+  --color-text-sub: #4A4239;
+  --color-text-muted: #7E7567;
+  --color-border-warm: rgba(31,26,20,0.08);
+}
+
+body {
+  background-color: #F4EDE0;
+  color: #1F1A14;
 }
