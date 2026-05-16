@@ -3,7 +3,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { getAccessToken, clearTokens } from '../lib/auth-store';
+import { getAccessToken } from '../lib/auth-store';
 
 const T = {
   ink: '#1F1A14',
@@ -68,11 +68,6 @@ export function Header() {
     setIsAuthed(!!getAccessToken());
   }, []);
 
-  const handleSignOut = () => {
-    clearTokens();
-    window.location.href = '/';
-  };
-
   return (
     <header
       style={{
@@ -106,7 +101,7 @@ export function Header() {
                   <path d="M13.5 13.5L17 17" stroke={T.ink} strokeWidth="1.6" strokeLinecap="round" />
                 </svg>
               </IconCircleBtn>
-              <IconCircleBtn onClick={handleSignOut}>
+              <IconCircleBtn href="/profile">
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                   <circle cx="10" cy="7" r="3.2" stroke={T.ink} strokeWidth="1.5" />
                   <path d="M3.5 17c.8-3.4 3.5-5 6.5-5s5.7 1.6 6.5 5" stroke={T.ink} strokeWidth="1.5" strokeLinecap="round" />
