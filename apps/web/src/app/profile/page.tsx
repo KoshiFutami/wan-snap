@@ -319,7 +319,10 @@ export default function ProfilePage() {
             display: 'grid',
             gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
             gap: 4,
-            paddingTop: 12,
+            width: '100%',
+            boxSizing: 'border-box',
+            padding: '12px 12px 16px',
+            overflow: 'hidden',
           }}>
             {posts.map((post) => (
               <Link
