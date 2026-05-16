@@ -47,7 +47,8 @@ export default async function DogDetailPage({ params }: Props) {
   const breed = dog.breed;
   const weightKg = dog.weightKg;
   const authorName = dog.ownerDisplayName;
-  const dogCode = `#${dog.id.slice(0, 3).toUpperCase()}`;
+  const compactDogId = dog.id.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+  const dogCode = `#${compactDogId.length >= 3 ? compactDogId.slice(0, 3) : 'DOG'}`;
 
   return (
     <div style={{ background: T.cream, minHeight: '100dvh', paddingBottom: 28, position: 'relative' }}>
