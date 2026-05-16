@@ -19,14 +19,17 @@ const T = {
 
 async function getDogPosts(dogId: string) {
   const MAX_POSTS = 120;
+  const MAX_ITERATIONS = 6;
   const posts: Awaited<ReturnType<typeof api.posts.list>>['posts'] = [];
   let cursor: string | undefined;
+  let iterations = 0;
 
-  while (true) {
+  while (iterations < MAX_ITERATIONS) {
     const response = await api.posts.list({ limit: 30, cursor, dogId });
     posts.push(...response.posts);
     if (!response.nextCursor || posts.length >= MAX_POSTS) break;
     cursor = response.nextCursor;
+    iterations += 1;
   }
 
   return posts.slice(0, MAX_POSTS);

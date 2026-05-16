@@ -4,10 +4,11 @@ import { ProfileImageStorageService } from '../../infrastructure/storage/profile
 import { DogsController } from './dogs.controller';
 import { BreedsController } from './breeds.controller';
 import { PublicDogsController } from './public-dogs.controller';
+import { GetPublicDogUseCase } from './application/use-cases/get-public-dog.use-case';
 
 @Module({
   imports: [PrismaModule],
   controllers: [DogsController, BreedsController, PublicDogsController],
-  providers: [ProfileImageStorageService],
+  providers: [ProfileImageStorageService, GetPublicDogUseCase],
 })
 export class DogsModule {}
