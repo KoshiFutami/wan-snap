@@ -28,11 +28,12 @@ export default async function PostDetailPage({ params }: Props) {
   const dogName = post.dog?.name ?? 'わんこ';
   const breed = post.dog?.breed;
   const weight = post.dog?.weightKg;
+  const dogPhotoUrl = post.dog?.photoUrl;
 
   return (
     <div style={{ paddingBottom: 40 }}>
       {/* 戻るボタン・編集ボタン */}
-      <div style={{ padding: '16px 20px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: '16px 12px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Link
           href="/"
           style={{
@@ -57,7 +58,7 @@ export default async function PostDetailPage({ params }: Props) {
       </div>
 
       {/* メイン写真 */}
-      <div style={{ margin: '0 20px', borderRadius: 20, overflow: 'hidden', aspectRatio: '4/5', background: T.ink10, position: 'relative' }}>
+      <div style={{ margin: '0 12px', borderRadius: 20, overflow: 'hidden', aspectRatio: '4/5', background: T.ink10, position: 'relative' }}>
         <Image
           src={post.imageUrl}
           alt={post.caption ?? 'スナップ写真'}
@@ -69,7 +70,7 @@ export default async function PostDetailPage({ params }: Props) {
       </div>
 
       {/* オーナー・犬情報 */}
-      <div style={{ padding: '18px 20px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ padding: '18px 12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
         <div
           style={{
             width: 44,
@@ -80,15 +81,27 @@ export default async function PostDetailPage({ params }: Props) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            overflow: 'hidden',
+            position: 'relative',
           }}
         >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill={T.ink50}>
-            <ellipse cx="6" cy="9" rx="2" ry="2.6" />
-            <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
-            <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
-            <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
-            <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
-          </svg>
+          {dogPhotoUrl ? (
+            <Image
+              src={dogPhotoUrl}
+              alt={`${dogName}の登録画像`}
+              fill
+              sizes="44px"
+              style={{ objectFit: 'cover' }}
+            />
+          ) : (
+            <svg width="26" height="26" viewBox="0 0 24 24" fill={T.ink50}>
+              <ellipse cx="6" cy="9" rx="2" ry="2.6" />
+              <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
+              <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
+              <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
+              <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
+            </svg>
+          )}
         </div>
 
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -133,14 +146,14 @@ export default async function PostDetailPage({ params }: Props) {
 
       {/* キャプション */}
       {post.caption && (
-        <div style={{ padding: '0 20px 18px', fontSize: 13, lineHeight: 1.6, color: T.ink }}>
+        <div style={{ padding: '0 12px 18px', fontSize: 13, lineHeight: 1.6, color: T.ink }}>
           {post.caption}
         </div>
       )}
 
       {/* タグ */}
       {post.tags.length > 0 && (
-        <div style={{ padding: '0 20px 16px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        <div style={{ padding: '0 12px 16px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {post.tags.map((tag) => (
             <span key={tag} style={{ fontSize: 12, color: T.ink50, fontWeight: 500 }}>#{tag}</span>
           ))}
@@ -151,7 +164,7 @@ export default async function PostDetailPage({ params }: Props) {
       {post.items.length > 0 && (
         <div
           style={{
-            margin: '0 20px',
+            margin: '0 12px',
             padding: '18px 16px',
             borderRadius: 18,
             background: T.creamSoft,
@@ -263,7 +276,7 @@ export default async function PostDetailPage({ params }: Props) {
       )}
 
       {/* 日付 */}
-      <div style={{ padding: '16px 20px 0', fontSize: 10.5, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>
+      <div style={{ padding: '16px 12px 0', fontSize: 10.5, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>
         {new Date(post.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}
       </div>
     </div>

@@ -86,6 +86,7 @@ export function PostCard({ post }: Props) {
   const authorName = post.author?.displayName ?? '';
   const breed = post.dog?.breed;
   const weight = post.dog?.weightKg;
+  const dogPhotoUrl = post.dog?.photoUrl;
 
   const handleLike = () => {
     setLiked((v) => {
@@ -118,15 +119,26 @@ export function PostCard({ post }: Props) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            position: 'relative',
           }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill={T.ink50}>
-            <ellipse cx="6" cy="9" rx="2" ry="2.6" />
-            <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
-            <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
-            <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
-            <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
-          </svg>
+          {dogPhotoUrl ? (
+            <Image
+              src={dogPhotoUrl}
+              alt={`${dogName}の登録画像`}
+              fill
+              sizes="36px"
+              style={{ objectFit: 'cover' }}
+            />
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill={T.ink50}>
+              <ellipse cx="6" cy="9" rx="2" ry="2.6" />
+              <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
+              <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
+              <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
+              <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
+            </svg>
+          )}
         </div>
 
         <div style={{ flex: 1, minWidth: 0 }}>

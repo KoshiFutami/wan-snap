@@ -15,6 +15,7 @@ export type PostDog = {
   name: string;
   breed: string;
   weightKg: number | null;
+  photoUrl: string | null;
 };
 
 export type PostAuthor = {

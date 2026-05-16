@@ -25,7 +25,7 @@ export default async function HomePage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '96px 24px',
+          padding: '96px 12px',
           textAlign: 'center',
         }}
       >
@@ -49,7 +49,7 @@ export default async function HomePage() {
         style={{
           display: 'flex',
           gap: 8,
-          padding: '14px 20px',
+          padding: '14px 12px',
           overflowX: 'auto',
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
@@ -85,7 +85,7 @@ export default async function HomePage() {
       </div>
 
       {/* フィード */}
-      <div style={{ padding: '0 20px 24px' }}>
+      <div style={{ padding: '0 12px 24px' }}>
         {posts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}

@@ -48,7 +48,7 @@ export default function ProfilePage() {
 
   if (!isAuthed) {
     return (
-      <div style={{ padding: '64px 20px', textAlign: 'center' }}>
+      <div style={{ padding: '64px 12px', textAlign: 'center' }}>
         <svg width="48" height="48" viewBox="0 0 24 24" fill={T.ink10} style={{ margin: '0 auto' }}>
           <ellipse cx="6" cy="9" rx="2" ry="2.6" />
           <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
@@ -82,7 +82,7 @@ export default function ProfilePage() {
     <div style={{ paddingBottom: 32 }}>
       {/* トップバー */}
       <div style={{
-        padding: '8px 16px 6px',
+        padding: '8px 12px 6px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -117,7 +117,7 @@ export default function ProfilePage() {
       </div>
 
       {/* ユーザーヘッダー */}
-      <div style={{ padding: '8px 20px 0' }}>
+      <div style={{ padding: '8px 12px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {/* アバター */}
           <div style={{
@@ -186,7 +186,7 @@ export default function ProfilePage() {
       {/* マイわんセクション */}
       <div style={{ marginTop: 28 }}>
         <div style={{
-          padding: '0 20px 12px',
+          padding: '0 12px 12px',
           display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
         }}>
           <div style={{
@@ -209,7 +209,7 @@ export default function ProfilePage() {
         </div>
 
         <div style={{
-          display: 'flex', gap: 10, padding: '0 20px 4px',
+          display: 'flex', gap: 10, padding: '0 12px 4px',
           overflowX: 'auto',
         }}>
           {dogs.map((dog, i) => (
@@ -222,7 +222,7 @@ export default function ProfilePage() {
       </div>
 
       {/* スナップを投稿 */}
-      <div style={{ padding: '24px 20px 0' }}>
+      <div style={{ padding: '24px 12px 0' }}>
         <Link href="/posts/new" style={{
           display: 'flex', alignItems: 'center', gap: 12,
           padding: '14px 16px',

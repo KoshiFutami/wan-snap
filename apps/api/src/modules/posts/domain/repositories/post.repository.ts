@@ -16,6 +16,7 @@ export interface PostRelations {
   dogName: string;
   dogBreed: string;
   dogWeightKg: number | null;
+  dogPhotoUrl: string | null;
   authorDisplayName: string;
 }
 

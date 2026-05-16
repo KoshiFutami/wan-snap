@@ -148,7 +148,7 @@ export default function DogEditPage() {
 
   if (!dog) {
     return (
-      <div style={{ padding: '64px 20px', textAlign: 'center', color: T.ink50, fontSize: 14 }}>
+      <div style={{ padding: '64px 12px', textAlign: 'center', color: T.ink50, fontSize: 14 }}>
         読み込み中…
       </div>
     );
@@ -221,7 +221,7 @@ export default function DogEditPage() {
         </button>
       </div>
 
-      <div style={{ padding: '0 20px 40px' }}>
+      <div style={{ padding: '0 12px 40px' }}>
         {/* Avatar + info banner */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 14,

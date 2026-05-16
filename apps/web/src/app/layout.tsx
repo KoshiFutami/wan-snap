@@ -48,7 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         }}
       >
         <Header />
-        <main className="mx-auto max-w-sm pb-28">{children}</main>
+        <main style={{ width: '100%', maxWidth: 390, margin: '0 auto', paddingBottom: 112 }}>{children}</main>
         <BottomNav />
       </body>
     </html>
