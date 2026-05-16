@@ -4,6 +4,7 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { IPostRepository } from '../../domain/repositories/post.repository';
 import { POST_REPOSITORY } from '../../domain/repositories/post.repository';
@@ -26,10 +27,8 @@ export class LikePostUseCase {
     } catch (err: unknown) {
       // P2002: ユニーク制約違反（重複いいね）
       if (
-        typeof err === 'object' &&
-        err !== null &&
-        'code' in err &&
-        (err as { code: string }).code === 'P2002'
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
       ) {
         throw new ConflictException('すでにいいね済みです');
       }
