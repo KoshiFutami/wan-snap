@@ -177,6 +177,7 @@ export const api = {
   },
   users: {
     getMe: (token: string) => request<User>('/users/me', { token }),
+    getById: (id: string) => request<User>(`/users/${id}`),
     updateMe: (body: UpdateUserInput, token: string) =>
       request<User>('/users/me', { method: 'PATCH', body: JSON.stringify(body), token }),
     uploadAvatar: (file: File, token: string) => {
@@ -191,6 +192,8 @@ export const api = {
   },
   dogs: {
     list: (token: string) => request<Dog[]>('/dogs', { token }),
+    listByUser: (userId: string) =>
+      request<PublicDog[]>(`/dogs?userId=${encodeURIComponent(userId)}`),
     get: (id: string, token: string) => request<Dog>(`/dogs/${id}`, { token }),
     getPublic: (id: string) => request<PublicDog>(`/dogs/public/${id}`),
     create: (
