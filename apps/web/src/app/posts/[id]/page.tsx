@@ -71,16 +71,7 @@ export default async function PostDetailPage({ params }: Props) {
 
       {/* オーナー・犬情報 */}
       <Link
-        href={{
-          pathname: `/dogs/${post.dogId}`,
-          query: {
-            dogName,
-            dogPhotoUrl: dogPhotoUrl ?? '',
-            breed: breed ?? '',
-            weightKg: weight != null ? String(weight) : '',
-            authorName: post.author?.displayName ?? '',
-          },
-        }}
+        href={`/dogs/${post.dogId}`}
         style={{ padding: '18px 12px 14px', display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}
       >
         <div

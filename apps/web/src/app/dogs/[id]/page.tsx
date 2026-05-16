@@ -5,13 +5,6 @@ import { api } from '../../../lib/api';
 
 type Props = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{
-    dogName?: string;
-    dogPhotoUrl?: string;
-    breed?: string;
-    weightKg?: string;
-    authorName?: string;
-  }>;
 };
 
 const T = {
@@ -24,19 +17,31 @@ const T = {
   hairline: 'rgba(31,26,20,0.08)',
 };
 
-export default async function DogDetailPage({ params, searchParams }: Props) {
+async function getDogPosts(dogId: string) {
+  const posts: Awaited<ReturnType<typeof api.posts.list>>['posts'] = [];
+  let cursor: string | undefined;
+
+  while (true) {
+    const response = await api.posts.list({ cursor, dogId });
+    posts.push(...response.posts);
+    if (!response.nextCursor) break;
+    cursor = response.nextCursor;
+  }
+
+  return posts;
+}
+
+export default async function DogDetailPage({ params }: Props) {
   const { id } = await params;
-  const query = await searchParams;
-  const response = await api.posts.list({ limit: 100, dogId: id });
-  const posts = response.posts;
-  if (posts.length === 0 && !query.dogName) notFound();
+  const posts = await getDogPosts(id);
+  if (posts.length === 0) notFound();
 
   const latestPost = posts[0];
-  const dogName = query.dogName ?? latestPost?.dog?.name ?? 'わんこ';
-  const dogPhotoUrl = query.dogPhotoUrl ?? latestPost?.dog?.photoUrl;
-  const breed = query.breed ?? latestPost?.dog?.breed;
-  const weightKg = query.weightKg ? Number(query.weightKg) : (latestPost?.dog?.weightKg ?? null);
-  const authorName = query.authorName ?? latestPost?.author?.displayName;
+  const dogName = latestPost.dog?.name ?? 'わんこ';
+  const dogPhotoUrl = latestPost.dog?.photoUrl;
+  const breed = latestPost.dog?.breed;
+  const weightKg = latestPost.dog?.weightKg;
+  const authorName = latestPost.author?.displayName;
 
   return (
     <div style={{ background: T.creamSoft, minHeight: '100dvh', paddingBottom: 28 }}>
