@@ -17,6 +17,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../../../common/guards/optional-jwt-auth.guard';
 import { imageFileInterceptor } from '../../../common/interceptors/image-file.interceptor';
 import type { JwtPayload } from '../../../common/decorators/current-user.decorator';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
@@ -46,8 +47,15 @@ export class PostsController {
   ) {}
 
   @Get()
-  async list(@Query() query: ListPostsQueryDto): Promise<ListPostsResponseDto> {
-    const result = await this.listPosts.execute(query);
+  @UseGuards(OptionalJwtAuthGuard)
+  async list(
+    @Query() query: ListPostsQueryDto,
+    @CurrentUser() user?: JwtPayload | null,
+  ): Promise<ListPostsResponseDto> {
+    const result = await this.listPosts.execute({
+      ...query,
+      requesterId: user?.sub,
+    });
     return {
       posts: result.posts.map(({ post, relations }) =>
         PostResponseDto.from(post, relations),
@@ -57,8 +65,12 @@ export class PostsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<PostResponseDto> {
-    const { post, relations } = await this.getPost.execute(id);
+  @UseGuards(OptionalJwtAuthGuard)
+  async findOne(
+    @Param('id') id: string,
+    @CurrentUser() user?: JwtPayload | null,
+  ): Promise<PostResponseDto> {
+    const { post, relations } = await this.getPost.execute(id, user?.sub);
     return PostResponseDto.from(post, relations ?? undefined);
   }
 
@@ -108,6 +120,48 @@ export class PostsController {
     @CurrentUser() user: JwtPayload,
   ): Promise<void> {
     await this.deletePost.execute(id, user.sub);
+  }
+
+  @Post(':id/like')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async like(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    const post = await this.prisma.post.findUnique({ where: { id } });
+    if (!post) throw new NotFoundException('投稿が見つかりません');
+    try {
+      await this.prisma.like.create({
+        data: { userId: user.sub, postId: id },
+      });
+    } catch (err: unknown) {
+      // P2002: ユニーク制約違反（重複いいね）
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'code' in err &&
+        (err as { code: string }).code === 'P2002'
+      ) {
+        throw new ConflictException('すでにいいね済みです');
+      }
+      throw err;
+    }
+  }
+
+  @Delete(':id/like')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async unlike(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    const deleted = await this.prisma.like.deleteMany({
+      where: { userId: user.sub, postId: id },
+    });
+    if (deleted.count === 0) {
+      throw new NotFoundException('いいねが見つかりません');
+    }
   }
 
   @Post(':id/bookmark')
