@@ -37,6 +37,8 @@ async function getDogPosts(dogId: string) {
   return posts.slice(0, MAX_POSTS);
 }
 
+const DOG_CODE_LENGTH = 3;
+
 export default async function DogDetailPage({ params }: Props) {
   const { id } = await params;
   const dog = await api.dogs.getPublic(id).catch(() => null);
@@ -48,7 +50,7 @@ export default async function DogDetailPage({ params }: Props) {
   const weightKg = dog.weightKg;
   const authorName = dog.ownerDisplayName;
   const compactDogId = dog.id.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-  const dogCode = `#${(compactDogId || 'DOG').slice(0, 3).padEnd(3, 'X')}`;
+  const dogCode = `#${(compactDogId || 'DOG').slice(0, DOG_CODE_LENGTH).padEnd(DOG_CODE_LENGTH, 'X')}`;
 
   return (
     <div style={{ background: T.cream, minHeight: '100dvh', paddingBottom: 28, position: 'relative' }}>
