@@ -118,6 +118,10 @@ export const api = {
         body: JSON.stringify({ refreshToken }),
       }),
   },
+  breeds: {
+    search: (q: string) =>
+      request<{ id: string; name: string }[]>(`/breeds?q=${encodeURIComponent(q)}`),
+  },
   dogs: {
     list: (token: string) => request<Dog[]>('/dogs', { token }),
     create: (

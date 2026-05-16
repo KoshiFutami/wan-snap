@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, type Dog } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
+import { ImageCropEditor } from '../../../components/image-crop-editor';
 
 const T = {
   ink: '#1F1A14',
@@ -39,6 +40,8 @@ export default function NewPostPage() {
   const [dogId, setDogId] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
+  const [showCropEditor, setShowCropEditor] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [caption, setCaption] = useState('');
   const [tags, setTags] = useState('');
@@ -57,13 +60,31 @@ export default function NewPostPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
-    setImageFile(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => setImagePreview(ev.target?.result as string);
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setRawImageSrc(ev.target?.result as string);
+      setShowCropEditor(true);
+    };
+    reader.readAsDataURL(file);
+    // input をリセットして同一ファイルを再選択できるようにする
+    e.target.value = '';
+  };
+
+  const handleCropComplete = (blob: Blob, previewUrl: string) => {
+    setImageFile(new File([blob], 'image.jpg', { type: 'image/jpeg' }));
+    setImagePreview(previewUrl);
+    setShowCropEditor(false);
+  };
+
+  const handleCropCancel = () => {
+    setShowCropEditor(false);
+    setRawImageSrc(null);
+  };
+
+  const handleReselect = () => {
+    if (rawImageSrc) {
+      setShowCropEditor(true);
     }
   };
 
@@ -134,6 +155,14 @@ export default function NewPostPage() {
   }
 
   return (
+    <>
+    {showCropEditor && rawImageSrc && (
+      <ImageCropEditor
+        imageSrc={rawImageSrc}
+        onComplete={handleCropComplete}
+        onCancel={handleCropCancel}
+      />
+    )}
     <div style={{ padding: '8px 20px 120px' }}>
       {/* タイトル */}
       <div style={{ marginBottom: 20, paddingTop: 8 }}>
@@ -171,8 +200,74 @@ export default function NewPostPage() {
             }}
           >
             {imagePreview ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={imagePreview} alt="プレビュー" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={imagePreview} alt="プレビュー" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {/* 編集・変更ボタン */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 12,
+                    right: 12,
+                    display: 'flex',
+                    gap: 6,
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {rawImageSrc && (
+                    <button
+                      type="button"
+                      onClick={handleReselect}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 999,
+                        background: 'rgba(10,8,6,0.72)',
+                        color: '#FFFEFB',
+                        fontSize: 11.5,
+                        fontWeight: 600,
+                        border: 'none',
+                        cursor: 'pointer',
+                        backdropFilter: 'blur(8px)',
+                        fontFamily: 'inherit',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                      }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      編集
+                    </button>
+                  )}
+                  <label
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: 999,
+                      background: 'rgba(10,8,6,0.72)',
+                      color: '#FFFEFB',
+                      fontSize: 11.5,
+                      fontWeight: 600,
+                      border: 'none',
+                      cursor: 'pointer',
+                      backdropFilter: 'blur(8px)',
+                      fontFamily: 'inherit',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <polyline points="17 8 12 3 7 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    変更
+                    <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+                  </label>
+                </div>
+              </>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
@@ -184,7 +279,7 @@ export default function NewPostPage() {
                 <span style={{ fontSize: 11, color: T.ink50 }}>タップして選択</span>
               </div>
             )}
-            <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+            {!imagePreview && <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />}
           </label>
         </div>
 
@@ -356,5 +451,6 @@ export default function NewPostPage() {
         </div>
       </form>
     </div>
+    </>
   );
 }
