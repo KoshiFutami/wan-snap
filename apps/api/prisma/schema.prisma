@@ -86,6 +86,8 @@ model Comment {
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId String @map("author_id")
 
+  @@index([postId])
+  @@index([authorId])
   @@map("comments")
 }
 

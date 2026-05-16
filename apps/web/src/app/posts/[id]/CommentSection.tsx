@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import type { Comment } from '../../../lib/api';
 import { api } from '../../../lib/api';
-import { getValidToken } from '../../../lib/auth-store';
+import { getValidToken, getCurrentUserId } from '../../../lib/auth-store';
 
 const T = {
   ink: '#1F1A14',
@@ -47,6 +47,7 @@ export function CommentSection({
   const [submitting, setSubmitting] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const currentUserId = getCurrentUserId();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,22 +168,24 @@ export function CommentSection({
                 </p>
               </div>
 
-              {/* 削除ボタン（ログイン中ユーザー本人のみ表示は今後対応） */}
-              <button
-                onClick={() => handleDelete(comment.id)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: '2px 4px',
-                  cursor: 'pointer',
-                  color: T.ink30,
-                  fontSize: 11,
-                  flexShrink: 0,
-                }}
-                title="削除"
-              >
-                ×
-              </button>
+              {/* 削除ボタン（投稿者本人のみ） */}
+              {currentUserId === comment.author.id && (
+                <button
+                  onClick={() => handleDelete(comment.id)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: '2px 4px',
+                    cursor: 'pointer',
+                    color: T.ink30,
+                    fontSize: 11,
+                    flexShrink: 0,
+                  }}
+                  title="削除"
+                >
+                  ×
+                </button>
+              )}
             </div>
           ))}
 

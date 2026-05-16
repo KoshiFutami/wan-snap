@@ -6,6 +6,8 @@ CREATE TABLE `comments` (
     `post_id` VARCHAR(191) NOT NULL,
     `author_id` VARCHAR(191) NOT NULL,
 
+    INDEX `comments_post_id_idx`(`post_id`),
+    INDEX `comments_author_id_idx`(`author_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
