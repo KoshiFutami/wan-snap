@@ -28,6 +28,7 @@ export class PrismaPostRepository implements IPostRepository {
 
   async findByIdWithRelations(
     id: PostId,
+    requesterId?: string,
   ): Promise<{ post: Post; relations: PostRelations } | null> {
     const raw = await this.prisma.post.findUnique({
       where: { id: id.value },
@@ -38,12 +39,20 @@ export class PrismaPostRepository implements IPostRepository {
         },
         author: { select: { displayName: true } },
         _count: { select: { likes: true, bookmarks: true } },
+        ...(requesterId
+          ? {
+              likes: {
+                where: { userId: requesterId },
+                select: { userId: true },
+              },
+            }
+          : {}),
       },
     });
     if (!raw) return null;
     return {
       post: PostMapper.toDomain(raw),
-      relations: this.toRelations(raw),
+      relations: this.toRelations(raw, requesterId),
     };
   }
 
@@ -69,6 +78,14 @@ export class PrismaPostRepository implements IPostRepository {
         },
         author: { select: { displayName: true } },
         _count: { select: { likes: true, bookmarks: true } },
+        ...(options.requesterId
+          ? {
+              likes: {
+                where: { userId: options.requesterId },
+                select: { userId: true },
+              },
+            }
+          : {}),
       },
     });
 
@@ -76,7 +93,7 @@ export class PrismaPostRepository implements IPostRepository {
     const sliced = raws.slice(0, limit);
     const posts = sliced.map((r) => ({
       post: PostMapper.toDomain(r),
-      relations: this.toRelations(r),
+      relations: this.toRelations(r, options.requesterId),
     }));
     const nextCursor =
       hasNext && posts.length > 0
@@ -86,16 +103,20 @@ export class PrismaPostRepository implements IPostRepository {
     return { posts, nextCursor };
   }
 
-  private toRelations(raw: {
-    dog: {
-      name: string;
-      breed: string;
-      weightKg: { toNumber(): number } | null;
-      photoUrl: string | null;
-    };
-    author: { displayName: string };
-    _count?: { likes: number; bookmarks: number };
-  }): PostRelations {
+  private toRelations(
+    raw: {
+      dog: {
+        name: string;
+        breed: string;
+        weightKg: { toNumber(): number } | null;
+        photoUrl: string | null;
+      };
+      author: { displayName: string };
+      _count?: { likes: number; bookmarks: number };
+      likes?: { userId: string }[];
+    },
+    requesterId?: string,
+  ): PostRelations {
     return {
       dogName: raw.dog.name,
       dogBreed: raw.dog.breed,
@@ -104,6 +125,7 @@ export class PrismaPostRepository implements IPostRepository {
       authorDisplayName: raw.author.displayName,
       likeCount: raw._count?.likes ?? 0,
       bookmarkCount: raw._count?.bookmarks ?? 0,
+      isLikedByMe: raw.likes?.some((l) => l.userId === requesterId) ?? false,
     };
   }
 

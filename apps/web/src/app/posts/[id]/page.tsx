@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { api } from '../../../lib/api';
 import { EditButton } from './EditButton';
 import { BookmarkButton } from './BookmarkButton';
+import { LikeButton } from './LikeButton';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -56,6 +57,7 @@ export default async function PostDetailPage({ params }: Props) {
           </svg>
         </Link>
         <div style={{ display: 'flex', gap: 8 }}>
+          <LikeButton postId={post.id} initialCount={post.likeCount ?? 0} initialLiked={post.isLikedByMe ?? false} />
           <BookmarkButton postId={post.id} initialCount={post.bookmarkCount ?? 0} />
           <EditButton postId={post.id} authorId={post.authorId} />
         </div>

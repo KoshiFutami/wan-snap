@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -15,8 +14,10 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../../../common/guards/optional-jwt-auth.guard';
 import { imageFileInterceptor } from '../../../common/interceptors/image-file.interceptor';
 import type { JwtPayload } from '../../../common/decorators/current-user.decorator';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
@@ -24,7 +25,9 @@ import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { CreatePostUseCase } from '../application/use-cases/create-post.use-case';
 import { DeletePostUseCase } from '../application/use-cases/delete-post.use-case';
 import { GetPostUseCase } from '../application/use-cases/get-post.use-case';
+import { LikePostUseCase } from '../application/use-cases/like-post.use-case';
 import { ListPostsUseCase } from '../application/use-cases/list-posts.use-case';
+import { UnlikePostUseCase } from '../application/use-cases/unlike-post.use-case';
 import { UpdatePostUseCase } from '../application/use-cases/update-post.use-case';
 import { PostImageStorageService } from '../infrastructure/services/post-image-storage.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -38,7 +41,9 @@ export class PostsController {
   constructor(
     private readonly createPost: CreatePostUseCase,
     private readonly getPost: GetPostUseCase,
+    private readonly likePost: LikePostUseCase,
     private readonly listPosts: ListPostsUseCase,
+    private readonly unlikePost: UnlikePostUseCase,
     private readonly deletePost: DeletePostUseCase,
     private readonly updatePost: UpdatePostUseCase,
     private readonly postImageStorage: PostImageStorageService,
@@ -46,8 +51,15 @@ export class PostsController {
   ) {}
 
   @Get()
-  async list(@Query() query: ListPostsQueryDto): Promise<ListPostsResponseDto> {
-    const result = await this.listPosts.execute(query);
+  @UseGuards(OptionalJwtAuthGuard)
+  async list(
+    @Query() query: ListPostsQueryDto,
+    @CurrentUser() user?: JwtPayload | null,
+  ): Promise<ListPostsResponseDto> {
+    const result = await this.listPosts.execute({
+      ...query,
+      requesterId: user?.sub,
+    });
     return {
       posts: result.posts.map(({ post, relations }) =>
         PostResponseDto.from(post, relations),
@@ -57,8 +69,12 @@ export class PostsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<PostResponseDto> {
-    const { post, relations } = await this.getPost.execute(id);
+  @UseGuards(OptionalJwtAuthGuard)
+  async findOne(
+    @Param('id') id: string,
+    @CurrentUser() user?: JwtPayload | null,
+  ): Promise<PostResponseDto> {
+    const { post, relations } = await this.getPost.execute(id, user?.sub);
     return PostResponseDto.from(post, relations ?? undefined);
   }
 
@@ -108,6 +124,26 @@ export class PostsController {
     @CurrentUser() user: JwtPayload,
   ): Promise<void> {
     await this.deletePost.execute(id, user.sub);
+  }
+
+  @Post(':id/like')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async like(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    await this.likePost.execute(id, user.sub);
+  }
+
+  @Delete(':id/like')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async unlike(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    await this.unlikePost.execute(id, user.sub);
   }
 
   @Post(':id/bookmark')
