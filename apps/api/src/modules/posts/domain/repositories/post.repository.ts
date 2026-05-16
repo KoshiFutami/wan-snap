@@ -5,6 +5,7 @@ export interface FindAllOptions {
   limit?: number;
   cursor?: string;
   tags?: string[];
+  authorId?: string;
 }
 
 export interface FindAllResult {

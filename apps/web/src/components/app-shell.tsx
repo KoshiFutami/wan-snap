@@ -1,0 +1,41 @@
+'use client';
+
+import type { ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
+import { Header } from './header';
+import { BottomNav } from './bottom-nav';
+
+const BOTTOM_NAV_HEIGHT = 112;
+
+function shouldHideHeader(pathname: string) {
+  return pathname.startsWith('/auth/');
+}
+
+function shouldHideBottomNav(pathname: string) {
+  return pathname.startsWith('/auth/')
+    || pathname === '/posts/new'
+    || pathname === '/dogs/new';
+}
+
+export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const hideHeader = shouldHideHeader(pathname);
+  const hideBottomNav = shouldHideBottomNav(pathname);
+
+  return (
+    <>
+      {!hideHeader && <Header />}
+      <main
+        style={{
+          width: '100%',
+          maxWidth: 390,
+          margin: '0 auto',
+          paddingBottom: hideBottomNav ? 0 : BOTTOM_NAV_HEIGHT,
+        }}
+      >
+        {children}
+      </main>
+      {!hideBottomNav && <BottomNav />}
+    </>
+  );
+}

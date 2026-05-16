@@ -114,11 +114,12 @@ async function request<T>(
 
 export const api = {
   posts: {
-    list: (params?: { limit?: number; cursor?: string; tags?: string[] }) => {
+    list: (params?: { limit?: number; cursor?: string; tags?: string[]; authorId?: string }) => {
       const qs = new URLSearchParams();
       if (params?.limit) qs.set('limit', String(params.limit));
       if (params?.cursor) qs.set('cursor', params.cursor);
       params?.tags?.forEach((t) => qs.append('tags', t));
+      if (params?.authorId) qs.set('authorId', params.authorId);
       return request<ListPostsResponse>(`/posts?${qs.toString()}`);
     },
     get: (id: string) => request<Post>(`/posts/${id}`),

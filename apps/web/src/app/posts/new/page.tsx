@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, type Dog } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
+import { FloatingFormFooter } from '../../../components/floating-form-footer';
 import { ImageCropEditor } from '../../../components/image-crop-editor';
 
 const T = {
@@ -407,16 +408,7 @@ export default function NewPostPage() {
         )}
 
         {/* 固定CTAフッター */}
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: '16px 12px 32px',
-            background: `linear-gradient(180deg, transparent, ${T.cream} 30%)`,
-          }}
-        >
+        <FloatingFormFooter>
           <button
             type="submit"
             disabled={loading}
@@ -448,7 +440,7 @@ export default function NewPostPage() {
               </svg>
             )}
           </button>
-        </div>
+        </FloatingFormFooter>
       </form>
     </div>
     </>

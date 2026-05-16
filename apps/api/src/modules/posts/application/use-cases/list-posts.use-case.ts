@@ -9,6 +9,7 @@ export interface ListPostsInput {
   limit?: number;
   cursor?: string;
   tags?: string[];
+  authorId?: string;
 }
 
 @Injectable()
@@ -22,6 +23,7 @@ export class ListPostsUseCase {
       limit: input.limit,
       cursor: input.cursor,
       tags: input.tags,
+      authorId: input.authorId,
     });
   }
 }
