@@ -53,6 +53,7 @@ export class PrismaPostRepository implements IPostRepository {
     const cursor = options.cursor ? this.decodeCursor(options.cursor) : null;
     const where = {
       ...(options.authorId ? { authorId: options.authorId } : {}),
+      ...(options.dogId ? { dogId: options.dogId } : {}),
     };
 
     const raws = await this.prisma.post.findMany({
@@ -106,6 +107,7 @@ export class PrismaPostRepository implements IPostRepository {
     const cursor = options.cursor ? this.decodeCursor(options.cursor) : null;
     const where = {
       ...(options.authorId ? { authorId: options.authorId } : {}),
+      ...(options.dogId ? { dogId: options.dogId } : {}),
     };
 
     const raws = await this.prisma.post.findMany({

@@ -3,7 +3,16 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { api } from '../../../lib/api';
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{
+    dogName?: string;
+    dogPhotoUrl?: string;
+    breed?: string;
+    weightKg?: string;
+    authorName?: string;
+  }>;
+};
 
 const T = {
   ink: '#1F1A14',
@@ -15,18 +24,19 @@ const T = {
   hairline: 'rgba(31,26,20,0.08)',
 };
 
-export default async function DogDetailPage({ params }: Props) {
+export default async function DogDetailPage({ params, searchParams }: Props) {
   const { id } = await params;
-  const response = await api.posts.list({ limit: 100 }).catch(() => null);
-  const posts = response?.posts.filter((post) => post.dogId === id) ?? [];
-  if (posts.length === 0) notFound();
+  const query = await searchParams;
+  const response = await api.posts.list({ limit: 100, dogId: id });
+  const posts = response.posts;
+  if (posts.length === 0 && !query.dogName) notFound();
 
   const latestPost = posts[0];
-  const dogName = latestPost.dog?.name ?? 'わんこ';
-  const dogPhotoUrl = latestPost.dog?.photoUrl;
-  const breed = latestPost.dog?.breed;
-  const weightKg = latestPost.dog?.weightKg;
-  const authorName = latestPost.author?.displayName;
+  const dogName = query.dogName ?? latestPost?.dog?.name ?? 'わんこ';
+  const dogPhotoUrl = query.dogPhotoUrl ?? latestPost?.dog?.photoUrl;
+  const breed = query.breed ?? latestPost?.dog?.breed;
+  const weightKg = query.weightKg ? Number(query.weightKg) : (latestPost?.dog?.weightKg ?? null);
+  const authorName = query.authorName ?? latestPost?.author?.displayName;
 
   return (
     <div style={{ background: T.creamSoft, minHeight: '100dvh', paddingBottom: 28 }}>
@@ -107,15 +117,30 @@ export default async function DogDetailPage({ params }: Props) {
           <div style={{ fontFamily: 'var(--font-serif, serif)', fontSize: 18, color: T.ink, marginBottom: 10 }}>
             これまでのスナップ
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4 }}>
-            {posts.map((post) => (
-              <Link key={post.id} href={`/posts/${post.id}`} style={{ textDecoration: 'none' }}>
-                <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: 6, overflow: 'hidden', background: T.ink10 }}>
-                  <Image src={post.imageUrl} alt={post.caption ?? `${dogName}の投稿`} fill sizes="33vw" style={{ objectFit: 'cover' }} />
-                </div>
-              </Link>
-            ))}
-          </div>
+          {posts.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 4 }}>
+              {posts.map((post) => (
+                <Link key={post.id} href={`/posts/${post.id}`} style={{ textDecoration: 'none' }}>
+                  <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: 6, overflow: 'hidden', background: T.ink10 }}>
+                    <Image src={post.imageUrl} alt={post.caption ?? `${dogName}の投稿`} fill sizes="33vw" style={{ objectFit: 'cover' }} />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div
+              style={{
+                borderRadius: 12,
+                border: `1px solid ${T.hairline}`,
+                background: T.paper,
+                color: T.ink50,
+                fontSize: 12.5,
+                padding: '16px 14px',
+              }}
+            >
+              まだ投稿がありません
+            </div>
+          )}
         </div>
       </div>
     </div>
