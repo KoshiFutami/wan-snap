@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, type Dog } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
-import { FloatingFormFooter } from '../../../components/floating-form-footer';
 import { ImageCropEditor } from '../../../components/image-crop-editor';
 
 const T = {
@@ -43,7 +42,6 @@ export default function NewPostPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
   const [showCropEditor, setShowCropEditor] = useState(false);
-  const [imageUrl, setImageUrl] = useState('');
   const [caption, setCaption] = useState('');
   const [tags, setTags] = useState('');
   const [error, setError] = useState('');
@@ -97,19 +95,18 @@ export default function NewPostPage() {
     setError('');
     setLoading(true);
     try {
-      let resolvedImageUrl = imageUrl.trim();
-      if (imageFile) {
-        const uploaded = await api.posts.uploadImage(imageFile, token);
-        resolvedImageUrl = uploaded.imageUrl;
+      if (!dogId) {
+        throw new Error('投稿する愛犬を選択してください');
       }
-      if (!resolvedImageUrl) {
-        throw new Error('画像ファイルまたは画像URLを指定してください');
+      if (!imageFile) {
+        throw new Error('投稿する画像を選択してください');
       }
+      const uploaded = await api.posts.uploadImage(imageFile, token);
 
       const post = await api.posts.create(
         {
           dogId,
-          imageUrl: resolvedImageUrl,
+          imageUrl: uploaded.imageUrl,
           caption: caption || undefined,
           tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
         },
@@ -123,65 +120,77 @@ export default function NewPostPage() {
     }
   };
 
-  if (dogs.length === 0 && !loading) {
-    return (
-      <div style={{ padding: '64px 12px', textAlign: 'center' }}>
-        <svg width="48" height="48" viewBox="0 0 24 24" fill={T.ink10} style={{ margin: '0 auto' }}>
-          <ellipse cx="6" cy="9" rx="2" ry="2.6" />
-          <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
-          <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
-          <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
-          <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
-        </svg>
-        <p style={{ marginTop: 16, fontSize: 14, fontWeight: 600, color: T.ink70 }}>投稿するには先に愛犬を登録してください</p>
-        <button
-          onClick={() => router.push('/dogs/new')}
-          style={{
-            marginTop: 20,
-            padding: '13px 24px',
-            borderRadius: 999,
-            background: T.ink,
-            color: T.cream,
-            fontSize: 13.5,
-            fontWeight: 600,
-            border: 'none',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
-        >
-          愛犬を登録する
-        </button>
-      </div>
-    );
-  }
-
   return (
     <>
-    {showCropEditor && rawImageSrc && (
-      <ImageCropEditor
-        imageSrc={rawImageSrc}
-        onComplete={handleCropComplete}
-        onCancel={handleCropCancel}
-      />
-    )}
-    <div style={{ padding: '8px 12px 120px' }}>
-      {/* タイトル */}
-      <div style={{ marginBottom: 20, paddingTop: 8 }}>
+      {showCropEditor && rawImageSrc && (
+        <ImageCropEditor
+          imageSrc={rawImageSrc}
+          onComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
+      <form
+        id="new-post-form"
+        onSubmit={handleSubmit}
+        style={{ minHeight: '100dvh', background: T.cream }}
+      >
         <div
           style={{
-            fontFamily: 'var(--font-serif, serif)',
-            fontSize: 22,
-            fontWeight: 500,
-            color: T.ink,
-            letterSpacing: '-0.01em',
-            lineHeight: 1.15,
+            position: 'sticky',
+            top: 0,
+            zIndex: 10,
+            padding: '12px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            background: T.cream,
+            borderBottom: `1px solid ${T.hairline}`,
           }}
         >
-          新しいスナップ
+          <button
+            type="button"
+            onClick={() => router.back()}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              background: T.paper,
+              border: `1px solid ${T.hairline}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+            aria-label="閉じる"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M6 6l12 12M18 6L6 18" stroke={T.ink} strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </button>
+          <div style={{ flex: 1, textAlign: 'center', fontSize: 14, fontWeight: 600, color: T.ink }}>
+            新しいスナップ
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              padding: '7px 14px',
+              borderRadius: 999,
+              background: loading ? T.ink10 : T.ink,
+              color: loading ? T.ink50 : T.cream,
+              fontSize: 12,
+              fontWeight: 600,
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontFamily: 'inherit',
+              flexShrink: 0,
+            }}
+          >
+            {loading ? '投稿中…' : '投稿'}
+          </button>
         </div>
-      </div>
-
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <div style={{ padding: '16px 20px 28px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* 画像アップロード */}
         <div>
           <label
@@ -270,39 +279,80 @@ export default function NewPostPage() {
                 </div>
               </>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: 24, textAlign: 'center' }}>
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="5" width="18" height="14" rx="3" stroke={T.ink50} strokeWidth="1.5" />
-                  <circle cx="12" cy="12" r="3" stroke={T.ink50} strokeWidth="1.5" />
-                  <circle cx="17" cy="8" r="1.2" fill={T.ink50} />
-                </svg>
-                <span style={{ fontSize: 13, fontWeight: 500, color: T.ink70 }}>写真を選ぶ</span>
-                <span style={{ fontSize: 11, color: T.ink50 }}>タップして選択</span>
+              <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: 24, textAlign: 'center', marginTop: 72 }}>
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="5" width="18" height="14" rx="3" stroke={T.ink50} strokeWidth="1.5" />
+                    <circle cx="12" cy="12" r="3" stroke={T.ink50} strokeWidth="1.5" />
+                    <circle cx="17" cy="8" r="1.2" fill={T.ink50} />
+                  </svg>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: T.ink70 }}>写真を選ぶ</span>
+                  <span style={{ fontSize: 11, color: T.ink50 }}>タップして選択</span>
+                </div>
+                <div style={{ position: 'absolute', left: '47%', top: '78%', transform: 'translate(-50%, -50%)' }}>
+                  <div style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 18,
+                    background: 'rgba(255,254,251,0.85)',
+                    backdropFilter: 'blur(8px)',
+                    border: `2px dashed ${T.terracotta}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: T.terracotta,
+                    fontSize: 18,
+                    lineHeight: 1,
+                  }}
+                  >
+                    +
+                  </div>
+                  <div style={{
+                    position: 'absolute',
+                    top: -28,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    padding: '4px 8px',
+                    borderRadius: 6,
+                    background: T.terracotta,
+                    color: '#fff',
+                    fontSize: 10,
+                    fontWeight: 500,
+                    whiteSpace: 'nowrap',
+                  }}
+                  >
+                    タップしてタグ付け
+                  </div>
+                </div>
               </div>
             )}
             {!imagePreview && <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />}
           </label>
         </div>
 
-        {/* 画像URL（代替）*/}
-        {!imagePreview && (
-          <div>
-            <label style={{ display: 'block', fontSize: 11.5, fontWeight: 500, color: T.ink, marginBottom: 6 }}>
-              画像URL{' '}
-              <span style={{ fontSize: 10, fontWeight: 400, color: T.ink50 }}>（ファイル未選択時）</span>
-            </label>
-            <input
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://..."
-              style={inputStyle}
-            />
+        {/* キャプション */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
+            <label style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>キャプション</label>
+            <span style={{ fontSize: 10, color: T.ink50 }}>{caption.length} / 500</span>
           </div>
-        )}
+          <textarea
+            rows={3}
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            maxLength={500}
+            placeholder="今日のコーデ！Mサイズでぴったりでした"
+            style={{
+              ...inputStyle,
+              height: 'auto',
+              padding: '12px 14px',
+              resize: 'none',
+              lineHeight: 1.55,
+            }}
+          />
+        </div>
 
-        {/* 愛犬セレクター */}
-        {dogs.length > 0 && (
+          {/* 愛犬セレクター */}
           <div>
             <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, marginBottom: 8 }}>
               愛犬 <span style={{ color: T.terracotta }}>*</span>
@@ -351,46 +401,60 @@ export default function NewPostPage() {
                   <span style={{ fontSize: 10, opacity: 0.6 }}>{dog.breed}</span>
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => router.push('/dogs/new')}
+                style={{
+                  padding: '8px 12px 8px 8px',
+                  borderRadius: 999,
+                  border: `1px dashed ${T.hairlineStrong}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  color: T.ink50,
+                  fontSize: 12,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                + 新しい愛犬
+              </button>
             </div>
           </div>
-        )}
 
-        {/* キャプション */}
-        <div>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
-            <label style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>キャプション</label>
-            <span style={{ fontSize: 10, color: T.ink50 }}>{caption.length} / 500</span>
-          </div>
-          <textarea
-            rows={3}
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            maxLength={500}
-            placeholder="今日のコーデ！Mサイズでぴったりでした"
+          <div
             style={{
-              ...inputStyle,
-              height: 'auto',
-              padding: '12px 14px',
-              resize: 'none',
-              lineHeight: 1.55,
+              display: 'flex',
+              flexDirection: 'column',
+              background: T.paper,
+              borderRadius: 14,
+              border: `1px solid ${T.hairline}`,
+              overflow: 'hidden',
             }}
-          />
-        </div>
-
-        {/* タグ */}
-        <div>
-          <label style={{ display: 'block', fontSize: 11.5, fontWeight: 500, color: T.ink, marginBottom: 6 }}>
-            タグ{' '}
-            <span style={{ fontSize: 10, fontWeight: 400, color: T.ink50 }}>カンマ区切り</span>
-          </label>
-          <input
-            type="text"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            placeholder="柴犬, ハーネス, 秋コーデ"
-            style={inputStyle}
-          />
-        </div>
+          >
+            {[
+              { label: '場所', detail: '未設定' },
+              { label: 'サイズ感', detail: '未設定' },
+              { label: '公開範囲', detail: '全員に公開' },
+            ].map((row, index) => (
+              <div
+                key={row.label}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 14px',
+                  borderBottom: index < 2 ? `1px solid ${T.hairline}` : 'none',
+                }}
+              >
+                <span style={{ fontSize: 12.5, color: T.ink70 }}>{row.label}</span>
+                <span style={{ fontSize: 12, color: T.ink50 }}>{row.detail}</span>
+              </div>
+            ))}
+          </div>
 
         {error && (
           <div
@@ -406,43 +470,8 @@ export default function NewPostPage() {
             {error}
           </div>
         )}
-
-        {/* 固定CTAフッター */}
-        <FloatingFormFooter>
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              maxWidth: 350,
-              display: 'flex',
-              margin: '0 auto',
-              padding: '14px 22px',
-              borderRadius: 999,
-              background: T.ink,
-              color: T.cream,
-              fontSize: 13.5,
-              fontWeight: 600,
-              border: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.5 : 1,
-              fontFamily: 'inherit',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              letterSpacing: '0.02em',
-            }}
-          >
-            {loading ? '投稿中...' : 'シェアする'}
-            {!loading && (
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )}
-          </button>
-        </FloatingFormFooter>
+        </div>
       </form>
-    </div>
     </>
   );
 }
