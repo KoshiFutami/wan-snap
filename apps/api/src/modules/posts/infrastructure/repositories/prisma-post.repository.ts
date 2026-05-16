@@ -37,6 +37,7 @@ export class PrismaPostRepository implements IPostRepository {
           select: { name: true, breed: true, weightKg: true, photoUrl: true },
         },
         author: { select: { displayName: true } },
+        _count: { select: { likes: true, bookmarks: true } },
       },
     });
     if (!raw) return null;
@@ -67,6 +68,7 @@ export class PrismaPostRepository implements IPostRepository {
           select: { name: true, breed: true, weightKg: true, photoUrl: true },
         },
         author: { select: { displayName: true } },
+        _count: { select: { likes: true, bookmarks: true } },
       },
     });
 
@@ -92,6 +94,7 @@ export class PrismaPostRepository implements IPostRepository {
       photoUrl: string | null;
     };
     author: { displayName: string };
+    _count?: { likes: number; bookmarks: number };
   }): PostRelations {
     return {
       dogName: raw.dog.name,
@@ -99,6 +102,8 @@ export class PrismaPostRepository implements IPostRepository {
       dogWeightKg: raw.dog.weightKg ? raw.dog.weightKg.toNumber() : null,
       dogPhotoUrl: raw.dog.photoUrl,
       authorDisplayName: raw.author.displayName,
+      likeCount: raw._count?.likes ?? 0,
+      bookmarkCount: raw._count?.bookmarks ?? 0,
     };
   }
 

@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import type { Post } from '../lib/api';
+import { api } from '../lib/api';
+import { getValidToken } from '../lib/auth-store';
 
 const T = {
   ink: '#1F1A14',
@@ -58,9 +60,9 @@ function ShareIcon() {
   );
 }
 
-function BookmarkIcon() {
+function BookmarkIcon({ filled }: { filled: boolean }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill={filled ? T.ink : 'none'}>
       <path d="M6 4h12v17l-6-3.5L6 21V4z" stroke={T.ink} strokeWidth="1.6" strokeLinejoin="round" />
     </svg>
   );
@@ -80,7 +82,9 @@ function PawIcon() {
 
 export function PostCard({ post }: Props) {
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
+  const [likeCount, setLikeCount] = useState(post.likeCount ?? 0);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarkCount, setBookmarkCount] = useState(post.bookmarkCount ?? 0);
 
   const dogName = post.dog?.name ?? 'わんこ';
   const authorName = post.author?.displayName ?? '';
@@ -93,6 +97,25 @@ export function PostCard({ post }: Props) {
       setLikeCount((c) => (v ? c - 1 : c + 1));
       return !v;
     });
+  };
+
+  const handleBookmark = async () => {
+    const token = await getValidToken();
+    if (!token) return;
+    const next = !bookmarked;
+    setBookmarked(next);
+    setBookmarkCount((c) => (next ? c + 1 : c - 1));
+    try {
+      if (next) {
+        await api.posts.bookmark(post.id, token);
+      } else {
+        await api.posts.unbookmark(post.id, token);
+      }
+    } catch {
+      // ロールバック
+      setBookmarked(!next);
+      setBookmarkCount((c) => (next ? c - 1 : c + 1));
+    }
   };
 
   return (
@@ -243,8 +266,23 @@ export function PostCard({ post }: Props) {
 
           <div style={{ flex: 1 }} />
 
-          <button style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: T.ink }}>
-            <BookmarkIcon />
+          <button
+            onClick={handleBookmark}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              color: T.ink,
+            }}
+          >
+            <BookmarkIcon filled={bookmarked} />
+            {bookmarkCount > 0 && (
+              <span style={{ fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-mono, monospace)' }}>{bookmarkCount}</span>
+            )}
           </button>
         </div>
 

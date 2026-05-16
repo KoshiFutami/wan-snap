@@ -30,6 +30,8 @@ export type Post = {
   caption: string | null;
   tags: string[];
   items: PostItem[];
+  likeCount: number;
+  bookmarkCount: number;
   createdAt: string;
   updatedAt: string;
   dog: PostDog | null;
@@ -159,6 +161,10 @@ export const api = {
     ) => request<Post>(`/posts/${id}`, { method: 'PATCH', body: JSON.stringify(body), token }),
     delete: (id: string, token: string) =>
       request<void>(`/posts/${id}`, { method: 'DELETE', token }),
+    bookmark: (id: string, token: string) =>
+      request<void>(`/posts/${id}/bookmark`, { method: 'POST', token }),
+    unbookmark: (id: string, token: string) =>
+      request<void>(`/posts/${id}/bookmark`, { method: 'DELETE', token }),
   },
   auth: {
     signUp: (body: { email: string; password: string; displayName: string }) =>
@@ -188,6 +194,12 @@ export const api = {
         body: formData,
         token,
       });
+    },
+    getMyBookmarks: (token: string, params?: { limit?: number; cursor?: string }) => {
+      const qs = new URLSearchParams();
+      if (params?.limit) qs.set('limit', String(params.limit));
+      if (params?.cursor) qs.set('cursor', params.cursor);
+      return request<ListPostsResponse>(`/users/me/bookmarks?${qs.toString()}`, { token });
     },
   },
   dogs: {

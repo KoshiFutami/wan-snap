@@ -20,6 +20,8 @@ export interface PostRelations {
   dogWeightKg: number | null;
   dogPhotoUrl: string | null;
   authorDisplayName: string;
+  likeCount: number;
+  bookmarkCount: number;
 }
 
 export interface FindAllWithRelationsResult {

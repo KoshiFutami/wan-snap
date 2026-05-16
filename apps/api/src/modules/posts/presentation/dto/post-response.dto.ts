@@ -45,6 +45,8 @@ export class PostResponseDto {
   caption: string | null;
   tags: string[];
   items: PostItemResponseDto[];
+  likeCount: number;
+  bookmarkCount: number;
   createdAt: string;
   updatedAt: string;
   dog: PostDogDto | null;
@@ -63,6 +65,8 @@ export class PostResponseDto {
     dto.caption = post.caption?.value ?? null;
     dto.tags = post.tags.map((t) => t.value);
     dto.items = post.items.map(PostItemResponseDto.from);
+    dto.likeCount = relations?.likeCount ?? 0;
+    dto.bookmarkCount = relations?.bookmarkCount ?? 0;
     dto.createdAt = post.createdAt.toISOString();
     dto.updatedAt = post.updatedAt.toISOString();
     dto.dog = relations
