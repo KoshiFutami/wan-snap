@@ -1,8 +1,65 @@
 'use client';
 
+import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getAccessToken, clearTokens } from '../lib/auth-store';
+
+const T = {
+  ink: '#1F1A14',
+  ink50: '#7E7567',
+  paper: '#FFFEFB',
+  cream: '#F4EDE0',
+  hairline: 'rgba(31,26,20,0.08)',
+};
+
+function PawLogo() {
+  return (
+    <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <ellipse cx="6" cy="9" rx="2" ry="2.6" fill={T.ink} />
+        <ellipse cx="11" cy="6.4" rx="2" ry="2.6" fill={T.ink} />
+        <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" fill={T.ink} />
+        <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" fill={T.ink} />
+        <path
+          d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z"
+          fill={T.ink}
+        />
+      </svg>
+      <span
+        style={{
+          fontFamily: 'var(--font-serif), "Noto Serif JP", serif',
+          fontWeight: 600,
+          fontSize: 20,
+          letterSpacing: '-0.01em',
+          color: T.ink,
+          lineHeight: 1,
+        }}
+      >
+        Wan<span style={{ opacity: 0.45, margin: '0 1px' }}>·</span>Snap
+      </span>
+    </Link>
+  );
+}
+
+function IconCircleBtn({ children, href, onClick }: { children: ReactNode; href?: string; onClick?: () => void }) {
+  const style: CSSProperties = {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    background: T.paper,
+    border: `1px solid ${T.hairline}`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    flexShrink: 0,
+    color: T.ink,
+    textDecoration: 'none',
+  };
+  if (href) return <Link href={href} style={style}>{children}</Link>;
+  return <button onClick={onClick} style={style}>{children}</button>;
+}
 
 export function Header() {
   const [isAuthed, setIsAuthed] = useState(false);
@@ -17,41 +74,71 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border-warm bg-white/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-sm items-center justify-between px-4 py-2.5">
-        <Link href="/" className="flex items-center gap-1">
-          <span
-            className="text-xl font-black tracking-tight"
-            style={{ background: 'linear-gradient(135deg, #FF6B35, #EF476F)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
-          >
-            🐾 Wan-Snap
-          </span>
-        </Link>
+    <header
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        background: 'rgba(244,237,224,0.92)',
+        borderBottom: `1px solid ${T.hairline}`,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 390,
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '10px 20px',
+        }}
+      >
+        <PawLogo />
 
-        <div className="flex items-center gap-2">
+        <div style={{ display: 'flex', gap: 8 }}>
           {isAuthed ? (
             <>
-              <IconButton emoji="🔍" href="/discover" />
-              <button
-                onClick={handleSignOut}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-base transition-colors hover:bg-primary-light"
-                title="ログアウト"
-              >
-                👤
-              </button>
+              <IconCircleBtn href="/discover">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                  <circle cx="9" cy="9" r="6" stroke={T.ink} strokeWidth="1.6" />
+                  <path d="M13.5 13.5L17 17" stroke={T.ink} strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              </IconCircleBtn>
+              <IconCircleBtn onClick={handleSignOut}>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                  <circle cx="10" cy="7" r="3.2" stroke={T.ink} strokeWidth="1.5" />
+                  <path d="M3.5 17c.8-3.4 3.5-5 6.5-5s5.7 1.6 6.5 5" stroke={T.ink} strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </IconCircleBtn>
             </>
           ) : (
             <>
               <Link
                 href="/auth/sign-in"
-                className="text-sm font-medium text-text-sub hover:text-text-main transition-colors"
+                style={{
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: T.ink50,
+                  textDecoration: 'none',
+                  padding: '8px 4px',
+                }}
               >
                 ログイン
               </Link>
               <Link
                 href="/auth/sign-up"
-                className="rounded-full px-4 py-1.5 text-sm font-bold text-white transition-all hover:opacity-90"
-                style={{ background: 'linear-gradient(135deg, #FF6B35, #EF476F)', boxShadow: '0 4px 14px rgba(255,107,53,0.4)' }}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 999,
+                  background: T.ink,
+                  color: '#F4EDE0',
+                  fontSize: 12.5,
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  letterSpacing: '0.02em',
+                }}
               >
                 はじめる
               </Link>
@@ -61,10 +148,4 @@ export function Header() {
       </div>
     </header>
   );
-}
-
-function IconButton({ emoji, href }: { emoji: string; href?: string }) {
-  const cls = "flex h-9 w-9 items-center justify-center rounded-full bg-surface text-base transition-colors hover:bg-primary-light";
-  if (href) return <Link href={href} className={cls}>{emoji}</Link>;
-  return <button className={cls}>{emoji}</button>;
 }

@@ -5,6 +5,18 @@ import Image from 'next/image';
 import { useState } from 'react';
 import type { Post } from '../lib/api';
 
+const T = {
+  ink: '#1F1A14',
+  ink70: '#4A4239',
+  ink50: '#7E7567',
+  ink30: '#B8AE9E',
+  ink10: '#E8E0D0',
+  paper: '#FFFEFB',
+  cream: '#F4EDE0',
+  terracotta: '#B95A3D',
+  hairline: 'rgba(31,26,20,0.08)',
+};
+
 type Props = { post: Post };
 
 function relativeTime(iso: string): string {
@@ -17,11 +29,59 @@ function relativeTime(iso: string): string {
   return `${Math.floor(h / 24)}日前`;
 }
 
+function HeartIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill={filled ? T.terracotta : 'none'}>
+      <path
+        d="M12 20.5s-7.5-4.7-7.5-10.2c0-2.7 2-4.8 4.5-4.8 1.8 0 2.7 1 3 1.7.3-.7 1.2-1.7 3-1.7 2.5 0 4.5 2.1 4.5 4.8 0 5.5-7.5 10.2-7.5 10.2z"
+        stroke={filled ? T.terracotta : T.ink}
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CommentIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M4 5h16v11h-9l-4 3.5V16H4V5z" stroke={T.ink} strokeWidth="1.6" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M12 3v13M12 3l-4 4M12 3l4 4M5 14v5h14v-5" stroke={T.ink} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function BookmarkIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M6 4h12v17l-6-3.5L6 21V4z" stroke={T.ink} strokeWidth="1.6" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function PawIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill={T.terracotta}>
+      <ellipse cx="6" cy="9" rx="2" ry="2.6" />
+      <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
+      <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
+      <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
+      <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
+    </svg>
+  );
+}
+
 export function PostCard({ post }: Props) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
 
-  const fitItem = post.items.find((i) => i.fitNote);
   const dogName = post.dog?.name ?? 'わんこ';
   const authorName = post.author?.displayName ?? '';
   const breed = post.dog?.breed;
@@ -29,116 +89,172 @@ export function PostCard({ post }: Props) {
 
   const handleLike = () => {
     setLiked((v) => {
-      setLikeCount((c) => v ? c - 1 : c + 1);
+      setLikeCount((c) => (v ? c - 1 : c + 1));
       return !v;
     });
   };
 
   return (
-    <article className="border-b border-border-warm bg-white">
+    <article
+      style={{
+        background: T.paper,
+        borderRadius: 18,
+        overflow: 'hidden',
+        border: `1px solid ${T.hairline}`,
+        marginBottom: 20,
+      }}
+    >
       {/* ヘッダー */}
-      <div className="flex items-center gap-2.5 px-3.5 py-2.5">
+      <div style={{ padding: '12px 14px 10px', display: 'flex', alignItems: 'center', gap: 10 }}>
+        {/* アバター */}
         <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl"
-          style={{ background: 'linear-gradient(135deg, #FFE0D0, #FFD6E0)', border: '2px solid #FFE0D0' }}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            background: T.ink10,
+            flexShrink: 0,
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-          🐾
+          <svg width="20" height="20" viewBox="0 0 24 24" fill={T.ink50}>
+            <ellipse cx="6" cy="9" rx="2" ry="2.6" />
+            <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
+            <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
+            <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
+            <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
+          </svg>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-extrabold text-text-main leading-tight">
-            {dogName}{authorName ? ` & ${authorName}` : ''}
-          </p>
-          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: T.ink }}>{dogName}</span>
+            {authorName && (
+              <span style={{ fontSize: 10.5, color: T.ink50 }}>{authorName}</span>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3, flexWrap: 'wrap' }}>
             {breed && (
-              <span className="rounded-full bg-primary-light px-2 py-0.5 text-[10px] font-bold text-primary-dark">
-                🐕 {breed}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10.5, color: T.ink70, fontWeight: 500 }}>
+                <PawIcon />
+                {breed}
               </span>
+            )}
+            {breed && weight != null && (
+              <span style={{ width: 2, height: 2, borderRadius: 2, background: T.ink30, flexShrink: 0 }} />
             )}
             {weight != null && (
-              <span className="rounded-full bg-accent-yellow-light px-2 py-0.5 text-[10px] font-bold" style={{ color: '#9B7A00' }}>
-                ⚖️ {weight}kg
+              <span style={{ fontSize: 10.5, color: T.ink70, fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>
+                {weight}kg
               </span>
             )}
-            <span className="text-[10px] text-text-muted">{relativeTime(post.createdAt)}</span>
           </div>
         </div>
-        <button className="p-1 text-base text-text-muted">•••</button>
+
+        <span style={{ fontSize: 10.5, color: T.ink50, flexShrink: 0 }}>{relativeTime(post.createdAt)}</span>
       </div>
 
       {/* 写真 */}
       <Link href={`/posts/${post.id}`}>
-        <div className="relative aspect-square w-full overflow-hidden bg-surface">
+        <div style={{ position: 'relative', width: '100%', aspectRatio: '4/5', background: T.ink10, overflow: 'hidden' }}>
           <Image
             src={post.imageUrl}
             alt={post.caption ?? `${dogName}のスナップ`}
             fill
-            sizes="(max-width: 384px) 100vw, 384px"
-            className="object-cover"
+            sizes="(max-width: 390px) 100vw, 390px"
+            style={{ objectFit: 'cover' }}
           />
+          {post.items.length > 0 && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                padding: '5px 9px',
+                borderRadius: 999,
+                background: 'rgba(31,26,20,0.55)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                color: '#fff',
+                fontSize: 10.5,
+                fontWeight: 500,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                <path d="M2 2h6l6 6-6 6-6-6V2z" stroke="#fff" strokeWidth="1.4" strokeLinejoin="round" />
+                <circle cx="5" cy="5" r="1" fill="#fff" />
+              </svg>
+              {post.items.length} アイテム
+            </div>
+          )}
         </div>
       </Link>
 
       {/* アクションバー */}
-      <div className="flex items-center px-1.5 pt-1 pb-0.5">
-        <button
-          onClick={handleLike}
-          className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors ${liked ? 'text-accent-pink' : 'text-text-sub'}`}
-        >
-          <span className="text-[20px] leading-none">{liked ? '❤️' : '🤍'}</span>
-          {likeCount > 0 && <span className="text-[12px]">{likeCount}</span>}
-        </button>
-        <Link
-          href={`/posts/${post.id}`}
-          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-text-sub transition-colors"
-        >
-          <span className="text-[20px] leading-none">💬</span>
-        </Link>
-        <button className="flex items-center rounded-lg px-2.5 py-1.5 text-text-sub transition-colors">
-          <span className="text-[20px] leading-none">↗️</span>
-        </button>
-        <button className="ml-auto flex items-center rounded-lg px-2.5 py-1.5 text-text-sub transition-colors">
-          <span className="text-[20px] leading-none">🔖</span>
-        </button>
-      </div>
+      <div style={{ padding: '12px 14px 14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: post.caption ? 10 : 0 }}>
+          <button
+            onClick={handleLike}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              color: T.ink,
+            }}
+          >
+            <HeartIcon filled={liked} />
+            {likeCount > 0 && (
+              <span style={{ fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-mono, monospace)' }}>{likeCount}</span>
+            )}
+          </button>
 
-      {/* Fit Check ストリップ */}
-      {fitItem && (
-        <div className="mx-3.5 mb-2 flex items-start gap-2.5 rounded-2xl bg-surface px-3 py-2.5">
-          <div className="min-w-0">
-            <p className="text-[10px] font-black uppercase tracking-wider text-primary mb-0.5">Fit Check</p>
-            <p className="text-xs text-text-sub leading-relaxed">
-              {fitItem.size && <><span className="font-bold text-text-main">{fitItem.size}</span>{' — '}</>}
-              {fitItem.fitNote}
-            </p>
-          </div>
+          <Link
+            href={`/posts/${post.id}`}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, color: T.ink, textDecoration: 'none' }}
+          >
+            <CommentIcon />
+          </Link>
+
+          <button style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: T.ink }}>
+            <ShareIcon />
+          </button>
+
+          <div style={{ flex: 1 }} />
+
+          <button style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: T.ink }}>
+            <BookmarkIcon />
+          </button>
         </div>
-      )}
 
-      {/* キャプション */}
-      {post.caption && (
-        <p className="px-3.5 pb-1.5 text-[13px] leading-relaxed text-text-main">
-          <span className="font-extrabold">{dogName}</span>{' '}
-          {post.caption}
-        </p>
-      )}
+        {/* キャプション */}
+        {post.caption && (
+          <div style={{ fontSize: 13, color: T.ink, lineHeight: 1.55 }}>
+            <span style={{ fontWeight: 600 }}>{dogName}</span>
+            <span style={{ color: T.ink70, marginLeft: 8 }}>{post.caption}</span>
+          </div>
+        )}
 
-      {/* タグ */}
-      {post.tags.length > 0 && (
-        <p className="px-3.5 pb-2 text-[13px]">
-          {post.tags.map((tag) => (
-            <span key={tag} className="mr-1 font-semibold text-accent-blue">#{tag}</span>
-          ))}
-        </p>
-      )}
-
-      {/* アイテムリンク */}
-      {post.items.length > 0 && !fitItem && (
-        <Link href={`/posts/${post.id}`} className="flex items-center gap-1 px-3.5 pb-3 text-xs font-bold text-primary hover:text-primary-dark transition-colors">
-          🏷️ アイテム {post.items.length}件を見る →
-        </Link>
-      )}
-
-      {(!post.caption && post.tags.length === 0 && post.items.length === 0 && !fitItem) && <div className="pb-3" />}
+        {/* タグ */}
+        {post.tags.length > 0 && (
+          <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+            {post.tags.map((tag) => (
+              <span key={tag} style={{ fontSize: 12, color: T.ink50, fontWeight: 500 }}>
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
     </article>
   );
 }

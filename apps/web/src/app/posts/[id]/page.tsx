@@ -5,112 +5,264 @@ import { api } from '../../../lib/api';
 
 type Props = { params: Promise<{ id: string }> };
 
+const T = {
+  ink: '#1F1A14',
+  ink70: '#4A4239',
+  ink50: '#7E7567',
+  ink30: '#B8AE9E',
+  ink10: '#E8E0D0',
+  paper: '#FFFEFB',
+  cream: '#F4EDE0',
+  creamSoft: '#FAF5EA',
+  terracotta: '#B95A3D',
+  forest: '#3F5A40',
+  hairline: 'rgba(31,26,20,0.08)',
+};
+
 export default async function PostDetailPage({ params }: Props) {
   const { id } = await params;
   const post = await api.posts.get(id).catch(() => null);
   if (!post) notFound();
 
-  return (
-    <div className="mx-auto max-w-2xl">
-      <Link
-        href="/"
-        className="mb-6 inline-flex items-center gap-1 text-sm font-semibold text-text-sub hover:text-primary transition-colors"
-      >
-        ← 一覧に戻る
-      </Link>
+  const dogName = post.dog?.name ?? 'わんこ';
+  const breed = post.dog?.breed;
+  const weight = post.dog?.weightKg;
 
-      <div className="overflow-hidden rounded-3xl bg-white" style={{ boxShadow: '0 6px 24px rgba(255,107,53,0.12)' }}>
-        <div className="relative aspect-square w-full overflow-hidden bg-surface">
-          <Image
-            src={post.imageUrl}
-            alt={post.caption ?? 'スナップ写真'}
-            fill
-            sizes="(max-width: 672px) 100vw, 672px"
-            className="object-cover"
-            priority
-          />
+  return (
+    <div style={{ paddingBottom: 40 }}>
+      {/* 戻るボタン */}
+      <div style={{ padding: '16px 20px 8px' }}>
+        <Link
+          href="/"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            width: 38,
+            height: 38,
+            borderRadius: 19,
+            background: T.paper,
+            border: `1px solid ${T.hairline}`,
+            justifyContent: 'center',
+            textDecoration: 'none',
+            color: T.ink,
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M14 5l-7 7 7 7" stroke={T.ink} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </Link>
+      </div>
+
+      {/* メイン写真 */}
+      <div style={{ margin: '0 20px', borderRadius: 20, overflow: 'hidden', aspectRatio: '4/5', background: T.ink10, position: 'relative' }}>
+        <Image
+          src={post.imageUrl}
+          alt={post.caption ?? 'スナップ写真'}
+          fill
+          sizes="(max-width: 390px) 100vw, 390px"
+          style={{ objectFit: 'cover' }}
+          priority
+        />
+      </div>
+
+      {/* オーナー・犬情報 */}
+      <div style={{ padding: '18px 20px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            background: T.ink10,
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <svg width="26" height="26" viewBox="0 0 24 24" fill={T.ink50}>
+            <ellipse cx="6" cy="9" rx="2" ry="2.6" />
+            <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
+            <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
+            <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
+            <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
+          </svg>
         </div>
 
-        <div className="p-6 space-y-5">
-          {post.caption && (
-            <p className="text-text-main leading-relaxed font-medium">{post.caption}</p>
-          )}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-serif, serif)',
+                fontSize: 18,
+                fontWeight: 500,
+                color: T.ink,
+                lineHeight: 1,
+              }}
+            >
+              {dogName}
+            </span>
+            {post.author?.displayName && (
+              <span style={{ fontSize: 11, color: T.ink50 }}>{post.author.displayName}</span>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 5, flexWrap: 'wrap' }}>
+            {breed && (
+              <span
+                style={{
+                  padding: '2px 7px',
+                  borderRadius: 4,
+                  background: T.cream,
+                  fontSize: 10,
+                  color: T.ink,
+                }}
+              >
+                {breed}
+              </span>
+            )}
+            {weight != null && (
+              <span style={{ fontSize: 10.5, color: T.ink, fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>
+                {weight}kg
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
 
-          {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full bg-primary-light px-3 py-1 text-sm font-bold text-primary-dark"
-                >
-                  {tag}
-                </span>
-              ))}
+      {/* キャプション */}
+      {post.caption && (
+        <div style={{ padding: '0 20px 18px', fontSize: 13, lineHeight: 1.6, color: T.ink }}>
+          {post.caption}
+        </div>
+      )}
+
+      {/* タグ */}
+      {post.tags.length > 0 && (
+        <div style={{ padding: '0 20px 16px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {post.tags.map((tag) => (
+            <span key={tag} style={{ fontSize: 12, color: T.ink50, fontWeight: 500 }}>#{tag}</span>
+          ))}
+        </div>
+      )}
+
+      {/* 着用アイテム */}
+      {post.items.length > 0 && (
+        <div
+          style={{
+            margin: '0 20px',
+            padding: '18px 16px',
+            borderRadius: 18,
+            background: T.creamSoft,
+            border: `1px solid ${T.hairline}`,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 16,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 10,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: T.ink50,
+                fontWeight: 500,
+              }}
+            >
+              着用アイテム · {post.items.length}
             </div>
-          )}
+          </div>
 
-          {post.items.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="text-xs font-black text-text-sub uppercase tracking-widest">🏷️ 着用アイテム</h2>
-              <div className="divide-y divide-border-warm">
-                {post.items.map((item) => (
-                  <div key={item.id} className="py-4 space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="space-y-1">
-                        <span
-                          className="inline-block rounded-full px-2 py-0.5 text-xs font-bold text-primary-dark"
-                          style={{ background: '#FFE0D0' }}
-                        >
-                          {item.category}
-                        </span>
-                        {item.brand && (
-                          <p className="text-sm font-bold text-text-main">{item.brand}</p>
-                        )}
-                        {item.productName && (
-                          <p className="text-sm text-text-sub">{item.productName}</p>
-                        )}
-                      </div>
-                      {item.size && (
-                        <span className="shrink-0 rounded-full border-2 border-border-warm px-3 py-0.5 text-xs font-bold text-text-sub">
-                          {item.size}
-                        </span>
-                      )}
+          {post.items.map((item, i) => (
+            <div key={item.id}>
+              {i > 0 && <div style={{ height: 1, background: T.hairline, margin: '14px 0' }} />}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                {/* プロダクトプレースホルダー */}
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 10,
+                    background: T.paper,
+                    border: `1px solid ${T.hairline}`,
+                    flexShrink: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 8,
+                      background: i === 0 ? T.terracotta : T.forest,
+                    }}
+                  />
+                </div>
+
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: 9.5,
+                      letterSpacing: '0.14em',
+                      textTransform: 'uppercase',
+                      color: T.ink50,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {item.brand ?? item.category}
+                  </div>
+                  {item.productName && (
+                    <div style={{ fontSize: 13, fontWeight: 500, color: T.ink, marginTop: 2 }}>
+                      {item.productName}
                     </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: 10.5, color: T.ink70, flexWrap: 'wrap' }}>
+                    {item.size && <span>{item.size}</span>}
+                    {item.size && item.fitNote && <span style={{ color: T.ink30 }}>·</span>}
                     {item.fitNote && (
-                      <p className="text-xs text-text-sub rounded-2xl px-4 py-2.5 font-medium"
-                        style={{ background: '#FFF9F5', border: '1px solid #FFE0D0' }}>
-                        💬 {item.fitNote}
-                      </p>
-                    )}
-                    {item.priceJpy != null && (
-                      <p className="text-sm font-bold text-text-sub">
-                        ¥{item.priceJpy.toLocaleString('ja-JP')}
-                      </p>
-                    )}
-                    {item.purchaseUrl && (
-                      <a
-                        href={item.purchaseUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:text-primary-dark transition-colors"
-                      >
-                        購入ページを見る →
-                      </a>
+                      <span style={{ color: i === 0 ? T.terracotta : T.forest }}>{item.fitNote}</span>
                     )}
                   </div>
-                ))}
+                  {item.priceJpy != null && (
+                    <div
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: T.ink,
+                        marginTop: 4,
+                        fontFamily: 'var(--font-mono, monospace)',
+                        letterSpacing: '-0.02em',
+                      }}
+                    >
+                      ¥{item.priceJpy.toLocaleString('ja-JP')}
+                    </div>
+                  )}
+                  {item.purchaseUrl && (
+                    <a
+                      href={item.purchaseUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontSize: 11, fontWeight: 500, color: T.terracotta, textDecoration: 'none', marginTop: 4, display: 'inline-block' }}
+                    >
+                      購入ページを見る →
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
-          )}
-
-          <p className="text-xs text-text-muted">
-            {new Date(post.createdAt).toLocaleDateString('ja-JP', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </p>
+          ))}
         </div>
+      )}
+
+      {/* 日付 */}
+      <div style={{ padding: '16px 20px 0', fontSize: 10.5, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>
+        {new Date(post.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}
       </div>
     </div>
   );

@@ -1,45 +1,161 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+const T = {
+  ink: '#1F1A14',
+  ink50: '#7E7567',
+  paper: '#FFFEFB',
+  cream: '#F4EDE0',
+  terracotta: '#B95A3D',
+  hairline: 'rgba(31,26,20,0.08)',
+};
+
+function HomeIcon({ active }: { active: boolean }) {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill={active ? T.ink : 'none'}>
+      <path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4v-9z" stroke={T.ink} strokeWidth="1.6" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 20 20" fill="none">
+      <circle cx="9" cy="9" r="6" stroke={T.ink50} strokeWidth="1.6" />
+      <path d="M13.5 13.5L17 17" stroke={T.ink50} strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function BookmarkIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M6 4h12v17l-6-3.5L6 21V4z" stroke={T.ink50} strokeWidth="1.6" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function UserIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 20 20" fill="none">
+      <circle cx="10" cy="7" r="3.2" stroke={T.ink50} strokeWidth="1.5" />
+      <path d="M3.5 17c.8-3.4 3.5-5 6.5-5s5.7 1.6 6.5 5" stroke={T.ink50} strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M12 5v14M5 12h14" stroke="#FFFEFB" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function BottomNav() {
   const pathname = usePathname();
-
-  const isActive = (path: string) => pathname === path;
+  const isHome = pathname === '/';
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 flex items-end border-t border-border-warm bg-white"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 8px)', boxShadow: '0 -4px 20px rgba(0,0,0,0.06)' }}
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        background: T.paper,
+        borderTop: `1px solid ${T.hairline}`,
+        paddingBottom: 'env(safe-area-inset-bottom, 16px)',
+      }}
     >
-      <div className="mx-auto flex w-full max-w-sm items-end">
-        <NavItem href="/" icon="🏠" label="ホーム" active={isActive('/')} />
-        <NavItem href="/discover" icon="🔍" label="発見" active={isActive('/discover')} />
+      <div
+        style={{
+          maxWidth: 390,
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'flex-start',
+          paddingTop: 12,
+        }}
+      >
+        <NavItem href="/" label="フィード" active={isHome}>
+          <HomeIcon active={isHome} />
+        </NavItem>
 
-        {/* FAB */}
-        <div className="flex flex-1 justify-center">
+        <NavItem href="/discover" label="さがす" active={pathname === '/discover'}>
+          <SearchIcon />
+        </NavItem>
+
+        {/* Center FAB */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', marginTop: -22 }}>
           <Link
             href="/posts/new"
-            className="mb-1 flex h-12 w-12 -translate-y-2.5 items-center justify-center rounded-full text-2xl text-white transition-transform hover:scale-110"
-            style={{ background: 'linear-gradient(135deg, #FF6B35, #EF476F)', boxShadow: '0 6px 20px rgba(255,107,53,0.45)' }}
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: 26,
+              background: T.terracotta,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: `0 6px 18px rgba(185,90,61,0.35), 0 0 0 4px ${T.paper}`,
+              textDecoration: 'none',
+            }}
           >
-            ＋
+            <PlusIcon />
           </Link>
         </div>
 
-        <NavItem href="/album" icon="📸" label="アルバム" active={isActive('/album')} />
-        <NavItem href="/profile" icon="🐾" label="マイわん" active={isActive('/profile')} />
+        <NavItem href="/album" label="保存" active={pathname === '/album'}>
+          <BookmarkIcon />
+        </NavItem>
+
+        <NavItem href="/profile" label="マイわん" active={pathname === '/profile'}>
+          <UserIcon />
+        </NavItem>
       </div>
     </nav>
   );
 }
 
-function NavItem({ href, icon, label, active }: { href: string; icon: string; label: string; active: boolean }) {
+function NavItem({
+  href,
+  label,
+  active,
+  children,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+  children: ReactNode;
+}) {
   return (
-    <Link href={href} className="flex flex-1 flex-col items-center gap-0.5 py-2 transition-transform active:scale-95">
-      <span className={`text-[22px] transition-transform ${active ? 'scale-110' : ''}`}>{icon}</span>
-      <span className={`text-[9px] font-bold ${active ? 'text-primary' : 'text-text-muted'}`}>{label}</span>
+    <Link
+      href={href}
+      style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 4,
+        textDecoration: 'none',
+        color: active ? T.ink : T.ink50,
+      }}
+    >
+      {children}
+      <span
+        style={{
+          fontSize: 10,
+          fontWeight: active ? 600 : 500,
+          letterSpacing: '0.04em',
+          color: active ? T.ink : T.ink50,
+        }}
+      >
+        {label}
+      </span>
     </Link>
   );
 }
