@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { api } from '../../../lib/api';
+import { EditButton } from './EditButton';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -30,8 +31,8 @@ export default async function PostDetailPage({ params }: Props) {
 
   return (
     <div style={{ paddingBottom: 40 }}>
-      {/* 戻るボタン */}
-      <div style={{ padding: '16px 20px 8px' }}>
+      {/* 戻るボタン・編集ボタン */}
+      <div style={{ padding: '16px 20px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Link
           href="/"
           style={{
@@ -52,6 +53,7 @@ export default async function PostDetailPage({ params }: Props) {
             <path d="M14 5l-7 7 7 7" stroke={T.ink} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
+        <EditButton postId={post.id} authorId={post.authorId} />
       </div>
 
       {/* メイン写真 */}

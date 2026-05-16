@@ -62,6 +62,7 @@ export type UpdateDogInput = {
   chestCm?: number;
   backLengthCm?: number;
   coatColors?: string[];
+  photoUrl?: string | null;
 };
 
 export type User = {
@@ -75,6 +76,7 @@ export type User = {
 
 export type UpdateUserInput = {
   displayName?: string;
+  avatarUrl?: string | null;
   bio?: string;
   location?: string;
 };
@@ -134,6 +136,11 @@ export const api = {
         token,
       });
     },
+    update: (
+      id: string,
+      body: { imageUrl?: string; caption?: string; items?: Omit<PostItem, 'id'>[] },
+      token: string,
+    ) => request<Post>(`/posts/${id}`, { method: 'PATCH', body: JSON.stringify(body), token }),
     delete: (id: string, token: string) =>
       request<void>(`/posts/${id}`, { method: 'DELETE', token }),
   },

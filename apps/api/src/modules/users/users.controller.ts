@@ -104,8 +104,12 @@ export class UsersController {
 
   @Patch('me')
   @UseGuards(JwtAuthGuard)
-  updateMe(@CurrentUser() user: JwtPayload, @Body() dto: UpdateUserDto) {
-    return this.prisma.user.update({
+  async updateMe(@CurrentUser() user: JwtPayload, @Body() dto: UpdateUserDto) {
+    const current = await this.prisma.user.findUnique({
+      where: { id: user.sub },
+      select: { avatarUrl: true },
+    });
+    const updated = await this.prisma.user.update({
       where: { id: user.sub },
       data: dto,
       select: {
@@ -117,5 +121,13 @@ export class UsersController {
         updatedAt: true,
       },
     });
+    if (
+      dto.avatarUrl !== undefined &&
+      current?.avatarUrl &&
+      dto.avatarUrl !== current.avatarUrl
+    ) {
+      await this.profileImageStorage.deleteImage(current.avatarUrl);
+    }
+    return updated;
   }
 }

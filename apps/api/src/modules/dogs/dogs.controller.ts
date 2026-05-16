@@ -107,7 +107,15 @@ export class DogsController {
     if (dog.ownerId !== user.sub)
       throw new ForbiddenException('編集権限がありません');
 
-    return this.prisma.dog.update({ where: { id }, data: dto });
+    const updated = await this.prisma.dog.update({ where: { id }, data: dto });
+    if (
+      dto.photoUrl !== undefined &&
+      dog.photoUrl &&
+      dto.photoUrl !== dog.photoUrl
+    ) {
+      await this.profileImageStorage.deleteImage(dog.photoUrl);
+    }
+    return updated;
   }
 
   @Delete(':id')
