@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -15,6 +14,7 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../../../common/guards/optional-jwt-auth.guard';
@@ -25,7 +25,9 @@ import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { CreatePostUseCase } from '../application/use-cases/create-post.use-case';
 import { DeletePostUseCase } from '../application/use-cases/delete-post.use-case';
 import { GetPostUseCase } from '../application/use-cases/get-post.use-case';
+import { LikePostUseCase } from '../application/use-cases/like-post.use-case';
 import { ListPostsUseCase } from '../application/use-cases/list-posts.use-case';
+import { UnlikePostUseCase } from '../application/use-cases/unlike-post.use-case';
 import { UpdatePostUseCase } from '../application/use-cases/update-post.use-case';
 import { PostImageStorageService } from '../infrastructure/services/post-image-storage.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -39,7 +41,9 @@ export class PostsController {
   constructor(
     private readonly createPost: CreatePostUseCase,
     private readonly getPost: GetPostUseCase,
+    private readonly likePost: LikePostUseCase,
     private readonly listPosts: ListPostsUseCase,
+    private readonly unlikePost: UnlikePostUseCase,
     private readonly deletePost: DeletePostUseCase,
     private readonly updatePost: UpdatePostUseCase,
     private readonly postImageStorage: PostImageStorageService,
@@ -129,24 +133,7 @@ export class PostsController {
     @Param('id') id: string,
     @CurrentUser() user: JwtPayload,
   ): Promise<void> {
-    const post = await this.prisma.post.findUnique({ where: { id } });
-    if (!post) throw new NotFoundException('投稿が見つかりません');
-    try {
-      await this.prisma.like.create({
-        data: { userId: user.sub, postId: id },
-      });
-    } catch (err: unknown) {
-      // P2002: ユニーク制約違反（重複いいね）
-      if (
-        typeof err === 'object' &&
-        err !== null &&
-        'code' in err &&
-        (err as { code: string }).code === 'P2002'
-      ) {
-        throw new ConflictException('すでにいいね済みです');
-      }
-      throw err;
-    }
+    await this.likePost.execute(id, user.sub);
   }
 
   @Delete(':id/like')
@@ -156,12 +143,7 @@ export class PostsController {
     @Param('id') id: string,
     @CurrentUser() user: JwtPayload,
   ): Promise<void> {
-    const deleted = await this.prisma.like.deleteMany({
-      where: { userId: user.sub, postId: id },
-    });
-    if (deleted.count === 0) {
-      throw new NotFoundException('いいねが見つかりません');
-    }
+    await this.unlikePost.execute(id, user.sub);
   }
 
   @Post(':id/bookmark')

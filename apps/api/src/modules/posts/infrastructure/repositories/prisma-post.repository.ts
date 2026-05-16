@@ -125,9 +125,7 @@ export class PrismaPostRepository implements IPostRepository {
       authorDisplayName: raw.author.displayName,
       likeCount: raw._count?.likes ?? 0,
       bookmarkCount: raw._count?.bookmarks ?? 0,
-      isLikedByMe: requesterId
-        ? (raw.likes?.some((l) => l.userId === requesterId) ?? false)
-        : false,
+      isLikedByMe: raw.likes?.some((l) => l.userId === requesterId) ?? false,
     };
   }
 
