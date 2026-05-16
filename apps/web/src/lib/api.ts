@@ -44,9 +44,25 @@ export type Dog = {
   id: string;
   name: string;
   breed: string;
+  birthYear: number | null;
   weightKg: number | null;
+  neckCm: number | null;
+  chestCm: number | null;
+  backLengthCm: number | null;
   coatColors: string[];
   photoUrl: string | null;
+  createdAt: string;
+};
+
+export type UpdateDogInput = {
+  name?: string;
+  birthYear?: number;
+  weightKg?: number;
+  neckCm?: number;
+  chestCm?: number;
+  backLengthCm?: number;
+  coatColors?: string[];
+  photoUrl?: string;
 };
 
 export type User = {
@@ -145,6 +161,7 @@ export const api = {
   },
   dogs: {
     list: (token: string) => request<Dog[]>('/dogs', { token }),
+    get: (id: string, token: string) => request<Dog>(`/dogs/${id}`, { token }),
     create: (
       body: {
         name: string;
@@ -154,5 +171,9 @@ export const api = {
       },
       token: string,
     ) => request<Dog>('/dogs', { method: 'POST', body: JSON.stringify(body), token }),
+    update: (id: string, body: UpdateDogInput, token: string) =>
+      request<Dog>(`/dogs/${id}`, { method: 'PATCH', body: JSON.stringify(body), token }),
+    delete: (id: string, token: string) =>
+      request<void>(`/dogs/${id}`, { method: 'DELETE', token }),
   },
 };
