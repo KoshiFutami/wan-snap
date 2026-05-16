@@ -50,7 +50,8 @@ export default async function DogDetailPage({ params }: Props) {
   const weightKg = dog.weightKg;
   const authorName = dog.ownerDisplayName;
   const compactDogId = dog.id.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, DOG_CODE_LENGTH);
-  const dogCode = `#${compactDogId.padEnd(DOG_CODE_LENGTH, 'X')}`;
+  const dogCodeSeed = compactDogId || 'DOG';
+  const dogCode = `#${dogCodeSeed.slice(0, DOG_CODE_LENGTH).padEnd(DOG_CODE_LENGTH, dogCodeSeed.at(-1) ?? 'G')}`;
 
   return (
     <div style={{ background: T.cream, minHeight: '100dvh', paddingBottom: 28, position: 'relative' }}>
@@ -85,9 +86,9 @@ export default async function DogDetailPage({ params }: Props) {
             <path d="M14 5l-7 7 7 7" stroke={T.ink} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
-        <button
-          type="button"
-          aria-label="メニュー"
+        <Link
+          href={`/dogs/${id}/edit`}
+          aria-label="愛犬プロフィールを編集"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -105,7 +106,7 @@ export default async function DogDetailPage({ params }: Props) {
             <circle cx="10" cy="10" r="1.4" fill="currentColor" />
             <circle cx="16" cy="10" r="1.4" fill="currentColor" />
           </svg>
-        </button>
+        </Link>
       </div>
 
       <div style={{ paddingTop: 102 }}>
