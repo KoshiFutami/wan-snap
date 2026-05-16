@@ -51,11 +51,15 @@ export class WanSnapInfrastructureStack extends cdk.Stack {
       userName: 'wan-snap-api-storage',
     });
 
+    const imageObjectPrefixes = ['posts', 'avatars', 'dogs'];
+
     apiUser.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         actions: ['s3:PutObject', 's3:DeleteObject', 's3:GetObject'],
-        resources: [`${imagesBucket.bucketArn}/posts/*`],
+        resources: imageObjectPrefixes.map(
+          (prefix) => `${imagesBucket.bucketArn}/${prefix}/*`,
+        ),
       }),
     );
 
