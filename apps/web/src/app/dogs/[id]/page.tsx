@@ -49,8 +49,8 @@ export default async function DogDetailPage({ params }: Props) {
   const breed = dog.breed;
   const weightKg = dog.weightKg;
   const authorName = dog.ownerDisplayName;
-  const compactDogId = dog.id.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-  const dogCode = `#${(compactDogId || 'DOG').slice(0, DOG_CODE_LENGTH).padEnd(DOG_CODE_LENGTH, 'X')}`;
+  const compactDogId = dog.id.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, DOG_CODE_LENGTH);
+  const dogCode = `#${compactDogId.padEnd(DOG_CODE_LENGTH, 'X')}`;
 
   return (
     <div style={{ background: T.cream, minHeight: '100dvh', paddingBottom: 28, position: 'relative' }}>
