@@ -51,10 +51,14 @@ export class PrismaPostRepository implements IPostRepository {
   ): Promise<FindAllWithRelationsResult> {
     const limit = Math.min(options.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const cursor = options.cursor ? this.decodeCursor(options.cursor) : null;
+    const where = {
+      ...(options.authorId ? { authorId: options.authorId } : {}),
+    };
 
     const raws = await this.prisma.post.findMany({
       take: limit + 1,
       ...(cursor && { cursor: { id: cursor.id }, skip: 1 }),
+      where,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
         items: true,
@@ -100,6 +104,9 @@ export class PrismaPostRepository implements IPostRepository {
   async findAll(options: FindAllOptions = {}): Promise<FindAllResult> {
     const limit = Math.min(options.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const cursor = options.cursor ? this.decodeCursor(options.cursor) : null;
+    const where = {
+      ...(options.authorId ? { authorId: options.authorId } : {}),
+    };
 
     const raws = await this.prisma.post.findMany({
       take: limit + 1,
@@ -107,6 +114,7 @@ export class PrismaPostRepository implements IPostRepository {
         cursor: { id: cursor.id },
         skip: 1,
       }),
+      where,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: { items: true },
     });

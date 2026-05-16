@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getAccessToken, clearTokens, getValidToken } from '../../lib/auth-store';
-import { api, type User, type Dog } from '../../lib/api';
+import { api, type User, type Dog, type Post } from '../../lib/api';
 
 const T = {
   ink: '#1F1A14',
@@ -24,6 +25,8 @@ export default function ProfilePage() {
   const [isAuthed, setIsAuthed] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [dogs, setDogs] = useState<Dog[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [activeTab, setActiveTab] = useState<'snaps' | 'items' | 'saved'>('snaps');
 
   useEffect(() => {
     const token = getAccessToken();
@@ -31,12 +34,15 @@ export default function ProfilePage() {
     setIsAuthed(true);
     getValidToken().then((t) => {
       if (!t) return;
-      Promise.all([
-        api.users.getMe(t),
-        api.dogs.list(t),
-      ]).then(([u, d]) => {
+      api.users.getMe(t).then((u) => {
         setUser(u);
+        return Promise.all([
+          api.dogs.list(t),
+          api.posts.list({ limit: 20, authorId: u.id }),
+        ]);
+      }).then(([d, postResponse]) => {
         setDogs(d);
+        setPosts(postResponse.posts);
       }).catch(() => null);
     });
   }, []);
@@ -44,6 +50,24 @@ export default function ProfilePage() {
   const handleSignOut = () => {
     clearTokens();
     router.push('/');
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${user?.displayName ?? 'Wan Snap'}のプロフィール`,
+      text: `${user?.displayName ?? 'Wan Snap'}のプロフィールをチェック`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        return;
+      }
+      await navigator.clipboard.writeText(window.location.href);
+    } catch {
+      return;
+    }
   };
 
   if (!isAuthed) {
@@ -78,22 +102,29 @@ export default function ProfilePage() {
     );
   }
 
+  const handle = user?.displayName
+    ? `@${user.displayName.trim().replace(/\s+/g, '_')}`
+    : '@wan_snap';
+  const postCount = posts.length;
+  const itemCount = posts.reduce((count, post) => count + post.items.length, 0);
+  const dogNames = dogs.map((dog) => dog.name).join('・');
+
   return (
-    <div style={{ paddingBottom: 32 }}>
+    <div style={{ paddingBottom: 120 }}>
       {/* トップバー */}
       <div style={{
-        padding: '8px 12px 6px',
+        padding: '12px 12px 6px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
       }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: T.ink }}>
-          {user?.displayName ?? '…'}
+        <div style={{ fontSize: 13, fontWeight: 700, color: T.ink }}>
+          {handle}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Link href="/posts/new" style={{
             width: 36, height: 36, borderRadius: 18,
-            background: T.cream,
+            background: T.paper,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             border: `1px solid ${T.hairline}`,
           }}>
@@ -101,42 +132,61 @@ export default function ProfilePage() {
               <path d="M10 2v14M3 9l7-7 7 7" stroke={T.ink} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </Link>
-          <Link href="/profile/edit" style={{
+          <button
+            onClick={() => router.push('/profile/edit')}
+            style={{
             width: 36, height: 36, borderRadius: 18,
-            background: T.cream,
+            background: T.paper,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             border: `1px solid ${T.hairline}`,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
           }}>
             <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
               <circle cx="10" cy="10" r="3" stroke={T.ink} strokeWidth="1.5" />
               <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4 4l1.5 1.5M14.5 14.5L16 16M4 16l1.5-1.5M14.5 5.5L16 4"
                 stroke={T.ink} strokeWidth="1.5" strokeLinecap="round" />
             </svg>
-          </Link>
+          </button>
         </div>
       </div>
 
       {/* ユーザーヘッダー */}
       <div style={{ padding: '8px 12px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           {/* アバター */}
           <div style={{
             width: 76, height: 76, borderRadius: 38,
-            background: T.cream,
+            background: T.paper,
             border: `1px solid ${T.hairline}`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             overflow: 'hidden',
             flexShrink: 0,
+            position: 'relative',
           }}>
             {user?.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={user.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <Image src={user.avatarUrl} alt="" fill sizes="76px" style={{ objectFit: 'cover' }} />
             ) : (
-              <svg width="36" height="36" viewBox="0 0 20 20" fill={T.ink50}>
-                <circle cx="10" cy="7" r="3.2" />
-                <path d="M3.5 17c.8-3.4 3.5-5 6.5-5s5.7 1.6 6.5 5" />
-              </svg>
+              <span style={{
+                fontFamily: 'var(--font-serif, serif)',
+                fontSize: 34,
+                lineHeight: 1,
+                color: T.ink,
+              }}>
+                {(user?.displayName ?? 'W').slice(0, 1)}
+              </span>
             )}
+          </div>
+
+          <div style={{
+            flex: 1,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            gap: 8,
+          }}>
+            <ProfileStat value={formatCount(postCount)} label="投稿" />
+            <ProfileStat value="-" label="フォロワー" />
+            <ProfileStat value="-" label="フォロー中" />
           </div>
         </div>
 
@@ -150,12 +200,11 @@ export default function ProfilePage() {
         </div>
 
         {/* bio / location */}
-        {(user?.bio || user?.location) && (
-          <div style={{ fontSize: 12, color: T.ink70, lineHeight: 1.55, marginTop: 4 }}>
-            {user?.location && <span>{user.location} · </span>}
-            {user?.bio}
-          </div>
-        )}
+        <div style={{ fontSize: 12, color: T.ink70, lineHeight: 1.65, marginTop: 8 }}>
+          {user?.bio || 'Wan Snapでうちの子のコーデ記録をまとめています。'}
+          {dogNames ? <div>愛犬: {dogNames}</div> : null}
+          {user?.location ? <div>{user.location}</div> : null}
+        </div>
 
         {/* ボタン行 */}
         <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
@@ -169,18 +218,34 @@ export default function ProfilePage() {
             プロフィール編集
           </Link>
           <button
-            onClick={handleSignOut}
+            onClick={handleShare}
             style={{
               padding: '9px 14px', borderRadius: 10,
-              background: T.paper, color: T.ink70,
+              background: T.paper, color: T.ink,
               border: `1px solid ${T.hairlineStrong}`,
               fontSize: 12, fontWeight: 500,
               cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
-            ログアウト
+            シェア
           </button>
         </div>
+
+        <button
+          onClick={handleSignOut}
+          style={{
+            marginTop: 10,
+            padding: 0,
+            border: 'none',
+            background: 'none',
+            color: T.ink50,
+            fontSize: 11,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          ログアウト
+        </button>
       </div>
 
       {/* マイわんセクション */}
@@ -221,37 +286,209 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* スナップを投稿 */}
-      <div style={{ padding: '24px 12px 0' }}>
-        <Link href="/posts/new" style={{
-          display: 'flex', alignItems: 'center', gap: 12,
-          padding: '14px 16px',
-          background: T.paper,
-          borderRadius: 14,
-          border: `1px solid ${T.hairline}`,
-          textDecoration: 'none',
-          color: T.ink,
+      <div style={{ marginTop: 28 }}>
+        <div style={{
+          padding: '0 12px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 28,
+          borderBottom: `1px solid ${T.hairline}`,
         }}>
+          <ProfileTab
+            label="スナップ"
+            count={postCount}
+            active={activeTab === 'snaps'}
+            onClick={() => setActiveTab('snaps')}
+          />
+          <ProfileTab
+            label="アイテム"
+            count={itemCount}
+            active={activeTab === 'items'}
+            onClick={() => setActiveTab('items')}
+          />
+          <ProfileTab
+            label="保存"
+            count={0}
+            active={activeTab === 'saved'}
+            onClick={() => setActiveTab('saved')}
+          />
+        </div>
+
+        {activeTab === 'snaps' && posts.length > 0 ? (
           <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: T.cream,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            gap: 4,
+            paddingTop: 12,
           }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="5" width="18" height="14" rx="3" stroke={T.ink70} strokeWidth="1.5" />
-              <circle cx="12" cy="12" r="3" stroke={T.ink70} strokeWidth="1.5" />
-              <circle cx="17" cy="8" r="1.2" fill={T.ink70} />
-            </svg>
+            {posts.map((post) => (
+              <Link key={post.id} href={`/posts/${post.id}`} style={{ textDecoration: 'none' }}>
+                <div style={{
+                  position: 'relative',
+                  width: '100%',
+                  aspectRatio: '1',
+                  background: T.ink10,
+                  overflow: 'hidden',
+                }}>
+                  <Image
+                    src={post.imageUrl}
+                    alt={post.caption ?? '投稿画像'}
+                    fill
+                    sizes="33vw"
+                    style={{ objectFit: 'cover' }}
+                  />
+                </div>
+              </Link>
+            ))}
           </div>
-          <span style={{ flex: 1, fontSize: 13.5, fontWeight: 500 }}>スナップを投稿</span>
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <path d="M6 4l4 4-4 4" stroke={T.ink50} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </Link>
+        ) : (
+          <div style={{ padding: '18px 12px 0' }}>
+            <EmptyPanel
+              title={activeTab === 'snaps' ? 'まだ投稿はありません' : activeTab === 'items' ? 'まだアイテムがありません' : '保存はまだありません'}
+              description={
+                activeTab === 'snaps'
+                  ? '最初のコーデスナップを投稿すると、ここに一覧で並びます。'
+                  : activeTab === 'items'
+                    ? '投稿に登録したアイテム数がここに反映されます。'
+                    : '保存したスナップは今後ここから見返せるようにします。'
+              }
+              href={activeTab === 'snaps' ? '/posts/new' : undefined}
+              cta={activeTab === 'snaps' ? '投稿する' : undefined}
+            />
+          </div>
+        )}
+
+        {activeTab === 'items' && itemCount > 0 && (
+          <div style={{ padding: '14px 12px 0', display: 'grid', gap: 10 }}>
+            {posts.flatMap((post) =>
+              post.items.map((item) => (
+                <div
+                  key={item.id}
+                  style={{
+                    padding: '12px 14px',
+                    borderRadius: 12,
+                    background: T.paper,
+                    border: `1px solid ${T.hairline}`,
+                  }}
+                >
+                  <div style={{ fontSize: 11, color: T.terracotta, fontWeight: 600 }}>{item.category}</div>
+                  <div style={{ marginTop: 4, fontSize: 13, fontWeight: 600, color: T.ink }}>
+                    {item.brand ?? 'ブランド未設定'}
+                  </div>
+                  {item.productName && (
+                    <div style={{ marginTop: 2, fontSize: 12, color: T.ink70 }}>{item.productName}</div>
+                  )}
+                  <div style={{ marginTop: 6, fontSize: 11, color: T.ink50 }}>
+                    {item.size ? `サイズ ${item.size}` : 'サイズ未設定'}
+                    {item.fitNote ? ` · ${item.fitNote}` : ''}
+                  </div>
+                </div>
+              )),
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
+}
+
+function formatCount(value: number): string {
+  if (value >= 1000) {
+    const rounded = Math.round((value / 1000) * 10) / 10;
+    return `${rounded}k`;
+  }
+  return String(value);
+}
+
+function ProfileStat({ value, label }: { value: string; label: string }) {
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <div style={{
+        fontFamily: 'var(--font-serif, serif)',
+        fontSize: 28,
+        lineHeight: 1,
+        color: T.ink,
+      }}>
+        {value}
+      </div>
+      <div style={{ marginTop: 8, fontSize: 11, color: T.ink50 }}>{label}</div>
+    </div>
+  );
+}
+
+function ProfileTab({
+  label,
+  count,
+  active,
+  onClick,
+}: {
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        position: 'relative',
+        padding: '0 0 14px',
+        border: 'none',
+        background: 'none',
+        color: active ? T.ink : T.ink50,
+        fontSize: 13,
+        fontWeight: active ? 700 : 500,
+        cursor: 'pointer',
+        fontFamily: 'inherit',
+      }}
+    >
+      {label}{' '}
+      <span style={{ color: T.ink30, fontWeight: 500 }}>{count}</span>
+      {active && (
+        <span style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: -1,
+          height: 3,
+          borderRadius: 999,
+          background: T.ink,
+        }} />
+      )}
+    </button>
+  );
+}
+
+function EmptyPanel({
+  title,
+  description,
+  href,
+  cta,
+}: {
+  title: string;
+  description: string;
+  href?: string;
+  cta?: string;
+}) {
+  const content = (
+    <div style={{
+      padding: '18px 16px',
+      borderRadius: 14,
+      background: T.paper,
+      border: `1px dashed ${T.hairlineStrong}`,
+      color: T.ink,
+    }}>
+      <div style={{ fontSize: 13.5, fontWeight: 600 }}>{title}</div>
+      <div style={{ marginTop: 4, fontSize: 12, color: T.ink50, lineHeight: 1.5 }}>{description}</div>
+      {cta && <div style={{ marginTop: 10, fontSize: 12, color: T.terracotta, fontWeight: 600 }}>{cta}</div>}
+    </div>
+  );
+
+  if (href) {
+    return <Link href={href} style={{ textDecoration: 'none' }}>{content}</Link>;
+  }
+
+  return content;
 }
 
 function DogCard({ dog, active }: { dog: Dog; active: boolean }) {

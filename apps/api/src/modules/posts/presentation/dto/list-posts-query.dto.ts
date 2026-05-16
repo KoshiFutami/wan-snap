@@ -27,4 +27,8 @@ export class ListPostsQueryDto {
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
+
+  @IsOptional()
+  @IsString()
+  authorId?: string;
 }
