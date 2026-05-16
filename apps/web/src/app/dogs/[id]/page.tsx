@@ -18,30 +18,30 @@ const T = {
 };
 
 async function getDogPosts(dogId: string) {
+  const MAX_POSTS = 120;
   const posts: Awaited<ReturnType<typeof api.posts.list>>['posts'] = [];
   let cursor: string | undefined;
 
   while (true) {
-    const response = await api.posts.list({ cursor, dogId });
+    const response = await api.posts.list({ limit: 30, cursor, dogId });
     posts.push(...response.posts);
-    if (!response.nextCursor) break;
+    if (!response.nextCursor || posts.length >= MAX_POSTS) break;
     cursor = response.nextCursor;
   }
 
-  return posts;
+  return posts.slice(0, MAX_POSTS);
 }
 
 export default async function DogDetailPage({ params }: Props) {
   const { id } = await params;
+  const dog = await api.dogs.getPublic(id).catch(() => null);
+  if (!dog) notFound();
   const posts = await getDogPosts(id);
-  if (posts.length === 0) notFound();
-
-  const latestPost = posts[0];
-  const dogName = latestPost.dog?.name ?? 'わんこ';
-  const dogPhotoUrl = latestPost.dog?.photoUrl;
-  const breed = latestPost.dog?.breed;
-  const weightKg = latestPost.dog?.weightKg;
-  const authorName = latestPost.author?.displayName;
+  const dogName = dog.name;
+  const dogPhotoUrl = dog.photoUrl;
+  const breed = dog.breed;
+  const weightKg = dog.weightKg;
+  const authorName = dog.ownerDisplayName;
 
   return (
     <div style={{ background: T.creamSoft, minHeight: '100dvh', paddingBottom: 28 }}>

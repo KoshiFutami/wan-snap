@@ -55,6 +55,15 @@ export type Dog = {
   createdAt: string;
 };
 
+export type PublicDog = {
+  id: string;
+  name: string;
+  breed: string;
+  weightKg: number | null;
+  photoUrl: string | null;
+  ownerDisplayName: string;
+};
+
 export type UpdateDogInput = {
   name?: string;
   birthYear?: number;
@@ -183,6 +192,7 @@ export const api = {
   dogs: {
     list: (token: string) => request<Dog[]>('/dogs', { token }),
     get: (id: string, token: string) => request<Dog>(`/dogs/${id}`, { token }),
+    getPublic: (id: string) => request<PublicDog>(`/dogs/public/${id}`),
     create: (
       body: {
         name: string;
