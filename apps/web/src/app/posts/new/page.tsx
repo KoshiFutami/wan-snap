@@ -124,7 +124,7 @@ export default function NewPostPage() {
 
   if (dogs.length === 0 && !loading) {
     return (
-      <div style={{ padding: '64px 20px', textAlign: 'center' }}>
+      <div style={{ padding: '64px 12px', textAlign: 'center' }}>
         <svg width="48" height="48" viewBox="0 0 24 24" fill={T.ink10} style={{ margin: '0 auto' }}>
           <ellipse cx="6" cy="9" rx="2" ry="2.6" />
           <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
@@ -163,7 +163,7 @@ export default function NewPostPage() {
         onCancel={handleCropCancel}
       />
     )}
-    <div style={{ padding: '8px 20px 120px' }}>
+    <div style={{ padding: '8px 12px 120px' }}>
       {/* タイトル */}
       <div style={{ marginBottom: 20, paddingTop: 8 }}>
         <div
@@ -413,7 +413,7 @@ export default function NewPostPage() {
             bottom: 0,
             left: 0,
             right: 0,
-            padding: '16px 20px 32px',
+            padding: '16px 12px 32px',
             background: `linear-gradient(180deg, transparent, ${T.cream} 30%)`,
           }}
         >

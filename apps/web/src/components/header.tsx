@@ -87,7 +87,7 @@ export function Header() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '10px 20px',
+          padding: '10px 12px',
         }}
       >
         <PawLogo />

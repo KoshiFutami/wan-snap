@@ -57,7 +57,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div style={{ padding: '8px 20px 120px' }}>
+    <div style={{ padding: '8px 12px 120px' }}>
       {/* ステップインジケーター */}
       <div style={{ marginBottom: 22, paddingTop: 8 }}>
         <div
@@ -186,7 +186,7 @@ export default function SignUpPage() {
             bottom: 0,
             left: 0,
             right: 0,
-            padding: '16px 20px 32px',
+            padding: '16px 12px 32px',
             background: `linear-gradient(180deg, transparent, ${T.cream} 30%)`,
           }}
         >

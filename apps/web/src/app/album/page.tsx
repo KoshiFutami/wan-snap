@@ -6,7 +6,7 @@ const T = {
 
 export default function AlbumPage() {
   return (
-    <div style={{ padding: '64px 20px', textAlign: 'center' }}>
+    <div style={{ padding: '64px 12px', textAlign: 'center' }}>
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style={{ margin: '0 auto' }}>
         <path d="M6 4h12v17l-6-3.5L6 21V4z" stroke={T.ink10} strokeWidth="2" strokeLinejoin="round" />
       </svg>

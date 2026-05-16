@@ -22,7 +22,7 @@ export interface DogProfile {
   backLengthCm?: number;
   coatColor: CoatColor;
   coatColors: CoatColor[];
-  photoUrl?: string;
+  photoUrl?: string | null;
   ownerId: string;
   createdAt: string;
   updatedAt: string;

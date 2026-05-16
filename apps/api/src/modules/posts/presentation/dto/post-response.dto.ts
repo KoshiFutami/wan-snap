@@ -30,6 +30,7 @@ export class PostDogDto {
   name: string;
   breed: string;
   weightKg: number | null;
+  photoUrl: string | null;
 }
 
 export class PostAuthorDto {
@@ -69,6 +70,7 @@ export class PostResponseDto {
           name: relations.dogName,
           breed: relations.dogBreed,
           weightKg: relations.dogWeightKg,
+          photoUrl: relations.dogPhotoUrl,
         }
       : null;
     dto.author = relations

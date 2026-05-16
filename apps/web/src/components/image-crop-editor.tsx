@@ -128,7 +128,7 @@ export function ImageCropEditor({
 
   const controlsStyle: CSSProperties = {
     background: '#0a0806',
-    padding: '16px 20px 32px',
+    padding: '16px 12px 32px',
     display: 'flex',
     flexDirection: 'column',
     gap: 14,
@@ -143,7 +143,7 @@ export function ImageCropEditor({
   return (
     <div style={overlayStyle}>
       {/* ヘッダー */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 12px' }}>
         <button
           type="button"
           onClick={onCancel}

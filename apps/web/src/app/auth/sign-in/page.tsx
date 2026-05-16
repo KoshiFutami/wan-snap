@@ -82,7 +82,7 @@ export default function SignInPage() {
           right: 0,
           background: T.creamSoft,
           borderRadius: '32px 32px 0 0',
-          padding: '32px 24px 40px',
+          padding: '32px 16px 40px',
           boxShadow: '0 -20px 40px rgba(31,26,20,0.06)',
         }}
       >

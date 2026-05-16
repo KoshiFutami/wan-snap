@@ -33,7 +33,9 @@ export class PrismaPostRepository implements IPostRepository {
       where: { id: id.value },
       include: {
         items: true,
-        dog: { select: { name: true, breed: true, weightKg: true } },
+        dog: {
+          select: { name: true, breed: true, weightKg: true, photoUrl: true },
+        },
         author: { select: { displayName: true } },
       },
     });
@@ -56,7 +58,9 @@ export class PrismaPostRepository implements IPostRepository {
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
         items: true,
-        dog: { select: { name: true, breed: true, weightKg: true } },
+        dog: {
+          select: { name: true, breed: true, weightKg: true, photoUrl: true },
+        },
         author: { select: { displayName: true } },
       },
     });
@@ -80,6 +84,7 @@ export class PrismaPostRepository implements IPostRepository {
       name: string;
       breed: string;
       weightKg: { toNumber(): number } | null;
+      photoUrl: string | null;
     };
     author: { displayName: string };
   }): PostRelations {
@@ -87,6 +92,7 @@ export class PrismaPostRepository implements IPostRepository {
       dogName: raw.dog.name,
       dogBreed: raw.dog.breed,
       dogWeightKg: raw.dog.weightKg ? raw.dog.weightKg.toNumber() : null,
+      dogPhotoUrl: raw.dog.photoUrl,
       authorDisplayName: raw.author.displayName,
     };
   }
