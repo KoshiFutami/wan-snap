@@ -10,6 +10,7 @@ export interface ListPostsInput {
   cursor?: string;
   tags?: string[];
   authorId?: string;
+  dogId?: string;
 }
 
 @Injectable()
@@ -24,6 +25,7 @@ export class ListPostsUseCase {
       cursor: input.cursor,
       tags: input.tags,
       authorId: input.authorId,
+      dogId: input.dogId,
     });
   }
 }

@@ -70,7 +70,10 @@ export default async function PostDetailPage({ params }: Props) {
       </div>
 
       {/* オーナー・犬情報 */}
-      <div style={{ padding: '18px 12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <Link
+        href={`/dogs/${post.dogId}`}
+        style={{ padding: '18px 12px 14px', display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}
+      >
         <div
           style={{
             width: 44,
@@ -142,7 +145,7 @@ export default async function PostDetailPage({ params }: Props) {
             )}
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* キャプション */}
       {post.caption && (

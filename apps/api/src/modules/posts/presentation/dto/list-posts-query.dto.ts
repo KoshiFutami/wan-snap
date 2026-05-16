@@ -31,4 +31,8 @@ export class ListPostsQueryDto {
   @IsOptional()
   @IsString()
   authorId?: string;
+
+  @IsOptional()
+  @IsString()
+  dogId?: string;
 }

@@ -6,6 +6,7 @@ export interface FindAllOptions {
   cursor?: string;
   tags?: string[];
   authorId?: string;
+  dogId?: string;
 }
 
 export interface FindAllResult {
