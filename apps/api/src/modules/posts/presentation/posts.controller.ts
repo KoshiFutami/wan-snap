@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   UploadedFile,
@@ -21,8 +22,10 @@ import { CreatePostUseCase } from '../application/use-cases/create-post.use-case
 import { DeletePostUseCase } from '../application/use-cases/delete-post.use-case';
 import { GetPostUseCase } from '../application/use-cases/get-post.use-case';
 import { ListPostsUseCase } from '../application/use-cases/list-posts.use-case';
+import { UpdatePostUseCase } from '../application/use-cases/update-post.use-case';
 import { PostImageStorageService } from '../infrastructure/services/post-image-storage.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { ListPostsQueryDto } from './dto/list-posts-query.dto';
 import { ListPostsResponseDto, PostResponseDto } from './dto/post-response.dto';
 import { UploadPostImageResponseDto } from './dto/upload-post-image-response.dto';
@@ -34,6 +37,7 @@ export class PostsController {
     private readonly getPost: GetPostUseCase,
     private readonly listPosts: ListPostsUseCase,
     private readonly deletePost: DeletePostUseCase,
+    private readonly updatePost: UpdatePostUseCase,
     private readonly postImageStorage: PostImageStorageService,
   ) {}
 
@@ -75,6 +79,21 @@ export class PostsController {
     }
     const imageUrl = await this.postImageStorage.uploadPostImage(file.buffer);
     return { imageUrl };
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdatePostDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<PostResponseDto> {
+    const post = await this.updatePost.execute({
+      id,
+      requesterId: user.sub,
+      ...dto,
+    });
+    return PostResponseDto.from(post);
   }
 
   @Delete(':id')

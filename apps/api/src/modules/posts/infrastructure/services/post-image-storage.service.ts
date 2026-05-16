@@ -84,6 +84,11 @@ export class PostImageStorageService {
   }
 
   async deletePostImage(imageUrl: string): Promise<void> {
+    await this.deleteImage(imageUrl);
+  }
+
+  async deleteImage(imageUrl: string | null | undefined): Promise<void> {
+    if (!imageUrl) return;
     const key = extractS3ObjectKey(imageUrl);
     if (!key) return;
     try {
