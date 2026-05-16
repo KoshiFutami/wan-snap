@@ -62,7 +62,9 @@ export function getCurrentUserId(): string | null {
   const token = getAccessToken();
   if (!token) return null;
   try {
-    const payload = JSON.parse(atob(token.split('.')[1])) as { sub: string };
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1])) as { sub: string };
     return payload.sub ?? null;
   } catch {
     return null;
