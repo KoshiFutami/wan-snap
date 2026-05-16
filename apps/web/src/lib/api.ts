@@ -62,7 +62,6 @@ export type UpdateDogInput = {
   chestCm?: number;
   backLengthCm?: number;
   coatColors?: string[];
-  photoUrl?: string;
 };
 
 export type User = {
@@ -76,7 +75,6 @@ export type User = {
 
 export type UpdateUserInput = {
   displayName?: string;
-  avatarUrl?: string;
   bio?: string;
   location?: string;
 };
@@ -177,7 +175,6 @@ export const api = {
         breed: string;
         weightKg?: number;
         coatColors?: string[];
-        photoUrl?: string;
       },
       token: string,
     ) => request<Dog>('/dogs', { method: 'POST', body: JSON.stringify(body), token }),

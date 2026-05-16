@@ -4,7 +4,6 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUrl,
   Max,
   MaxLength,
   Min,
@@ -56,8 +55,4 @@ export class CreateDogDto {
   @IsArray()
   @IsString({ each: true })
   coatColors?: string[];
-
-  @IsOptional()
-  @IsUrl()
-  photoUrl?: string;
 }
