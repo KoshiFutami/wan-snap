@@ -34,6 +34,28 @@ const inputStyle: CSSProperties = {
   boxSizing: 'border-box',
 };
 
+const imageActionButtonStyle: CSSProperties = {
+  padding: '6px 12px',
+  borderRadius: 999,
+  background: 'rgba(10,8,6,0.72)',
+  color: '#FFFEFB',
+  fontSize: 11.5,
+  fontWeight: 600,
+  border: 'none',
+  cursor: 'pointer',
+  backdropFilter: 'blur(8px)',
+  fontFamily: 'inherit',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 4,
+};
+
+const settingRows = [
+  { label: '場所', detail: '未設定' },
+  { label: 'サイズ感', detail: '未設定' },
+  { label: '公開範囲', detail: '全員に公開' },
+];
+
 export default function NewPostPage() {
   const router = useRouter();
   const [dogs, setDogs] = useState<Dog[]>([]);
@@ -228,21 +250,7 @@ export default function NewPostPage() {
                     <button
                       type="button"
                       onClick={handleReselect}
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: 999,
-                        background: 'rgba(10,8,6,0.72)',
-                        color: '#FFFEFB',
-                        fontSize: 11.5,
-                        fontWeight: 600,
-                        border: 'none',
-                        cursor: 'pointer',
-                        backdropFilter: 'blur(8px)',
-                        fontFamily: 'inherit',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 4,
-                      }}
+                      style={imageActionButtonStyle}
                     >
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -252,21 +260,7 @@ export default function NewPostPage() {
                     </button>
                   )}
                   <label
-                    style={{
-                      padding: '6px 12px',
-                      borderRadius: 999,
-                      background: 'rgba(10,8,6,0.72)',
-                      color: '#FFFEFB',
-                      fontSize: 11.5,
-                      fontWeight: 600,
-                      border: 'none',
-                      cursor: 'pointer',
-                      backdropFilter: 'blur(8px)',
-                      fontFamily: 'inherit',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                    }}
+                    style={imageActionButtonStyle}
                   >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -289,7 +283,7 @@ export default function NewPostPage() {
                   <span style={{ fontSize: 13, fontWeight: 500, color: T.ink70 }}>写真を選ぶ</span>
                   <span style={{ fontSize: 11, color: T.ink50 }}>タップして選択</span>
                 </div>
-                <div style={{ position: 'absolute', left: '47%', top: '78%', transform: 'translate(-50%, -50%)' }}>
+                <div style={{ position: 'absolute', left: '50%', top: '78%', transform: 'translate(-50%, -50%)' }}>
                   <div style={{
                     width: 36,
                     height: 36,
@@ -435,11 +429,7 @@ export default function NewPostPage() {
               overflow: 'hidden',
             }}
           >
-            {[
-              { label: '場所', detail: '未設定' },
-              { label: 'サイズ感', detail: '未設定' },
-              { label: '公開範囲', detail: '全員に公開' },
-            ].map((row, index) => (
+            {settingRows.map((row, index) => (
               <div
                 key={row.label}
                 style={{
@@ -447,7 +437,7 @@ export default function NewPostPage() {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '12px 14px',
-                  borderBottom: index < 2 ? `1px solid ${T.hairline}` : 'none',
+                  borderBottom: index < settingRows.length - 1 ? `1px solid ${T.hairline}` : 'none',
                 }}
               >
                 <span style={{ fontSize: 12.5, color: T.ink70 }}>{row.label}</span>
