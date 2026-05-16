@@ -1,40 +1,18 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../infrastructure/database/prisma.service';
-
-export type PublicDog = {
-  id: string;
-  name: string;
-  breed: string;
-  weightKg: number | null;
-  photoUrl: string | null;
-  ownerDisplayName: string;
-};
+import { Inject, Injectable } from '@nestjs/common';
+import {
+  PUBLIC_DOG_REPOSITORY,
+  type IPublicDogRepository,
+  type PublicDogProfile,
+} from '../../domain/repositories/public-dog.repository';
 
 @Injectable()
 export class GetPublicDogUseCase {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PUBLIC_DOG_REPOSITORY)
+    private readonly publicDogRepository: IPublicDogRepository,
+  ) {}
 
-  async execute(id: string): Promise<PublicDog | null> {
-    const dog = await this.prisma.dog.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        name: true,
-        breed: true,
-        weightKg: true,
-        photoUrl: true,
-        owner: { select: { displayName: true } },
-      },
-    });
-    if (!dog) return null;
-
-    return {
-      id: dog.id,
-      name: dog.name,
-      breed: dog.breed,
-      weightKg: dog.weightKg ? dog.weightKg.toNumber() : null,
-      photoUrl: dog.photoUrl,
-      ownerDisplayName: dog.owner.displayName,
-    };
+  async execute(id: string): Promise<PublicDogProfile | null> {
+    return this.publicDogRepository.findById(id);
   }
 }
