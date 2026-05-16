@@ -129,6 +129,7 @@ export default function ProfilePage() {
             flexShrink: 0,
           }}>
             {user?.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img src={user.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
               <svg width="36" height="36" viewBox="0 0 20 20" fill={T.ink50}>
@@ -212,7 +213,9 @@ export default function ProfilePage() {
           overflowX: 'auto',
         }}>
           {dogs.map((dog, i) => (
-            <DogCard key={dog.id} dog={dog} active={i === 0} />
+            <Link key={dog.id} href={`/dogs/${dog.id}/edit`} style={{ textDecoration: 'none', flexShrink: 0 }}>
+              <DogCard dog={dog} active={i === 0} />
+            </Link>
           ))}
           <DogCardPlaceholder />
         </div>
