@@ -23,7 +23,11 @@ interface ImageCropEditorProps {
   onCancel: () => void;
 }
 
-async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<Blob> {
+function toRad(deg: number) {
+  return (deg * Math.PI) / 180;
+}
+
+async function getCroppedImg(imageSrc: string, pixelCrop: Area, rotation: number): Promise<Blob> {
   const image = await new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
@@ -31,23 +35,31 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<Blob> {
     img.src = imageSrc;
   });
 
+  const rad = toRad(rotation);
+  // 回転後の画像全体を収めるバウンディングボックスサイズ
+  const bBoxW = Math.abs(Math.cos(rad) * image.width) + Math.abs(Math.sin(rad) * image.height);
+  const bBoxH = Math.abs(Math.sin(rad) * image.width) + Math.abs(Math.cos(rad) * image.height);
+
+  const rotCanvas = document.createElement('canvas');
+  rotCanvas.width = bBoxW;
+  rotCanvas.height = bBoxH;
+  const rotCtx = rotCanvas.getContext('2d');
+  if (!rotCtx) throw new Error('Canvas context unavailable');
+
+  // 中心を軸に回転して描画
+  rotCtx.translate(bBoxW / 2, bBoxH / 2);
+  rotCtx.rotate(rad);
+  rotCtx.drawImage(image, -image.width / 2, -image.height / 2);
+
+  // 回転済みキャンバスからクロップ領域を切り出す
+  const cropData = rotCtx.getImageData(pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height);
+
   const canvas = document.createElement('canvas');
   canvas.width = pixelCrop.width;
   canvas.height = pixelCrop.height;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas context unavailable');
-
-  ctx.drawImage(
-    image,
-    pixelCrop.x,
-    pixelCrop.y,
-    pixelCrop.width,
-    pixelCrop.height,
-    0,
-    0,
-    pixelCrop.width,
-    pixelCrop.height,
-  );
+  ctx.putImageData(cropData, 0, 0);
 
   return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob((blob) => {
@@ -82,7 +94,7 @@ export function ImageCropEditor({ imageSrc, onComplete, onCancel }: ImageCropEdi
     if (!croppedAreaPixels) return;
     setApplying(true);
     try {
-      const blob = await getCroppedImg(imageSrc, croppedAreaPixels);
+      const blob = await getCroppedImg(imageSrc, croppedAreaPixels, rotation);
       const previewUrl = URL.createObjectURL(blob);
       onComplete(blob, previewUrl);
     } finally {
