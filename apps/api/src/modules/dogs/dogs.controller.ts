@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
   Patch,
@@ -45,6 +48,15 @@ export class DogsController {
     });
   }
 
+  @Get(':id')
+  async findOne(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    const dog = await this.prisma.dog.findUnique({ where: { id } });
+    if (!dog) throw new NotFoundException('犬プロフィールが見つかりません');
+    if (dog.ownerId !== user.sub)
+      throw new ForbiddenException('閲覧権限がありません');
+    return dog;
+  }
+
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -57,5 +69,15 @@ export class DogsController {
       throw new ForbiddenException('編集権限がありません');
 
     return this.prisma.dog.update({ where: { id }, data: dto });
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    const dog = await this.prisma.dog.findUnique({ where: { id } });
+    if (!dog) throw new NotFoundException('犬プロフィールが見つかりません');
+    if (dog.ownerId !== user.sub)
+      throw new ForbiddenException('削除権限がありません');
+    await this.prisma.dog.delete({ where: { id } });
   }
 }
