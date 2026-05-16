@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getValidToken } from '../../../../lib/auth-store';
 import { api, type Dog } from '../../../../lib/api';
-import { BreedCombobox } from '../../../../components/breed-combobox';
 
 const T = {
   ink: '#1F1A14',

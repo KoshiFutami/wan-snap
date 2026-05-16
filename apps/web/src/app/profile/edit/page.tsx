@@ -132,6 +132,7 @@ export default function ProfileEditPage() {
               overflow: 'hidden',
             }}>
               {user.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img src={user.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : initial}
             </div>
