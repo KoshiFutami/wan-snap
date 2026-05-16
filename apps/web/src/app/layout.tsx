@@ -1,14 +1,7 @@
 import type { Metadata } from 'next';
-import { Noto_Serif_JP, Zen_Kaku_Gothic_New, JetBrains_Mono } from 'next/font/google';
+import { Zen_Kaku_Gothic_New, JetBrains_Mono } from 'next/font/google';
 import { AppShell } from '../components/app-shell';
 import './globals.css';
-
-const notoSerifJP = Noto_Serif_JP({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-serif',
-  display: 'swap',
-});
 
 const zenKakuGothicNew = Zen_Kaku_Gothic_New({
   subsets: ['latin'],
@@ -36,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja" className={`${notoSerifJP.variable} ${zenKakuGothicNew.variable} ${jetBrainsMono.variable}`}>
+    <html lang="ja" className={`${zenKakuGothicNew.variable} ${jetBrainsMono.variable}`}>
       <body
         className="antialiased"
         style={{

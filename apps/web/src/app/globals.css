@@ -33,6 +33,10 @@
   --color-border-warm: rgba(31,26,20,0.08);
 }
 
+:root {
+  --font-serif: var(--font-sans);
+}
+
 body {
   background-color: #F4EDE0;
   color: #1F1A14;
