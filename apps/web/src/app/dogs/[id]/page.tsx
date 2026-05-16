@@ -43,7 +43,7 @@ function generateDogCode(dogId: string) {
   const seed = dogId.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, DOG_CODE_LENGTH);
   if (!seed) return '#DOG';
 
-  return `#${seed.padEnd(DOG_CODE_LENGTH, seed.at(-1) ?? 'G')}`;
+  return `#${seed.padEnd(DOG_CODE_LENGTH, '0')}`;
 }
 
 export default async function DogDetailPage({ params }: Props) {
