@@ -17,6 +17,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../../../common/guards/optional-jwt-auth.guard';
 import { imageFileInterceptor } from '../../../common/interceptors/image-file.interceptor';
 import type { JwtPayload } from '../../../common/decorators/current-user.decorator';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
@@ -46,8 +47,15 @@ export class PostsController {
   ) {}
 
   @Get()
-  async list(@Query() query: ListPostsQueryDto): Promise<ListPostsResponseDto> {
-    const result = await this.listPosts.execute(query);
+  @UseGuards(OptionalJwtAuthGuard)
+  async list(
+    @Query() query: ListPostsQueryDto,
+    @CurrentUser() me: JwtPayload | null,
+  ): Promise<ListPostsResponseDto> {
+    const result = await this.listPosts.execute({
+      ...query,
+      followingUserId: query.followingOnly && me ? me.sub : undefined,
+    });
     return {
       posts: result.posts.map(({ post, relations }) =>
         PostResponseDto.from(post, relations),

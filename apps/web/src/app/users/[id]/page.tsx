@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
@@ -33,6 +33,10 @@ export default function OtherUserProfilePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [activeTab, setActiveTab] = useState<'snaps' | 'size' | 'brands'>('snaps');
   const [isFollowing, setIsFollowing] = useState(false);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [myToken, setMyToken] = useState<string | null>(null);
+  const [followLoading, setFollowLoading] = useState(false);
 
   useEffect(() => {
     if (!userId) {
@@ -44,25 +48,31 @@ export default function OtherUserProfilePage() {
     const load = async () => {
       setStatus('loading');
       const accessToken = getAccessToken();
-      const mePromise = accessToken
-        ? getValidToken()
-          .then((token) => (token ? api.users.getMe(token).catch(() => null) : null))
-          .catch(() => null)
-        : Promise.resolve(null);
+      const tokenPromise = accessToken ? getValidToken().catch(() => null) : Promise.resolve(null);
 
-      const [me, targetUser, postResponse, dogsResponse] = await Promise.all([
-        mePromise,
-        api.users.getById(userId).catch(() => null),
+      const [token, meResult] = await Promise.all([
+        tokenPromise,
+        accessToken
+          ? tokenPromise
+              .then((t) => (t ? api.users.getMe(t).catch(() => null) : null))
+              .catch(() => null)
+          : Promise.resolve(null),
+      ]);
+
+      if (cancelled) return;
+
+      if ((meResult as User | null)?.id === userId) {
+        router.replace('/profile');
+        return;
+      }
+
+      const [targetUser, postResponse, dogsResponse] = await Promise.all([
+        api.users.getById(userId, token ?? undefined).catch(() => null),
         api.posts.list({ limit: USER_PROFILE_POST_LIMIT, authorId: userId }).catch(() => ({ posts: [] as Post[], nextCursor: null })),
         api.dogs.listByUser(userId).catch(() => [] as PublicDog[]),
       ]);
 
       if (cancelled) return;
-
-      if (me?.id === userId) {
-        router.replace('/profile');
-        return;
-      }
 
       if (!targetUser) {
         setStatus('not-found');
@@ -72,6 +82,10 @@ export default function OtherUserProfilePage() {
       const authoredPosts = postResponse.posts;
       setUser(targetUser);
       setPosts(authoredPosts);
+      setIsFollowing(targetUser.isFollowing ?? false);
+      setFollowerCount(targetUser.followerCount ?? 0);
+      setFollowingCount(targetUser.followingCount ?? 0);
+      setMyToken(token);
       setDogs(
         dogsResponse.length > 0
           ? dogsResponse
@@ -87,9 +101,25 @@ export default function OtherUserProfilePage() {
     };
   }, [router, userId]);
 
-  const handleToggleFollow = () => {
-    setIsFollowing((prev) => !prev);
-  };
+  const handleToggleFollow = useCallback(async () => {
+    if (!myToken || followLoading) return;
+    setFollowLoading(true);
+    try {
+      if (isFollowing) {
+        await api.users.unfollow(userId, myToken);
+        setIsFollowing(false);
+        setFollowerCount((prev) => Math.max(0, prev - 1));
+      } else {
+        await api.users.follow(userId, myToken);
+        setIsFollowing(true);
+        setFollowerCount((prev) => prev + 1);
+      }
+    } catch {
+      // エラーは無視（楽観的 UI）
+    } finally {
+      setFollowLoading(false);
+    }
+  }, [myToken, followLoading, isFollowing, userId]);
 
   if (status === 'loading') {
     return <div style={{ padding: '80px 12px', textAlign: 'center', color: T.ink50 }}>読み込み中…</div>;
@@ -163,8 +193,8 @@ export default function OtherUserProfilePage() {
             gap: 8,
           }}>
             <ProfileStat value={formatCount(postCount)} label="投稿" />
-            <ProfileStat value="準備中" label="フォロワー" />
-            <ProfileStat value="準備中" label="フォロー中" />
+            <ProfileStat value={formatCount(followerCount)} label="フォロワー" />
+            <ProfileStat value={formatCount(followingCount)} label="フォロー中" />
           </div>
         </div>
 
@@ -182,18 +212,22 @@ export default function OtherUserProfilePage() {
         </div>
 
         <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-          <button
-            onClick={handleToggleFollow}
-            style={{
-              flex: 1, padding: '10px 14px', borderRadius: 999,
-              background: isFollowing ? T.paper : T.ink,
-              color: isFollowing ? T.ink : T.cream,
-              border: isFollowing ? `1px solid ${T.hairlineStrong}` : 'none',
-              fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-            }}
-          >
-            {isFollowing ? 'フォロー済み' : 'フォローする'}
-          </button>
+          {myToken && (
+            <button
+              onClick={() => { void handleToggleFollow(); }}
+              disabled={followLoading}
+              style={{
+                flex: 1, padding: '10px 14px', borderRadius: 999,
+                background: isFollowing ? T.paper : T.ink,
+                color: isFollowing ? T.ink : T.cream,
+                border: isFollowing ? `1px solid ${T.hairlineStrong}` : 'none',
+                fontSize: 12.5, fontWeight: 600, cursor: followLoading ? 'wait' : 'pointer', fontFamily: 'inherit',
+                opacity: followLoading ? 0.7 : 1,
+              }}
+            >
+              {isFollowing ? 'フォロー中' : 'フォローする'}
+            </button>
+          )}
           <button
             type="button"
             disabled
@@ -223,9 +257,6 @@ export default function OtherUserProfilePage() {
               <circle cx="11" cy="7" r="1.2" fill="currentColor" />
             </svg>
           </button>
-        </div>
-        <div style={{ marginTop: 6, fontSize: 10.5, color: T.ink50 }}>
-          フォロー状態は将来API連携予定です（現在はこの画面内のみ反映）。
         </div>
       </div>
 

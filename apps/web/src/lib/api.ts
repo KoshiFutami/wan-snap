@@ -84,6 +84,9 @@ export type User = {
   bio: string | null;
   location: string | null;
   createdAt: string;
+  followerCount?: number;
+  followingCount?: number;
+  isFollowing?: boolean;
 };
 
 export type UpdateUserInput = {
@@ -123,16 +126,23 @@ async function request<T>(
   return JSON.parse(text) as T;
 }
 
+export type UserPublic = {
+  id: string;
+  displayName: string;
+  avatarUrl: string | null;
+};
+
 export const api = {
   posts: {
-    list: (params?: { limit?: number; cursor?: string; tags?: string[]; authorId?: string; dogId?: string }) => {
+    list: (params?: { limit?: number; cursor?: string; tags?: string[]; authorId?: string; dogId?: string; followingOnly?: boolean }, token?: string) => {
       const qs = new URLSearchParams();
       if (params?.limit) qs.set('limit', String(params.limit));
       if (params?.cursor) qs.set('cursor', params.cursor);
       params?.tags?.forEach((t) => qs.append('tags', t));
       if (params?.authorId) qs.set('authorId', params.authorId);
       if (params?.dogId) qs.set('dogId', params.dogId);
-      return request<ListPostsResponse>(`/posts?${qs.toString()}`);
+      if (params?.followingOnly) qs.set('followingOnly', 'true');
+      return request<ListPostsResponse>(`/posts?${qs.toString()}`, token ? { token } : undefined);
     },
     get: (id: string) => request<Post>(`/posts/${id}`),
     create: (
@@ -183,7 +193,7 @@ export const api = {
   },
   users: {
     getMe: (token: string) => request<User>('/users/me', { token }),
-    getById: (id: string) => request<User>(`/users/${id}`),
+    getById: (id: string, token?: string) => request<User>(`/users/${id}`, token ? { token } : undefined),
     updateMe: (body: UpdateUserInput, token: string) =>
       request<User>('/users/me', { method: 'PATCH', body: JSON.stringify(body), token }),
     uploadAvatar: (file: File, token: string) => {
@@ -201,6 +211,14 @@ export const api = {
       if (params?.cursor) qs.set('cursor', params.cursor);
       return request<ListPostsResponse>(`/users/me/bookmarks?${qs.toString()}`, { token });
     },
+    follow: (id: string, token: string) =>
+      request<void>(`/users/${id}/follow`, { method: 'POST', token }),
+    unfollow: (id: string, token: string) =>
+      request<void>(`/users/${id}/follow`, { method: 'DELETE', token }),
+    getFollowers: (id: string) =>
+      request<UserPublic[]>(`/users/${id}/followers`),
+    getFollowing: (id: string) =>
+      request<UserPublic[]>(`/users/${id}/following`),
   },
   dogs: {
     list: (token: string) => request<Dog[]>('/dogs', { token }),

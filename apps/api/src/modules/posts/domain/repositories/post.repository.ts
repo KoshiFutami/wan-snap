@@ -7,6 +7,7 @@ export interface FindAllOptions {
   tags?: string[];
   authorId?: string;
   dogId?: string;
+  followingUserId?: string;
 }
 
 export interface FindAllResult {
