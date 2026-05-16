@@ -188,8 +188,6 @@ export default function SignUpPage() {
             right: 0,
             padding: '16px 20px 32px',
             background: `linear-gradient(180deg, transparent, ${T.cream} 30%)`,
-            maxWidth: 390,
-            margin: '0 auto',
           }}
         >
           <button
