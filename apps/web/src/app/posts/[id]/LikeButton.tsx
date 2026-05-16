@@ -1,9 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { api } from '../../../lib/api';
-import { getValidToken } from '../../../lib/auth-store';
+import { useLike } from '../../../hooks/useLike';
 
 const T = {
   ink: '#1F1A14',
@@ -17,31 +14,11 @@ type Props = {
 };
 
 export function LikeButton({ postId, initialCount, initialLiked }: Props) {
-  const router = useRouter();
-  const [liked, setLiked] = useState(initialLiked);
-  const [count, setCount] = useState(initialCount);
-
-  const handleLike = async () => {
-    const token = await getValidToken();
-    if (!token) {
-      router.push('/auth/sign-in');
-      return;
-    }
-    const next = !liked;
-    setLiked(next);
-    setCount((c) => (next ? c + 1 : c - 1));
-    try {
-      if (next) {
-        await api.posts.like(postId, token);
-      } else {
-        await api.posts.unlike(postId, token);
-      }
-    } catch {
-      // ロールバック
-      setLiked(!next);
-      setCount((c) => (next ? c - 1 : c + 1));
-    }
-  };
+  const { liked, likeCount: count, handleLike } = useLike({
+    postId,
+    initialLiked,
+    initialCount,
+  });
 
   return (
     <button

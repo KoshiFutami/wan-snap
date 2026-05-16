@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import type { Post } from '../lib/api';
 import { api } from '../lib/api';
 import { getValidToken } from '../lib/auth-store';
+import { useLike } from '../hooks/useLike';
 
 const T = {
   ink: '#1F1A14',
@@ -82,9 +82,11 @@ function PawIcon() {
 }
 
 export function PostCard({ post }: Props) {
-  const router = useRouter();
-  const [liked, setLiked] = useState(post.isLikedByMe ?? false);
-  const [likeCount, setLikeCount] = useState(post.likeCount ?? 0);
+  const { liked, likeCount, handleLike } = useLike({
+    postId: post.id,
+    initialLiked: post.isLikedByMe ?? false,
+    initialCount: post.likeCount ?? 0,
+  });
   const [bookmarked, setBookmarked] = useState(false);
   const [bookmarkCount, setBookmarkCount] = useState(post.bookmarkCount ?? 0);
 
@@ -93,28 +95,6 @@ export function PostCard({ post }: Props) {
   const breed = post.dog?.breed;
   const weight = post.dog?.weightKg;
   const dogPhotoUrl = post.dog?.photoUrl;
-
-  const handleLike = async () => {
-    const token = await getValidToken();
-    if (!token) {
-      router.push('/auth/sign-in');
-      return;
-    }
-    const next = !liked;
-    setLiked(next);
-    setLikeCount((c) => (next ? c + 1 : c - 1));
-    try {
-      if (next) {
-        await api.posts.like(post.id, token);
-      } else {
-        await api.posts.unlike(post.id, token);
-      }
-    } catch {
-      // ロールバック
-      setLiked(!next);
-      setLikeCount((c) => (next ? c - 1 : c + 1));
-    }
-  };
 
   const handleBookmark = async () => {
     const token = await getValidToken();
