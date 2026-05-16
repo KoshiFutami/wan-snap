@@ -49,6 +49,22 @@ export type Dog = {
   photoUrl: string | null;
 };
 
+export type User = {
+  id: string;
+  displayName: string;
+  avatarUrl: string | null;
+  bio: string | null;
+  location: string | null;
+  createdAt: string;
+};
+
+export type UpdateUserInput = {
+  displayName?: string;
+  avatarUrl?: string;
+  bio?: string;
+  location?: string;
+};
+
 export type AuthTokens = {
   accessToken: string;
   refreshToken: string;
@@ -121,6 +137,11 @@ export const api = {
   breeds: {
     search: (q: string) =>
       request<{ id: string; name: string }[]>(`/breeds?q=${encodeURIComponent(q)}`),
+  },
+  users: {
+    getMe: (token: string) => request<User>('/users/me', { token }),
+    updateMe: (body: UpdateUserInput, token: string) =>
+      request<User>('/users/me', { method: 'PATCH', body: JSON.stringify(body), token }),
   },
   dogs: {
     list: (token: string) => request<Dog[]>('/dogs', { token }),

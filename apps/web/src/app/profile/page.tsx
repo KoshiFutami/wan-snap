@@ -4,7 +4,8 @@ import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getAccessToken, clearTokens } from '../../lib/auth-store';
+import { getAccessToken, clearTokens, getValidToken } from '../../lib/auth-store';
+import { api, type User } from '../../lib/api';
 
 const T = {
   ink: '#1F1A14',
@@ -20,9 +21,16 @@ const T = {
 export default function ProfilePage() {
   const router = useRouter();
   const [isAuthed, setIsAuthed] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    setIsAuthed(!!getAccessToken());
+    const token = getAccessToken();
+    if (!token) return;
+    setIsAuthed(true);
+    getValidToken().then((t) => {
+      if (!t) return;
+      api.users.getMe(t).then(setUser).catch(() => null);
+    });
   }, []);
 
   const handleSignOut = () => {
@@ -64,7 +72,7 @@ export default function ProfilePage() {
 
   return (
     <div style={{ padding: '24px 20px' }}>
-      {/* アバター */}
+      {/* アバター＋名前 */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 32 }}>
         <div
           style={{
@@ -77,12 +85,17 @@ export default function ProfilePage() {
             justifyContent: 'center',
             border: `3px solid ${T.paper}`,
             boxShadow: `0 0 0 1px ${T.hairline}`,
+            overflow: 'hidden',
           }}
         >
-          <svg width="40" height="40" viewBox="0 0 20 20" fill={T.ink50}>
-            <circle cx="10" cy="7" r="3.2" />
-            <path d="M3.5 17c.8-3.4 3.5-5 6.5-5s5.7 1.6 6.5 5" />
-          </svg>
+          {user?.avatarUrl ? (
+            <img src={user.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <svg width="40" height="40" viewBox="0 0 20 20" fill={T.ink50}>
+              <circle cx="10" cy="7" r="3.2" />
+              <path d="M3.5 17c.8-3.4 3.5-5 6.5-5s5.7 1.6 6.5 5" />
+            </svg>
+          )}
         </div>
         <div style={{ textAlign: 'center' }}>
           <div
@@ -94,9 +107,16 @@ export default function ProfilePage() {
               lineHeight: 1.1,
             }}
           >
-            マイプロフィール
+            {user?.displayName ?? '…'}
           </div>
-          <div style={{ fontSize: 12, color: T.ink50, marginTop: 4 }}>プロフィール編集機能は近日公開予定</div>
+          {user?.bio && (
+            <div style={{ fontSize: 12.5, color: T.ink70, marginTop: 6, maxWidth: 240, lineHeight: 1.5 }}>
+              {user.bio}
+            </div>
+          )}
+          {user?.location && (
+            <div style={{ fontSize: 12, color: T.ink50, marginTop: 4 }}>{user.location}</div>
+          )}
         </div>
       </div>
 
@@ -109,6 +129,15 @@ export default function ProfilePage() {
           overflow: 'hidden',
         }}
       >
+        <MenuRow
+          label="プロフィールを編集"
+          href="/profile/edit"
+          icon={
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M15.5 4.5l4 4L7 21H3v-4L15.5 4.5z" stroke={T.ink70} strokeWidth="1.5" strokeLinejoin="round" />
+            </svg>
+          }
+        />
         <MenuRow
           label="愛犬を登録"
           href="/dogs/new"
