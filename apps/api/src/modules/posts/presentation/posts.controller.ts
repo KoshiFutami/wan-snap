@@ -13,8 +13,8 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { imageFileInterceptor } from '../../../common/interceptors/image-file.interceptor';
 import type { JwtPayload } from '../../../common/decorators/current-user.decorator';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { CreatePostUseCase } from '../application/use-cases/create-post.use-case';
@@ -41,7 +41,9 @@ export class PostsController {
   async list(@Query() query: ListPostsQueryDto): Promise<ListPostsResponseDto> {
     const result = await this.listPosts.execute(query);
     return {
-      posts: result.posts.map(({ post, relations }) => PostResponseDto.from(post, relations)),
+      posts: result.posts.map(({ post, relations }) =>
+        PostResponseDto.from(post, relations),
+      ),
       nextCursor: result.nextCursor,
     };
   }
@@ -64,21 +66,7 @@ export class PostsController {
 
   @Post('images')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: { fileSize: 10 * 1024 * 1024 },
-      fileFilter: (_request, file, callback) => {
-        if (!file.mimetype.startsWith('image/')) {
-          callback(
-            new BadRequestException('画像ファイルのみアップロードできます'),
-            false,
-          );
-          return;
-        }
-        callback(null, true);
-      },
-    }),
-  )
+  @UseInterceptors(imageFileInterceptor)
   async uploadImage(
     @UploadedFile() file?: { buffer: Buffer },
   ): Promise<UploadPostImageResponseDto> {

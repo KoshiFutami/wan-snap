@@ -7,18 +7,18 @@ import {
 import sharp from 'sharp';
 import { randomUUID } from 'crypto';
 import {
-  createPostImageObjectKey,
+  createAvatarObjectKey,
+  createDogPhotoObjectKey,
   extractS3ObjectKey,
   resolvePublicImageUrl,
-} from './post-image-storage-url.util';
+} from './image-storage-url.util';
 
-const MAX_IMAGE_WIDTH = 1600;
-const MAX_IMAGE_HEIGHT = 1600;
+const MAX_PROFILE_SIZE = 512;
 const WEBP_QUALITY = 85;
 
 @Injectable()
-export class PostImageStorageService {
-  private readonly logger = new Logger(PostImageStorageService.name);
+export class ProfileImageStorageService {
+  private readonly logger = new Logger(ProfileImageStorageService.name);
   private readonly bucket = process.env.STORAGE_BUCKET ?? 'wan-snap';
   private readonly region = process.env.STORAGE_REGION ?? 'ap-northeast-1';
   private readonly endpoint = process.env.STORAGE_ENDPOINT?.trim();
@@ -41,18 +41,40 @@ export class PostImageStorageService {
     });
   }
 
-  async uploadPostImage(imageBuffer: Buffer): Promise<string> {
+  async uploadAvatar(userId: string, imageBuffer: Buffer): Promise<string> {
+    const key = createAvatarObjectKey(userId, () => randomUUID());
+    return this.upload(key, imageBuffer);
+  }
+
+  async uploadDogPhoto(dogId: string, imageBuffer: Buffer): Promise<string> {
+    const key = createDogPhotoObjectKey(dogId, () => randomUUID());
+    return this.upload(key, imageBuffer);
+  }
+
+  async deleteImage(imageUrl: string | null | undefined): Promise<void> {
+    if (!imageUrl) return;
+    const key = extractS3ObjectKey(imageUrl);
+    if (!key) return;
+    try {
+      await this.s3Client.send(
+        new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
+      );
+    } catch (error) {
+      this.logger.error(`S3 オブジェクト削除失敗: ${key}`, error);
+    }
+  }
+
+  private async upload(key: string, imageBuffer: Buffer): Promise<string> {
     if (!imageBuffer.length) {
       throw new BadRequestException('画像ファイルが空です');
     }
 
-    const key = createPostImageObjectKey(new Date(), () => randomUUID());
     let optimizedImage: Buffer;
     try {
       optimizedImage = await sharp(imageBuffer)
         .rotate()
-        .resize(MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT, {
-          fit: 'inside',
+        .resize(MAX_PROFILE_SIZE, MAX_PROFILE_SIZE, {
+          fit: 'cover',
           withoutEnlargement: true,
         })
         .webp({ quality: WEBP_QUALITY })
@@ -81,17 +103,5 @@ export class PostImageStorageService {
       publicBaseUrl: this.publicBaseUrl,
       endpoint: this.endpoint,
     });
-  }
-
-  async deletePostImage(imageUrl: string): Promise<void> {
-    const key = extractS3ObjectKey(imageUrl);
-    if (!key) return;
-    try {
-      await this.s3Client.send(
-        new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
-      );
-    } catch (error) {
-      this.logger.error(`S3 オブジェクト削除失敗: ${key}`, error);
-    }
   }
 }

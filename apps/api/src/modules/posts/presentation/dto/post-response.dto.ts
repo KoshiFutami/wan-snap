@@ -49,7 +49,11 @@ export class PostResponseDto {
   dog: PostDogDto | null;
   author: PostAuthorDto | null;
 
-  static from(this: void, post: Post, relations?: PostRelations): PostResponseDto {
+  static from(
+    this: void,
+    post: Post,
+    relations?: PostRelations,
+  ): PostResponseDto {
     const dto = new PostResponseDto();
     dto.id = post.id.value;
     dto.authorId = post.authorId;
@@ -60,8 +64,16 @@ export class PostResponseDto {
     dto.items = post.items.map(PostItemResponseDto.from);
     dto.createdAt = post.createdAt.toISOString();
     dto.updatedAt = post.updatedAt.toISOString();
-    dto.dog = relations ? { name: relations.dogName, breed: relations.dogBreed, weightKg: relations.dogWeightKg } : null;
-    dto.author = relations ? { displayName: relations.authorDisplayName } : null;
+    dto.dog = relations
+      ? {
+          name: relations.dogName,
+          breed: relations.dogBreed,
+          weightKg: relations.dogWeightKg,
+        }
+      : null;
+    dto.author = relations
+      ? { displayName: relations.authorDisplayName }
+      : null;
     return dto;
   }
 }

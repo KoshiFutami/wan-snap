@@ -21,6 +21,8 @@ interface ImageCropEditorProps {
   imageSrc: string;
   onComplete: (croppedBlob: Blob, previewUrl: string) => void;
   onCancel: () => void;
+  /** 初期アスペクト比（例: 1 で正方形） */
+  defaultAspect?: number;
 }
 
 function toRad(deg: number) {
@@ -78,12 +80,19 @@ const ASPECT_OPTIONS = [
 
 type AspectOption = typeof ASPECT_OPTIONS[number];
 
-export function ImageCropEditor({ imageSrc, onComplete, onCancel }: ImageCropEditorProps) {
+export function ImageCropEditor({
+  imageSrc,
+  onComplete,
+  onCancel,
+  defaultAspect,
+}: ImageCropEditorProps) {
+  const initialAspect =
+    ASPECT_OPTIONS.find((opt) => opt.value === defaultAspect) ?? ASPECT_OPTIONS[0];
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
-  const [selectedAspect, setSelectedAspect] = useState<AspectOption>(ASPECT_OPTIONS[0]);
+  const [selectedAspect, setSelectedAspect] = useState<AspectOption>(initialAspect);
   const [applying, setApplying] = useState(false);
 
   const onCropComplete = useCallback((_: Area, pixels: Area) => {

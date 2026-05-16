@@ -1,11 +1,12 @@
 'use client';
 
 import type { CSSProperties, ReactNode } from 'react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
 import { BreedCombobox } from '../../../components/breed-combobox';
+import { ImageCropEditor } from '../../../components/image-crop-editor';
 
 const T = {
   ink: '#1F1A14',
@@ -41,6 +42,29 @@ export default function NewDogPage() {
   const [coatColors, setCoatColors] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
+  const [showCropEditor, setShowCropEditor] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setRawImageSrc(ev.target?.result as string);
+      setShowCropEditor(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleCropComplete = (blob: Blob, previewUrl: string) => {
+    setImageFile(new File([blob], 'photo.jpg', { type: 'image/jpeg' }));
+    setImagePreview(previewUrl);
+    setShowCropEditor(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +74,7 @@ export default function NewDogPage() {
     setError('');
     setLoading(true);
     try {
-      await api.dogs.create(
+      const dog = await api.dogs.create(
         {
           name,
           breed,
@@ -59,6 +83,9 @@ export default function NewDogPage() {
         },
         token,
       );
+      if (imageFile) {
+        await api.dogs.uploadPhoto(dog.id, imageFile, token);
+      }
       router.push('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : '登録に失敗しました');
@@ -68,6 +95,18 @@ export default function NewDogPage() {
   };
 
   return (
+    <>
+    {showCropEditor && rawImageSrc && (
+      <ImageCropEditor
+        imageSrc={rawImageSrc}
+        defaultAspect={1}
+        onComplete={handleCropComplete}
+        onCancel={() => {
+          setShowCropEditor(false);
+          setRawImageSrc(null);
+        }}
+      />
+    )}
     <div style={{ padding: '8px 20px 120px' }}>
       {/* ステップインジケーター */}
       <div style={{ marginBottom: 24, paddingTop: 8 }}>
@@ -90,31 +129,52 @@ export default function NewDogPage() {
         </div>
       </div>
 
-      {/* アバタープレースホルダー */}
+      {/* プロフィール写真 */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          style={{ display: 'none' }}
+          aria-hidden
+        />
         <div style={{ position: 'relative' }}>
-          <div
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            aria-label="プロフィール写真を選択"
             style={{
               width: 100,
               height: 100,
               borderRadius: 50,
               background: T.ink10,
+              backgroundImage: imagePreview ? `url(${imagePreview})` : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               border: `3px solid ${T.paper}`,
               boxShadow: `0 0 0 1px ${T.hairline}, 0 6px 16px rgba(31,26,20,0.08)`,
+              padding: 0,
+              cursor: 'pointer',
             }}
           >
-            <svg width="36" height="36" viewBox="0 0 24 24" fill={T.ink50} opacity={0.5}>
-              <ellipse cx="6" cy="9" rx="2" ry="2.6" />
-              <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
-              <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
-              <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
-              <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
-            </svg>
-          </div>
-          <div
+            {!imagePreview && (
+              <svg width="36" height="36" viewBox="0 0 24 24" fill={T.ink50} opacity={0.5}>
+                <ellipse cx="6" cy="9" rx="2" ry="2.6" />
+                <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
+                <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
+                <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
+                <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
+              </svg>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            aria-label="プロフィール写真を選択"
             style={{
               position: 'absolute',
               bottom: 0,
@@ -128,13 +188,14 @@ export default function NewDogPage() {
               justifyContent: 'center',
               border: `3px solid ${T.cream}`,
               cursor: 'pointer',
+              padding: 0,
             }}
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
               <path d="M3 5h2l1-1.5h4L11 5h2v8H3V5z" stroke="#fff" strokeWidth="1.4" strokeLinejoin="round" />
               <circle cx="8" cy="9" r="2.2" stroke="#fff" strokeWidth="1.4" />
             </svg>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -301,6 +362,7 @@ export default function NewDogPage() {
         </div>
       </form>
     </div>
+    </>
   );
 }
 

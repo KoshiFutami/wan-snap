@@ -62,7 +62,6 @@ export type UpdateDogInput = {
   chestCm?: number;
   backLengthCm?: number;
   coatColors?: string[];
-  photoUrl?: string;
 };
 
 export type User = {
@@ -76,7 +75,6 @@ export type User = {
 
 export type UpdateUserInput = {
   displayName?: string;
-  avatarUrl?: string;
   bio?: string;
   location?: string;
 };
@@ -158,6 +156,15 @@ export const api = {
     getMe: (token: string) => request<User>('/users/me', { token }),
     updateMe: (body: UpdateUserInput, token: string) =>
       request<User>('/users/me', { method: 'PATCH', body: JSON.stringify(body), token }),
+    uploadAvatar: (file: File, token: string) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return request<{ avatarUrl: string }>('/users/me/avatar', {
+        method: 'POST',
+        body: formData,
+        token,
+      });
+    },
   },
   dogs: {
     list: (token: string) => request<Dog[]>('/dogs', { token }),
@@ -173,6 +180,15 @@ export const api = {
     ) => request<Dog>('/dogs', { method: 'POST', body: JSON.stringify(body), token }),
     update: (id: string, body: UpdateDogInput, token: string) =>
       request<Dog>(`/dogs/${id}`, { method: 'PATCH', body: JSON.stringify(body), token }),
+    uploadPhoto: (id: string, file: File, token: string) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return request<{ photoUrl: string }>(`/dogs/${id}/photo`, {
+        method: 'POST',
+        body: formData,
+        token,
+      });
+    },
     delete: (id: string, token: string) =>
       request<void>(`/dogs/${id}`, { method: 'DELETE', token }),
   },

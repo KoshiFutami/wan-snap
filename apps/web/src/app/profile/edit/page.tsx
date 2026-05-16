@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getValidToken } from '../../../lib/auth-store';
 import { api, type User } from '../../../lib/api';
+import { ImageCropEditor } from '../../../components/image-crop-editor';
 
 const T = {
   ink: '#1F1A14',
@@ -31,6 +32,11 @@ export default function ProfileEditPage() {
   const [privateAccount, setPrivateAccount] = useState(false);
   const [allowTagging, setAllowTagging] = useState(true);
   const [allowContactSearch, setAllowContactSearch] = useState(true);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
+  const [showCropEditor, setShowCropEditor] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const tokenRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -46,17 +52,43 @@ export default function ProfileEditPage() {
     });
   }, [router]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setRawImageSrc(ev.target?.result as string);
+      setShowCropEditor(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleCropComplete = (blob: Blob, previewUrl: string) => {
+    setImageFile(new File([blob], 'avatar.jpg', { type: 'image/jpeg' }));
+    setImagePreview(previewUrl);
+    setShowCropEditor(false);
+  };
+
   const handleSave = async () => {
     setError(null);
     setSaving(true);
     try {
       const token = tokenRef.current ?? await getValidToken();
       if (!token) throw new Error('ログインが必要です');
+      if (imageFile) {
+        const uploaded = await api.users.uploadAvatar(imageFile, token);
+        setUser((prev) => (prev ? { ...prev, avatarUrl: uploaded.avatarUrl } : prev));
+        setImageFile(null);
+        setImagePreview(null);
+      }
       const body: Parameters<typeof api.users.updateMe>[0] = {};
       if (displayName !== (user?.displayName ?? '')) body.displayName = displayName;
       if (bio !== (user?.bio ?? '')) body.bio = bio;
       if (location !== (user?.location ?? '')) body.location = location;
-      await api.users.updateMe(body, token);
+      if (Object.keys(body).length > 0) {
+        await api.users.updateMe(body, token);
+      }
       setSuccess(true);
       setTimeout(() => router.push('/profile'), 700);
     } catch (err) {
@@ -75,8 +107,21 @@ export default function ProfileEditPage() {
   }
 
   const initial = (user.displayName ?? 'u')[0].toLowerCase();
+  const avatarSrc = imagePreview ?? user.avatarUrl;
 
   return (
+    <>
+    {showCropEditor && rawImageSrc && (
+      <ImageCropEditor
+        imageSrc={rawImageSrc}
+        defaultAspect={1}
+        onComplete={handleCropComplete}
+        onCancel={() => {
+          setShowCropEditor(false);
+          setRawImageSrc(null);
+        }}
+      />
+    )}
     <div style={{ background: T.creamSoft, minHeight: '100dvh' }}>
       {/* AppBar */}
       <div style={{
@@ -123,32 +168,49 @@ export default function ProfileEditPage() {
       <div style={{ padding: '0 20px 40px', overflowY: 'auto' }}>
         {/* Avatar */}
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24, marginBottom: 26 }}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+            aria-hidden
+          />
           <div style={{ position: 'relative' }}>
-            <div style={{
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label="プロフィール写真を変更"
+              style={{
               width: 96, height: 96, borderRadius: 48,
               background: T.cream, border: `1px solid ${T.hairline}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontFamily: 'var(--font-serif, serif)', fontSize: 40, fontWeight: 500, color: T.ink,
-              overflow: 'hidden',
+              overflow: 'hidden', padding: 0, cursor: 'pointer',
             }}>
-              {user.avatarUrl ? (
+              {avatarSrc ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={user.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={avatarSrc} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : initial}
-            </div>
-            <div style={{
-              position: 'absolute', bottom: -2, right: -2,
-              width: 30, height: 30, borderRadius: 15,
-              background: T.terracotta, color: '#fff',
-              border: `3px solid ${T.creamSoft}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer',
-            }}>
+            </button>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label="プロフィール写真を変更"
+              style={{
+                position: 'absolute', bottom: -2, right: -2,
+                width: 30, height: 30, borderRadius: 15,
+                background: T.terracotta, color: '#fff',
+                border: `3px solid ${T.creamSoft}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', padding: 0,
+              }}
+            >
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
                 <path d="M3 5h2l1-1.5h4L11 5h2v8H3V5z" stroke="#fff" strokeWidth="1.4" strokeLinejoin="round" />
                 <circle cx="8" cy="9" r="2" stroke="#fff" strokeWidth="1.4" />
               </svg>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -251,6 +313,7 @@ export default function ProfileEditPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
 
