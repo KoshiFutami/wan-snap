@@ -322,7 +322,11 @@ export default function ProfilePage() {
             paddingTop: 12,
           }}>
             {posts.map((post) => (
-              <Link key={post.id} href={`/posts/${post.id}`} style={{ textDecoration: 'none' }}>
+              <Link
+                key={post.id}
+                href={`/posts/${post.id}`}
+                style={{ textDecoration: 'none', display: 'block', minWidth: 0 }}
+              >
                 <div style={{
                   position: 'relative',
                   width: '100%',
