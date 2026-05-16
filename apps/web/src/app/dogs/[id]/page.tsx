@@ -17,7 +17,7 @@ const T = {
   hairlineStrong: 'rgba(31,26,20,0.18)',
 };
 
-function dogAge(birthYear: number | null): string | null {
+function formatDogAge(birthYear: number | null): string | null {
   if (!birthYear) return null;
   return `${new Date().getFullYear() - birthYear}歳`;
 }
@@ -28,13 +28,27 @@ export default function DogDetailPage() {
   const [dog, setDog] = useState<Dog | null>(null);
 
   useEffect(() => {
+    let mounted = true;
     getValidToken().then((token) => {
+      if (!mounted) return;
       if (!token) {
         router.replace('/auth/sign-in');
         return;
       }
-      api.dogs.get(id, token).then(setDog).catch(() => router.replace('/profile'));
+      api.dogs
+        .get(id, token)
+        .then((result) => {
+          if (!mounted) return;
+          setDog(result);
+        })
+        .catch(() => {
+          if (!mounted) return;
+          router.replace('/profile');
+        });
     });
+    return () => {
+      mounted = false;
+    };
   }, [id, router]);
 
   if (!dog) {
@@ -45,7 +59,7 @@ export default function DogDetailPage() {
     );
   }
 
-  const age = dogAge(dog.birthYear);
+  const age = formatDogAge(dog.birthYear);
 
   return (
     <div style={{ minHeight: '100dvh', background: T.creamSoft, paddingBottom: 28 }}>
