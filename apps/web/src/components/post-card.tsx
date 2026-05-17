@@ -128,7 +128,16 @@ export function PostCard({ post }: Props) {
       } else {
         await api.posts.unbookmark(post.id, token);
       }
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      if (next && message.includes('すでにブックマーク済みです')) {
+        setBookmarkCount((c) => c - 1);
+        return;
+      }
+      if (!next && message.includes('ブックマークが見つかりません')) {
+        setBookmarkCount((c) => c + 1);
+        return;
+      }
       // ロールバック
       setBookmarked(!next);
       setBookmarkCount((c) => (next ? c - 1 : c + 1));

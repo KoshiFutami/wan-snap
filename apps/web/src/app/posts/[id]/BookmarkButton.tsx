@@ -39,7 +39,16 @@ export function BookmarkButton({ postId, initialCount, initialBookmarked = false
       } else {
         await api.posts.unbookmark(postId, token);
       }
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      if (next && message.includes('すでにブックマーク済みです')) {
+        setCount((c) => c - 1);
+        return;
+      }
+      if (!next && message.includes('ブックマークが見つかりません')) {
+        setCount((c) => c + 1);
+        return;
+      }
       setBookmarked(!next);
       setCount((c) => (next ? c - 1 : c + 1));
     }

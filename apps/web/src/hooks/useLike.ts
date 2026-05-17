@@ -37,7 +37,16 @@ export function useLike({ postId, initialLiked, initialCount }: UseLikeOptions):
       } else {
         await api.posts.unlike(postId, token);
       }
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      if (next && message.includes('すでにいいね済みです')) {
+        setLikeCount((c) => c - 1);
+        return;
+      }
+      if (!next && message.includes('いいねが見つかりません')) {
+        setLikeCount((c) => c + 1);
+        return;
+      }
       // ロールバック
       setLiked(!next);
       setLikeCount((c) => (next ? c - 1 : c + 1));
