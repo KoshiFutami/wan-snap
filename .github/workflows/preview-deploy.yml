@@ -75,7 +75,7 @@ jobs:
         run: |
           npx vercel build \
             --token="$VERCEL_TOKEN" \
-            --build-env "NEXT_PUBLIC_API_URL=$BACKEND_URL/api/v1"
+            --build-env "NEXT_PUBLIC_API_URL=$BACKEND_URL"
 
       - name: Deploy prebuilt to Vercel
         id: deploy
