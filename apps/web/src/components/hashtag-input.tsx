@@ -31,6 +31,8 @@ export function HashtagInput({ value, onChange }: HashtagInputProps) {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    // IME変換中のEnter/Spaceはスキップ（日本語入力の変換確定と混同しないため）
+    if (e.nativeEvent.isComposing) return;
     if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
       e.preventDefault();
       addTag(inputValue);
