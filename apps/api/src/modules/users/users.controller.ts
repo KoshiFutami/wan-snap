@@ -270,7 +270,11 @@ export class UsersController {
             dog: {
               select: {
                 name: true,
-                breed: true,
+                breed: {
+                  select: {
+                    name: true,
+                  },
+                },
                 weightKg: true,
                 photoUrl: true,
               },
@@ -299,7 +303,7 @@ export class UsersController {
       updatedAt: post.updatedAt.toISOString(),
       dog: {
         name: post.dog.name,
-        breed: post.dog.breed,
+        breed: post.dog.breed.name,
         weightKg: post.dog.weightKg ? Number(post.dog.weightKg) : null,
         photoUrl: post.dog.photoUrl,
       },
