@@ -603,7 +603,6 @@ function FollowListSheet({
                 </div>
                 <div>
                   <div style={{ fontSize: 13.5, fontWeight: 600, color: T.ink }}>{u.displayName}</div>
-                  <div style={{ fontSize: 11, color: T.ink50, marginTop: 2 }}>@{u.displayName.trim().replace(/\s+/g, '_')}</div>
                 </div>
               </Link>
             ))
