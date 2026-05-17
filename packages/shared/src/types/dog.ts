@@ -14,6 +14,7 @@ export type CoatColor =
 export interface DogProfile {
   id: string;
   name: string;
+  breedId: string;
   breed: DogBreed;
   birthYear?: number;
   weightKg?: number;

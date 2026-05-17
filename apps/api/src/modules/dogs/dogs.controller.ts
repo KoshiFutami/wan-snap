@@ -15,6 +15,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import type { JwtPayload } from '../../common/decorators/current-user.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -23,6 +24,51 @@ import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { ProfileImageStorageService } from '../../infrastructure/storage/profile-image-storage.service';
 import { CreateDogDto } from './dto/create-dog.dto';
 import { UpdateDogDto } from './dto/update-dog.dto';
+
+const dogWithBreedSelect = Prisma.validator<Prisma.DogSelect>()({
+  id: true,
+  name: true,
+  breedId: true,
+  birthYear: true,
+  weightKg: true,
+  neckCm: true,
+  chestCm: true,
+  backLengthCm: true,
+  coatColors: true,
+  photoUrl: true,
+  createdAt: true,
+  updatedAt: true,
+  ownerId: true,
+  breed: {
+    select: {
+      name: true,
+    },
+  },
+});
+
+type DogWithBreed = Prisma.DogGetPayload<{ select: typeof dogWithBreedSelect }>;
+
+function toDogResponse(dog: DogWithBreed) {
+  return {
+    id: dog.id,
+    name: dog.name,
+    breedId: dog.breedId,
+    breed: dog.breed.name,
+    birthYear: dog.birthYear,
+    weightKg: dog.weightKg ? dog.weightKg.toNumber() : null,
+    neckCm: dog.neckCm ? dog.neckCm.toNumber() : null,
+    chestCm: dog.chestCm ? dog.chestCm.toNumber() : null,
+    backLengthCm: dog.backLengthCm ? dog.backLengthCm.toNumber() : null,
+    coatColors: Array.isArray(dog.coatColors)
+      ? dog.coatColors.filter(
+          (color): color is string => typeof color === 'string',
+        )
+      : [],
+    photoUrl: dog.photoUrl,
+    createdAt: dog.createdAt,
+    updatedAt: dog.updatedAt,
+  };
+}
 
 @Controller('dogs')
 @UseGuards(JwtAuthGuard)
@@ -33,36 +79,52 @@ export class DogsController {
   ) {}
 
   @Get()
-  findAll(@CurrentUser() user: JwtPayload) {
-    return this.prisma.dog.findMany({
+  async findAll(@CurrentUser() user: JwtPayload) {
+    const dogs = await this.prisma.dog.findMany({
       where: { ownerId: user.sub },
       orderBy: { createdAt: 'asc' },
+      select: dogWithBreedSelect,
     });
+
+    return dogs.map(toDogResponse);
+  }
+
+  private async assertBreedExists(breedId: string) {
+    const breed = await this.prisma.breed.findUnique({
+      where: { id: breedId },
+      select: { id: true },
+    });
+    if (!breed) {
+      throw new BadRequestException('選択した犬種が見つかりません');
+    }
   }
 
   @Post()
   async create(@CurrentUser() user: JwtPayload, @Body() dto: CreateDogDto) {
-    await this.prisma.breed.upsert({
-      where: { name: dto.breed },
-      update: {},
-      create: { name: dto.breed },
-    });
-    return this.prisma.dog.create({
+    await this.assertBreedExists(dto.breedId);
+
+    const dog = await this.prisma.dog.create({
       data: {
         ...dto,
         coatColors: dto.coatColors ?? [],
         ownerId: user.sub,
       },
+      select: dogWithBreedSelect,
     });
+
+    return toDogResponse(dog);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
-    const dog = await this.prisma.dog.findUnique({ where: { id } });
+    const dog = await this.prisma.dog.findUnique({
+      where: { id },
+      select: dogWithBreedSelect,
+    });
     if (!dog) throw new NotFoundException('犬プロフィールが見つかりません');
     if (dog.ownerId !== user.sub)
       throw new ForbiddenException('閲覧権限がありません');
-    return dog;
+    return toDogResponse(dog);
   }
 
   @Post(':id/photo')
@@ -76,7 +138,14 @@ export class DogsController {
       throw new BadRequestException('画像ファイルを選択してください');
     }
 
-    const dog = await this.prisma.dog.findUnique({ where: { id } });
+    const dog = await this.prisma.dog.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        ownerId: true,
+        photoUrl: true,
+      },
+    });
     if (!dog) throw new NotFoundException('犬プロフィールが見つかりません');
     if (dog.ownerId !== user.sub)
       throw new ForbiddenException('編集権限がありません');
@@ -89,6 +158,9 @@ export class DogsController {
     const updated = await this.prisma.dog.update({
       where: { id },
       data: { photoUrl },
+      select: {
+        photoUrl: true,
+      },
     });
 
     await this.profileImageStorage.deleteImage(dog.photoUrl);
@@ -102,12 +174,27 @@ export class DogsController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: UpdateDogDto,
   ) {
-    const dog = await this.prisma.dog.findUnique({ where: { id } });
+    const dog = await this.prisma.dog.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        ownerId: true,
+        photoUrl: true,
+      },
+    });
     if (!dog) throw new NotFoundException('犬プロフィールが見つかりません');
     if (dog.ownerId !== user.sub)
       throw new ForbiddenException('編集権限がありません');
 
-    const updated = await this.prisma.dog.update({ where: { id }, data: dto });
+    if (dto.breedId) {
+      await this.assertBreedExists(dto.breedId);
+    }
+
+    const updated = await this.prisma.dog.update({
+      where: { id },
+      data: dto,
+      select: dogWithBreedSelect,
+    });
     if (
       dto.photoUrl !== undefined &&
       dog.photoUrl &&
@@ -115,7 +202,7 @@ export class DogsController {
     ) {
       await this.profileImageStorage.deleteImage(dog.photoUrl);
     }
-    return updated;
+    return toDogResponse(updated);
   }
 
   @Delete(':id')

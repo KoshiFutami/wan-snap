@@ -38,7 +38,8 @@ const inputStyle: CSSProperties = {
 export default function NewDogPage() {
   const router = useRouter();
   const [name, setName] = useState('');
-  const [breed, setBreed] = useState('');
+  const [breedName, setBreedName] = useState('');
+  const [breedId, setBreedId] = useState('');
   const [weightKg, setWeightKg] = useState('');
   const [coatColors, setCoatColors] = useState('');
   const [error, setError] = useState('');
@@ -75,10 +76,13 @@ export default function NewDogPage() {
     setError('');
     setLoading(true);
     try {
+      if (!breedId) {
+        throw new Error('犬種を候補から選択するか、新しく登録してください');
+      }
       const dog = await api.dogs.create(
         {
           name,
-          breed,
+          breedId,
           weightKg: weightKg ? parseFloat(weightKg) : undefined,
           coatColors: coatColors ? coatColors.split(',').map((s) => s.trim()).filter(Boolean) : [],
         },
@@ -213,7 +217,15 @@ export default function NewDogPage() {
         </FieldRow>
 
         <FieldRow label="犬種" required>
-          <BreedCombobox value={breed} onChange={setBreed} required />
+          <BreedCombobox
+            value={breedName}
+            breedId={breedId}
+            onChange={({ id, name: nextName }) => {
+              setBreedName(nextName);
+              setBreedId(id);
+            }}
+            required
+          />
         </FieldRow>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -322,7 +334,7 @@ export default function NewDogPage() {
         <FloatingFormFooter>
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !breedId}
             style={{
               width: '100%',
               maxWidth: 350,
@@ -335,8 +347,8 @@ export default function NewDogPage() {
               fontSize: 13.5,
               fontWeight: 600,
               border: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.5 : 1,
+              cursor: loading || !breedId ? 'not-allowed' : 'pointer',
+              opacity: loading || !breedId ? 0.5 : 1,
               fontFamily: 'inherit',
               alignItems: 'center',
               justifyContent: 'center',

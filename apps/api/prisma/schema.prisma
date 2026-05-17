@@ -33,7 +33,6 @@ model User {
 model Dog {
   id           String   @id @default(uuid())
   name         String   @db.VarChar(50)
-  breed        String   @db.VarChar(100)
   birthYear    Int?     @map("birth_year")
   weightKg     Decimal? @map("weight_kg") @db.Decimal(5, 2)
   neckCm       Decimal? @map("neck_cm") @db.Decimal(5, 1)
@@ -47,6 +46,9 @@ model Dog {
 
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String @map("owner_id")
+
+  breed   Breed  @relation(fields: [breedId], references: [id], onDelete: Restrict)
+  breedId String @map("breed_id")
 
   posts Post[]
 
@@ -141,6 +143,8 @@ model Breed {
   id        String   @id @default(uuid())
   name      String   @unique @db.VarChar(100)
   createdAt DateTime @default(now()) @map("created_at")
+
+  dogs Dog[]
 
   @@map("breeds")
 }

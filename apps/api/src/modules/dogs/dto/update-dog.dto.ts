@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  IsUUID,
   Max,
   MaxLength,
   Min,
@@ -15,6 +16,10 @@ export class UpdateDogDto {
   @IsString()
   @MaxLength(50)
   name?: string;
+
+  @IsOptional()
+  @IsUUID()
+  breedId?: string;
 
   @IsOptional()
   @IsInt()
