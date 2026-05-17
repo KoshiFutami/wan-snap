@@ -16,6 +16,22 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  private async generateUniqueUsername(): Promise<string> {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    for (;;) {
+      const suffix = Array.from(
+        { length: 8 },
+        () => chars[Math.floor(Math.random() * chars.length)],
+      ).join('');
+      const candidate = `wan_${suffix}`;
+      const taken = await this.prisma.user.findUnique({
+        where: { username: candidate },
+        select: { id: true },
+      });
+      if (!taken) return candidate;
+    }
+  }
+
   async signUp(dto: SignUpDto) {
     const exists = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -23,12 +39,16 @@ export class AuthService {
     if (exists)
       throw new ConflictException('このメールアドレスは既に使用されています');
 
-    const hashed = await bcrypt.hash(dto.password, 10);
+    const [hashed, username] = await Promise.all([
+      bcrypt.hash(dto.password, 10),
+      this.generateUniqueUsername(),
+    ]);
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
         password: hashed,
         displayName: dto.displayName,
+        username,
       },
     });
 

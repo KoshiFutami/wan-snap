@@ -27,6 +27,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 const userSelect = {
   id: true,
+  username: true,
   displayName: true,
   avatarUrl: true,
   bio: true,
@@ -50,6 +51,7 @@ export class UsersController {
         where: { id: user.sub },
         select: {
           id: true,
+          username: true,
           displayName: true,
           avatarUrl: true,
           bio: true,
@@ -97,6 +99,189 @@ export class UsersController {
     return { avatarUrl: updated.avatarUrl };
   }
 
+  @Patch('me')
+  @UseGuards(JwtAuthGuard)
+  async updateMe(@CurrentUser() user: JwtPayload, @Body() dto: UpdateUserDto) {
+    const current = await this.prisma.user.findUnique({
+      where: { id: user.sub },
+      select: { avatarUrl: true },
+    });
+    try {
+      const updated = await this.prisma.user.update({
+        where: { id: user.sub },
+        data: dto,
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          avatarUrl: true,
+          bio: true,
+          location: true,
+          updatedAt: true,
+        },
+      });
+      if (
+        dto.avatarUrl !== undefined &&
+        current?.avatarUrl &&
+        dto.avatarUrl !== current.avatarUrl
+      ) {
+        await this.profileImageStorage.deleteImage(current.avatarUrl);
+      }
+      return updated;
+    } catch (err: unknown) {
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'code' in err &&
+        (err as { code: string }).code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'このユーザーネームはすでに使用されています',
+        );
+      }
+      throw err;
+    }
+  }
+
+  @Get('me/bookmarks')
+  @UseGuards(JwtAuthGuard)
+  async getMyBookmarks(
+    @CurrentUser() user: JwtPayload,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limitStr?: string,
+  ) {
+    const limit = Math.min(Number(limitStr) || 20, 100);
+    const cursorId = cursor
+      ? (
+          JSON.parse(Buffer.from(cursor, 'base64url').toString('utf-8')) as {
+            id: string;
+          }
+        ).id
+      : undefined;
+
+    const bookmarks = await this.prisma.bookmark.findMany({
+      take: limit + 1,
+      ...(cursorId && {
+        cursor: { userId_postId: { userId: user.sub, postId: cursorId } },
+        skip: 1,
+      }),
+      where: { userId: user.sub },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        post: {
+          include: {
+            items: true,
+            dog: {
+              select: {
+                name: true,
+                breed: true,
+                weightKg: true,
+                photoUrl: true,
+              },
+            },
+            author: { select: { displayName: true } },
+            _count: { select: { likes: true, bookmarks: true } },
+          },
+        },
+      },
+    });
+
+    const hasNext = bookmarks.length > limit;
+    const sliced = bookmarks.slice(0, limit);
+
+    const posts = sliced.map(({ post }) => ({
+      id: post.id,
+      authorId: post.authorId,
+      dogId: post.dogId,
+      imageUrl: post.imageUrl,
+      caption: post.caption,
+      tags: post.tags as string[],
+      items: post.items,
+      likeCount: post._count.likes,
+      bookmarkCount: post._count.bookmarks,
+      createdAt: post.createdAt.toISOString(),
+      updatedAt: post.updatedAt.toISOString(),
+      dog: {
+        name: post.dog.name,
+        breed: post.dog.breed,
+        weightKg: post.dog.weightKg ? Number(post.dog.weightKg) : null,
+        photoUrl: post.dog.photoUrl,
+      },
+      author: { displayName: post.author.displayName },
+    }));
+
+    const nextCursor =
+      hasNext && sliced.length > 0
+        ? Buffer.from(
+            JSON.stringify({ id: sliced[sliced.length - 1].postId }),
+          ).toString('base64url')
+        : null;
+
+    return { posts, nextCursor };
+  }
+
+  // username前方一致検索（@メンション補完用）
+  @Get('search')
+  async searchUsers(@Query('q') q?: string) {
+    if (!q || q.trim().length === 0) return [];
+    const term = q.trim().slice(0, 30);
+    const users = await this.prisma.user.findMany({
+      where: {
+        username: { startsWith: term },
+      },
+      select: { id: true, username: true, displayName: true, avatarUrl: true },
+      take: 10,
+      orderBy: { username: 'asc' },
+    });
+    return users;
+  }
+
+  // usernameでユーザーを取得
+  @Get('by-username/:username')
+  @UseGuards(OptionalJwtAuthGuard)
+  async findByUsername(
+    @Param('username') username: string,
+    @CurrentUser() me: JwtPayload | null,
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        avatarUrl: true,
+        bio: true,
+        location: true,
+        createdAt: true,
+      },
+    });
+    if (!user) throw new NotFoundException('ユーザーが見つかりません');
+
+    const [followerCount, followingCount, isFollowingRecord] =
+      await Promise.all([
+        this.prisma.follow.count({ where: { followingId: user.id } }),
+        this.prisma.follow.count({ where: { followerId: user.id } }),
+        me
+          ? this.prisma.follow.findUnique({
+              where: {
+                followerId_followingId: {
+                  followerId: me.sub,
+                  followingId: user.id,
+                },
+              },
+              select: { followerId: true },
+            })
+          : Promise.resolve(null),
+      ]);
+
+    return {
+      ...user,
+      followerCount,
+      followingCount,
+      isFollowing: !!isFollowingRecord,
+    };
+  }
+
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
   async findOne(@Param('id') id: string, @CurrentUser() me: JwtPayload | null) {
@@ -106,6 +291,7 @@ export class UsersController {
           where: { id },
           select: {
             id: true,
+            username: true,
             displayName: true,
             avatarUrl: true,
             bio: true,
@@ -186,7 +372,12 @@ export class UsersController {
       orderBy: { createdAt: 'desc' },
       include: {
         follower: {
-          select: { id: true, displayName: true, avatarUrl: true },
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatarUrl: true,
+          },
         },
       },
     });
@@ -202,116 +393,15 @@ export class UsersController {
       orderBy: { createdAt: 'desc' },
       include: {
         following: {
-          select: { id: true, displayName: true, avatarUrl: true },
-        },
-      },
-    });
-    return follows.map((f) => f.following);
-  }
-
-  @Patch('me')
-  @UseGuards(JwtAuthGuard)
-  async updateMe(@CurrentUser() user: JwtPayload, @Body() dto: UpdateUserDto) {
-    const current = await this.prisma.user.findUnique({
-      where: { id: user.sub },
-      select: { avatarUrl: true },
-    });
-    const updated = await this.prisma.user.update({
-      where: { id: user.sub },
-      data: dto,
-      select: {
-        id: true,
-        displayName: true,
-        avatarUrl: true,
-        bio: true,
-        location: true,
-        updatedAt: true,
-      },
-    });
-    if (
-      dto.avatarUrl !== undefined &&
-      current?.avatarUrl &&
-      dto.avatarUrl !== current.avatarUrl
-    ) {
-      await this.profileImageStorage.deleteImage(current.avatarUrl);
-    }
-    return updated;
-  }
-
-  @Get('me/bookmarks')
-  @UseGuards(JwtAuthGuard)
-  async getMyBookmarks(
-    @CurrentUser() user: JwtPayload,
-    @Query('cursor') cursor?: string,
-    @Query('limit') limitStr?: string,
-  ) {
-    const limit = Math.min(Number(limitStr) || 20, 100);
-    const cursorId = cursor
-      ? (
-          JSON.parse(Buffer.from(cursor, 'base64url').toString('utf-8')) as {
-            id: string;
-          }
-        ).id
-      : undefined;
-
-    const bookmarks = await this.prisma.bookmark.findMany({
-      take: limit + 1,
-      ...(cursorId && {
-        cursor: { userId_postId: { userId: user.sub, postId: cursorId } },
-        skip: 1,
-      }),
-      where: { userId: user.sub },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        post: {
-          include: {
-            items: true,
-            dog: {
-              select: {
-                name: true,
-                breed: true,
-                weightKg: true,
-                photoUrl: true,
-              },
-            },
-            author: { select: { displayName: true } },
-            _count: { select: { likes: true, bookmarks: true } },
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatarUrl: true,
           },
         },
       },
     });
-
-    const hasNext = bookmarks.length > limit;
-    const sliced = bookmarks.slice(0, limit);
-
-    const posts = sliced.map(({ post }) => ({
-      id: post.id,
-      authorId: post.authorId,
-      dogId: post.dogId,
-      imageUrl: post.imageUrl,
-      caption: post.caption,
-      tags: post.tags as string[],
-      items: post.items,
-      likeCount: post._count.likes,
-      bookmarkCount: post._count.bookmarks,
-      createdAt: post.createdAt.toISOString(),
-      updatedAt: post.updatedAt.toISOString(),
-      dog: {
-        name: post.dog.name,
-        breed: post.dog.breed,
-        weightKg: post.dog.weightKg ? Number(post.dog.weightKg) : null,
-        photoUrl: post.dog.photoUrl,
-      },
-      author: { displayName: post.author.displayName },
-    }));
-
-    const nextCursor =
-      hasNext && sliced.length > 0
-        ? Buffer.from(
-            JSON.stringify({ id: sliced[sliced.length - 1].postId }),
-          ).toString('base64url')
-        : null;
-
-    return { posts, nextCursor };
+    return follows.map((f) => f.following);
   }
 }
