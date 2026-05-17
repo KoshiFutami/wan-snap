@@ -8,7 +8,7 @@ import { LikeButton } from './LikeButton';
 import { FollowButton } from './FollowButton';
 import { CommentSection } from './CommentSection';
 import { ShareButton } from './ShareButton';
-import { ItemTagOverlay } from '../../../components/photo-tag-canvas';
+import { TappableTagOverlays } from '../../../components/tappable-tag-overlays';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -120,16 +120,14 @@ export default async function PostDetailPage({ params }: Props) {
           style={{ objectFit: 'cover' }}
           priority
         />
-        {positionedItems.map((item) => (
-          <ItemTagOverlay
-            key={item.id}
-            xPct={item.xPct!}
-            yPct={item.yPct!}
-            brand={item.brand}
-            category={item.category}
-            productName={item.productName}
-          />
-        ))}
+        <TappableTagOverlays items={positionedItems.map((item) => ({
+          id: item.id,
+          xPct: item.xPct!,
+          yPct: item.yPct!,
+          brand: item.brand,
+          category: item.category,
+          productName: item.productName,
+        }))} />
       </div>
 
       {/* オーナー・犬情報 */}
