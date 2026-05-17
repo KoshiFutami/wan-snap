@@ -97,8 +97,9 @@ export class PostsController {
     if (!file) {
       throw new BadRequestException('画像ファイルを選択してください');
     }
-    const imageUrl = await this.postImageStorage.uploadPostImage(file.buffer);
-    return { imageUrl };
+    const { imageUrl, imageWidth, imageHeight } =
+      await this.postImageStorage.uploadPostImage(file.buffer);
+    return { imageUrl, imageWidth, imageHeight };
   }
 
   @Patch(':id')

@@ -131,6 +131,8 @@ export default function NewPostPage() {
         {
           dogId,
           imageUrl: uploaded.imageUrl,
+          imageWidth: uploaded.imageWidth,
+          imageHeight: uploaded.imageHeight,
           caption: caption || undefined,
           tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
         },

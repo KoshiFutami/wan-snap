@@ -64,13 +64,13 @@ export default async function PostDetailPage({ params }: Props) {
       </div>
 
       {/* メイン写真 */}
-      <div style={{ margin: '0 12px', borderRadius: 20, overflow: 'hidden', aspectRatio: '4/5', background: T.ink10, position: 'relative' }}>
+      <div style={{ margin: '0 12px', borderRadius: 20, overflow: 'hidden', aspectRatio: post.imageWidth && post.imageHeight ? `${post.imageWidth}/${post.imageHeight}` : '4/5', background: T.ink10, position: 'relative' }}>
         <Image
           src={post.imageUrl}
           alt={post.caption ?? 'スナップ写真'}
           fill
           sizes="(max-width: 390px) 100vw, 390px"
-          style={{ objectFit: 'contain' }}
+          style={{ objectFit: 'cover' }}
           priority
         />
       </div>

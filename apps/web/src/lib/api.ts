@@ -27,6 +27,8 @@ export type Post = {
   authorId: string;
   dogId: string;
   imageUrl: string;
+  imageWidth: number | null;
+  imageHeight: number | null;
   caption: string | null;
   tags: string[];
   items: PostItem[];
@@ -140,6 +142,8 @@ export const api = {
       body: {
         dogId: string;
         imageUrl: string;
+        imageWidth?: number;
+        imageHeight?: number;
         caption?: string;
         tags?: string[];
         items?: Omit<PostItem, 'id'>[];
@@ -149,7 +153,7 @@ export const api = {
     uploadImage: (file: File, token: string) => {
       const formData = new FormData();
       formData.append('file', file);
-      return request<{ imageUrl: string }>('/posts/images', {
+      return request<{ imageUrl: string; imageWidth: number; imageHeight: number }>('/posts/images', {
         method: 'POST',
         body: formData,
         token,

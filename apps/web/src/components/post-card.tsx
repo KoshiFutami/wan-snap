@@ -191,13 +191,13 @@ export function PostCard({ post }: Props) {
 
       {/* 写真 */}
       <Link href={`/posts/${post.id}`}>
-        <div style={{ position: 'relative', width: '100%', aspectRatio: '4/5', background: T.ink10, overflow: 'hidden' }}>
+        <div style={{ position: 'relative', width: '100%', aspectRatio: post.imageWidth && post.imageHeight ? `${post.imageWidth}/${post.imageHeight}` : '4/5', background: T.ink10, overflow: 'hidden' }}>
           <Image
             src={post.imageUrl}
             alt={post.caption ?? `${dogName}のスナップ`}
             fill
             sizes="(max-width: 390px) 100vw, 390px"
-            style={{ objectFit: 'contain' }}
+            style={{ objectFit: 'cover' }}
           />
           {post.items.length > 0 && (
             <div
