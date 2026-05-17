@@ -6,6 +6,7 @@ import { useState } from 'react';
 import type { Post } from '../lib/api';
 import { api } from '../lib/api';
 import { getValidToken } from '../lib/auth-store';
+import { useLike } from '../hooks/useLike';
 
 const T = {
   ink: '#1F1A14',
@@ -81,8 +82,11 @@ function PawIcon() {
 }
 
 export function PostCard({ post }: Props) {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(post.likeCount ?? 0);
+  const { liked, likeCount, handleLike } = useLike({
+    postId: post.id,
+    initialLiked: post.isLikedByMe ?? false,
+    initialCount: post.likeCount ?? 0,
+  });
   const [bookmarked, setBookmarked] = useState(false);
   const [bookmarkCount, setBookmarkCount] = useState(post.bookmarkCount ?? 0);
 
@@ -91,13 +95,6 @@ export function PostCard({ post }: Props) {
   const breed = post.dog?.breed;
   const weight = post.dog?.weightKg;
   const dogPhotoUrl = post.dog?.photoUrl;
-
-  const handleLike = () => {
-    setLiked((v) => {
-      setLikeCount((c) => (v ? c - 1 : c + 1));
-      return !v;
-    });
-  };
 
   const handleBookmark = async () => {
     const token = await getValidToken();
@@ -200,7 +197,7 @@ export function PostCard({ post }: Props) {
             alt={post.caption ?? `${dogName}のスナップ`}
             fill
             sizes="(max-width: 390px) 100vw, 390px"
-            style={{ objectFit: 'cover' }}
+            style={{ objectFit: 'contain' }}
           />
           {post.items.length > 0 && (
             <div

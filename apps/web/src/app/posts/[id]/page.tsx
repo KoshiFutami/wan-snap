@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { api } from '../../../lib/api';
 import { EditButton } from './EditButton';
 import { BookmarkButton } from './BookmarkButton';
+import { LikeButton } from './LikeButton';
 import { FollowButton } from './FollowButton';
 
 type Props = { params: Promise<{ id: string }> };
@@ -57,6 +58,7 @@ export default async function PostDetailPage({ params }: Props) {
           </svg>
         </Link>
         <div style={{ display: 'flex', gap: 8 }}>
+          <LikeButton postId={post.id} initialCount={post.likeCount ?? 0} initialLiked={post.isLikedByMe ?? false} />
           <BookmarkButton postId={post.id} initialCount={post.bookmarkCount ?? 0} />
           <EditButton postId={post.id} authorId={post.authorId} />
         </div>
@@ -69,7 +71,7 @@ export default async function PostDetailPage({ params }: Props) {
           alt={post.caption ?? 'スナップ写真'}
           fill
           sizes="(max-width: 390px) 100vw, 390px"
-          style={{ objectFit: 'cover' }}
+          style={{ objectFit: 'contain' }}
           priority
         />
       </div>
@@ -288,7 +290,7 @@ export default async function PostDetailPage({ params }: Props) {
 
       {/* 日付 */}
       <div style={{ padding: '16px 12px 0', fontSize: 10.5, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>
-        {new Date(post.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}
+        {new Date(post.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Tokyo' })}
       </div>
     </div>
   );

@@ -32,6 +32,7 @@ export type Post = {
   items: PostItem[];
   likeCount: number;
   bookmarkCount: number;
+  isLikedByMe: boolean;
   createdAt: string;
   updatedAt: string;
   dog: PostDog | null;
@@ -175,6 +176,10 @@ export const api = {
       request<void>(`/posts/${id}/bookmark`, { method: 'POST', token }),
     unbookmark: (id: string, token: string) =>
       request<void>(`/posts/${id}/bookmark`, { method: 'DELETE', token }),
+    like: (id: string, token: string) =>
+      request<void>(`/posts/${id}/like`, { method: 'POST', token }),
+    unlike: (id: string, token: string) =>
+      request<void>(`/posts/${id}/like`, { method: 'DELETE', token }),
   },
   auth: {
     signUp: (body: { email: string; password: string; displayName: string }) =>
