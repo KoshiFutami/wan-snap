@@ -40,6 +40,7 @@ export class PostDogDto {
 
 export class PostAuthorDto {
   displayName: string;
+  username: string;
 }
 
 export class PostResponseDto {
@@ -92,7 +93,10 @@ export class PostResponseDto {
         }
       : null;
     dto.author = relations
-      ? { displayName: relations.authorDisplayName }
+      ? {
+          displayName: relations.authorDisplayName,
+          username: relations.authorUsername,
+        }
       : null;
     return dto;
   }

@@ -201,8 +201,8 @@ export default async function PostDetailPage({ params }: Props) {
               }}>
                 {dogName}
               </span>
-              {post.author?.displayName && (
-                <span style={{ fontSize: 11, color: T.ink50 }}>{post.author.displayName}</span>
+              {post.author?.username && (
+                <span style={{ fontSize: 11, color: T.ink50 }}>@{post.author.username}</span>
               )}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 5, flexWrap: 'wrap' }}>

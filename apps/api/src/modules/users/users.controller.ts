@@ -185,7 +185,7 @@ export class UsersController {
                 photoUrl: true,
               },
             },
-            author: { select: { displayName: true } },
+            author: { select: { displayName: true, username: true } },
             _count: { select: { likes: true, bookmarks: true } },
           },
         },
@@ -214,7 +214,10 @@ export class UsersController {
         weightKg: post.dog.weightKg ? Number(post.dog.weightKg) : null,
         photoUrl: post.dog.photoUrl,
       },
-      author: { displayName: post.author.displayName },
+      author: {
+        displayName: post.author.displayName,
+        username: post.author.username,
+      },
     }));
 
     const nextCursor =

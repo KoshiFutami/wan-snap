@@ -23,6 +23,7 @@ export interface PostRelations {
   dogWeightKg: number | null;
   dogPhotoUrl: string | null;
   authorDisplayName: string;
+  authorUsername: string;
   likeCount: number;
   bookmarkCount: number;
   commentCount: number;
