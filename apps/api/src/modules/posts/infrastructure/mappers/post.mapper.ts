@@ -46,6 +46,8 @@ export class PostMapper {
       purchaseUrl: raw.purchaseUrl,
       priceJpy: raw.priceJpy,
       fitNote: raw.fitNote,
+      xPct: raw.xPct,
+      yPct: raw.yPct,
     });
   }
 
@@ -78,6 +80,8 @@ export class PostMapper {
         purchaseUrl: item.purchaseUrl,
         priceJpy: item.priceJpy,
         fitNote: item.fitNote,
+        xPct: item.xPct,
+        yPct: item.yPct,
       })),
     };
   }

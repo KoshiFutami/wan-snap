@@ -47,6 +47,8 @@ export type EditableItem = {
   purchaseUrl: string | null;
   priceJpy: number | null;
   fitNote: string | null;
+  xPct: number | null;
+  yPct: number | null;
 };
 
 export function newEditableItem(): EditableItem {
@@ -59,6 +61,8 @@ export function newEditableItem(): EditableItem {
     purchaseUrl: null,
     priceJpy: null,
     fitNote: null,
+    xPct: null,
+    yPct: null,
   };
 }
 
@@ -84,11 +88,21 @@ type ItemEditorRowProps = {
   item: EditableItem;
   index: number;
   initiallyOpen?: boolean;
+  isPlacing?: boolean;
   onUpdate: (key: string, patch: Partial<EditableItem>) => void;
   onRemove: (key: string) => void;
+  onSetPosition: (key: string) => void;
 };
 
-function ItemEditorRow({ item, index, initiallyOpen = false, onUpdate, onRemove }: ItemEditorRowProps) {
+function ItemEditorRow({
+  item,
+  index,
+  initiallyOpen = false,
+  isPlacing = false,
+  onUpdate,
+  onRemove,
+  onSetPosition,
+}: ItemEditorRowProps) {
   const [open, setOpen] = useState(initiallyOpen);
   const accent = index % 2 === 0 ? T.terracotta : T.forest;
 
@@ -178,6 +192,9 @@ function ItemEditorRow({ item, index, initiallyOpen = false, onUpdate, onRemove 
               {item.fitNote && <span style={{ color: accent }}>{item.fitNote}</span>}
             </div>
           )}
+          <div style={{ marginTop: 4, fontSize: 10, color: isPlacing ? accent : T.ink50, fontWeight: isPlacing ? 600 : 500 }}>
+            {isPlacing ? '写真上で配置待ち' : item.xPct != null && item.yPct != null ? '位置設定済み' : '位置未設定'}
+          </div>
         </div>
         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
           <div style={{
@@ -257,6 +274,29 @@ function ItemEditorRow({ item, index, initiallyOpen = false, onUpdate, onRemove 
             </div>
           </div>
 
+          <button
+            type="button"
+            onClick={() => onSetPosition(item._key)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              height: 38,
+              borderRadius: 10,
+              border: `1px solid ${isPlacing ? accent : T.hairlineStrong}`,
+              background: isPlacing ? 'rgba(185,90,61,0.08)' : T.cream,
+              color: isPlacing ? accent : T.ink,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              fontSize: 12.5,
+              fontWeight: 600,
+            }}
+          >
+            <span aria-hidden="true">📍</span>
+            {isPlacing ? '写真をタップして配置' : item.xPct != null && item.yPct != null ? '位置を設定し直す' : '位置を設定'}
+          </button>
+
           {/* Brand */}
           <div>
             <div style={labelStyle}>ブランド</div>
@@ -331,9 +371,16 @@ function ItemEditorRow({ item, index, initiallyOpen = false, onUpdate, onRemove 
 type ItemEditorSectionProps = {
   items: EditableItem[];
   onChange: (items: EditableItem[]) => void;
+  placingItemKey?: string | null;
+  onSetPosition: (key: string) => void;
 };
 
-export function ItemEditorSection({ items, onChange }: ItemEditorSectionProps) {
+export function ItemEditorSection({
+  items,
+  onChange,
+  placingItemKey = null,
+  onSetPosition,
+}: ItemEditorSectionProps) {
   const [newKeys, setNewKeys] = useState<Set<string>>(new Set());
 
   const addItem = () => {
@@ -389,8 +436,10 @@ export function ItemEditorSection({ items, onChange }: ItemEditorSectionProps) {
           item={item}
           index={i}
           initiallyOpen={newKeys.has(item._key)}
+          isPlacing={placingItemKey === item._key}
           onUpdate={updateItem}
           onRemove={removeItem}
+          onSetPosition={onSetPosition}
         />
       ))}
     </div>

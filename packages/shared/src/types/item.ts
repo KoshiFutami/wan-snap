@@ -23,4 +23,6 @@ export interface PostItem {
   purchaseUrl?: string;
   priceJpy?: number;
   fitNote?: string;
+  xPct?: number | null;
+  yPct?: number | null;
 }

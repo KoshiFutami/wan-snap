@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getValidToken } from '../../../../lib/auth-store';
 import { api, type Post } from '../../../../lib/api';
+import { PhotoTagCanvas } from '../../../../components/photo-tag-canvas';
 import { ItemEditorSection, generateItemKey, validateItems, type EditableItem } from '../../../../components/item-editor-section';
 
 const T = {
@@ -33,6 +34,7 @@ export default function PostEditPage() {
   const [post, setPost] = useState<Post | null>(null);
   const [caption, setCaption] = useState('');
   const [items, setItems] = useState<EditableItem[]>([]);
+  const [placingItemKey, setPlacingItemKey] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -86,6 +88,21 @@ export default function PostEditPage() {
       setError(err instanceof Error ? err.message : '削除に失敗しました');
       setDeleting(false);
     }
+  };
+
+  const handlePlaceItem = (key: string, xPct: number, yPct: number) => {
+    setItems((current) =>
+      current.map((item) => (item._key === key ? { ...item, xPct, yPct } : item)),
+    );
+    setPlacingItemKey(null);
+  };
+
+  const handleClearItemPosition = (key: string) => {
+    setItems((current) =>
+      current.map((item) =>
+        item._key === key ? { ...item, xPct: null, yPct: null } : item,
+      ),
+    );
   };
 
 
@@ -175,6 +192,16 @@ export default function PostEditPage() {
           </div>
         </div>
 
+        <div style={{ marginBottom: 20 }}>
+          <PhotoTagCanvas
+            imageUrl={post.imageUrl}
+            items={items}
+            placingItemKey={placingItemKey}
+            onPlace={handlePlaceItem}
+            onClearPosition={handleClearItemPosition}
+          />
+        </div>
+
         {/* Caption */}
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -200,7 +227,12 @@ export default function PostEditPage() {
 
         {/* Tagged items */}
         <div style={{ marginBottom: 24 }}>
-          <ItemEditorSection items={items} onChange={setItems} />
+          <ItemEditorSection
+            items={items}
+            onChange={setItems}
+            placingItemKey={placingItemKey}
+            onSetPosition={setPlacingItemKey}
+          />
         </div>
 
         {error && (
