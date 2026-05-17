@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { api, ApiError } from '../../../lib/api';
+import { api } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
+import { applyOptimisticCountCorrection } from '../../../lib/optimistic-toggle';
 
 const T = {
   ink: '#1F1A14',
@@ -40,12 +41,7 @@ export function BookmarkButton({ postId, initialCount, initialBookmarked = false
         await api.posts.unbookmark(postId, token);
       }
     } catch (error) {
-      if (next && error instanceof ApiError && error.status === 409) {
-        setCount((c) => c - 1);
-        return;
-      }
-      if (!next && error instanceof ApiError && error.status === 404) {
-        setCount((c) => c + 1);
+      if (applyOptimisticCountCorrection(next, error, setCount)) {
         return;
       }
       setBookmarked(!next);

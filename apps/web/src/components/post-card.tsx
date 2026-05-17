@@ -4,11 +4,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import type { Post } from '../lib/api';
-import { api, ApiError } from '../lib/api';
+import { api } from '../lib/api';
 import { getValidToken } from '../lib/auth-store';
 import { resolveBreedName } from '../lib/breed';
 import { useLike } from '../hooks/useLike';
 import { useShare } from '../hooks/useShare';
+import { applyOptimisticCountCorrection } from '../lib/optimistic-toggle';
 
 const T = {
   ink: '#1F1A14',
@@ -129,12 +130,7 @@ export function PostCard({ post }: Props) {
         await api.posts.unbookmark(post.id, token);
       }
     } catch (error) {
-      if (next && error instanceof ApiError && error.status === 409) {
-        setBookmarkCount((c) => c - 1);
-        return;
-      }
-      if (!next && error instanceof ApiError && error.status === 404) {
-        setBookmarkCount((c) => c + 1);
+      if (applyOptimisticCountCorrection(next, error, setBookmarkCount)) {
         return;
       }
       // ロールバック

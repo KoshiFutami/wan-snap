@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, ApiError } from '../lib/api';
+import { api } from '../lib/api';
 import { getValidToken } from '../lib/auth-store';
+import { applyOptimisticCountCorrection } from '../lib/optimistic-toggle';
 
 type UseLikeOptions = {
   postId: string;
@@ -38,12 +39,7 @@ export function useLike({ postId, initialLiked, initialCount }: UseLikeOptions):
         await api.posts.unlike(postId, token);
       }
     } catch (error) {
-      if (next && error instanceof ApiError && error.status === 409) {
-        setLikeCount((c) => c - 1);
-        return;
-      }
-      if (!next && error instanceof ApiError && error.status === 404) {
-        setLikeCount((c) => c + 1);
+      if (applyOptimisticCountCorrection(next, error, setLikeCount)) {
         return;
       }
       // ロールバック
