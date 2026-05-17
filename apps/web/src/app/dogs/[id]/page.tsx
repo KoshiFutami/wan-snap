@@ -37,15 +37,6 @@ async function getDogPosts(dogId: string) {
   return posts.slice(0, MAX_POSTS);
 }
 
-const DOG_CODE_LENGTH = 3;
-
-function generateDogCode(dogId: string) {
-  const seed = dogId.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, DOG_CODE_LENGTH);
-  if (!seed) return '#DOG';
-
-  return `#${seed.padEnd(DOG_CODE_LENGTH, '0')}`;
-}
-
 export default async function DogDetailPage({ params }: Props) {
   const { id } = await params;
   const dog = await api.dogs.getPublic(id).catch(() => null);
@@ -59,7 +50,6 @@ export default async function DogDetailPage({ params }: Props) {
   const gender = dog.gender;
   const coatColors = dog.coatColors;
   const authorName = dog.ownerDisplayName;
-  const dogCode = generateDogCode(dog.id);
 
   const genderMark = gender === 'female' ? '♀' : gender === 'male' ? '♂' : null;
 
@@ -169,7 +159,7 @@ export default async function DogDetailPage({ params }: Props) {
               marginBottom: 6,
             }}
           >
-            {authorName}の愛犬 · {dogCode}
+            {authorName}の愛犬
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
             <div style={{ fontFamily: 'var(--font-serif, serif)', fontSize: 42, fontWeight: 500, color: T.ink, letterSpacing: '-0.02em', lineHeight: 0.95 }}>
