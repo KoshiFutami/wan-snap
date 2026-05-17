@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   HttpCode,
@@ -31,9 +32,14 @@ export class NotificationsController {
     @Query('cursor') cursor?: string,
   ) {
     const limit = Math.min(Number(limitStr) || DEFAULT_LIMIT, MAX_LIMIT);
-    const cursorId = cursor
-      ? (JSON.parse(Buffer.from(cursor, 'base64url').toString('utf-8')) as { id: string }).id
-      : undefined;
+    let cursorId: string | undefined;
+    if (cursor) {
+      try {
+        cursorId = (JSON.parse(Buffer.from(cursor, 'base64url').toString('utf-8')) as { id: string }).id;
+      } catch {
+        throw new BadRequestException('cursor が不正です');
+      }
+    }
 
     const where = {
       recipientId: user.sub,

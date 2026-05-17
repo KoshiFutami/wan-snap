@@ -269,6 +269,22 @@ export default function NotificationsPage() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // 初回マウント時のみ一括既読処理
+  useEffect(() => {
+    (async () => {
+      const token = await getValidToken();
+      if (!token) return;
+      const res = await api.notifications.list(token, { limit: 1 }).catch(() => null);
+      if (res && res.unreadCount > 0) {
+        await api.notifications.markAllRead(token).catch(() => undefined);
+        setUnreadCount(0);
+      } else if (res) {
+        setUnreadCount(res.unreadCount);
+      }
+    })();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // タブ切替で通知一覧を再取得
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -285,13 +301,9 @@ export default function NotificationsPage() {
         const res = await api.notifications.list(token, params);
         if (!cancelled) {
           setNotifications(res.notifications);
-          setUnreadCount(res.unreadCount);
         }
-        // 既読にする
-        if (res.unreadCount > 0) {
-          await api.notifications.markAllRead(token);
-          if (!cancelled) setUnreadCount(0);
-        }
+      } catch {
+        // 読み込み失敗は空リストのまま
       } finally {
         if (!cancelled) setLoading(false);
       }

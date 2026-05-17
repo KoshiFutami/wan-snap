@@ -24,11 +24,6 @@ export class LikePostUseCase {
       await this.prisma.like.create({
         data: { userId, postId },
       });
-      if (post.authorId !== userId) {
-        await this.prisma.notification.create({
-          data: { type: 'like', recipientId: post.authorId, actorId: userId, postId },
-        });
-      }
     } catch (err: unknown) {
       // P2002: ユニーク制約違反（重複いいね）
       if (
@@ -38,6 +33,12 @@ export class LikePostUseCase {
         throw new ConflictException('すでにいいね済みです');
       }
       throw err;
+    }
+    // いいね成功後に通知を作成（失敗してもいいね自体は成功済みのため握りつぶす）
+    if (post.authorId !== userId) {
+      await this.prisma.notification
+        .create({ data: { type: 'like', recipientId: post.authorId, actorId: userId, postId } })
+        .catch(() => undefined);
     }
   }
 }

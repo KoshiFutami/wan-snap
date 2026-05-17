@@ -342,9 +342,6 @@ export class UsersController {
       await this.prisma.follow.create({
         data: { followerId: me.sub, followingId: id },
       });
-      await this.prisma.notification.create({
-        data: { type: 'follow', recipientId: id, actorId: me.sub },
-      });
     } catch (err: unknown) {
       if (
         typeof err === 'object' &&
@@ -356,6 +353,10 @@ export class UsersController {
       }
       throw err;
     }
+    // フォロー成功後に通知を作成（失敗してもフォロー自体は成功済みのため握りつぶす）
+    await this.prisma.notification
+      .create({ data: { type: 'follow', recipientId: id, actorId: me.sub } })
+      .catch(() => undefined);
   }
 
   @Delete(':id/follow')
