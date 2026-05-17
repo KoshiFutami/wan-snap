@@ -330,7 +330,40 @@ export default function ProfilePage() {
           />
         </div>
 
-        {activeTab === 'snaps' && posts.length > 0 ? (
+        {activeTab === 'items' && itemCount > 0 ? (
+          <div style={{ padding: '14px 12px 0', display: 'grid', gap: 10 }}>
+            {posts.flatMap((post) =>
+              post.items.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/posts/${post.id}`}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <div
+                    style={{
+                      padding: '12px 14px',
+                      borderRadius: 12,
+                      background: T.paper,
+                      border: `1px solid ${T.hairline}`,
+                    }}
+                  >
+                    <div style={{ fontSize: 11, color: T.terracotta, fontWeight: 600 }}>{item.category}</div>
+                    <div style={{ marginTop: 4, fontSize: 13, fontWeight: 600, color: T.ink }}>
+                      {item.brand ?? 'ブランド未設定'}
+                    </div>
+                    {item.productName && (
+                      <div style={{ marginTop: 2, fontSize: 12, color: T.ink70 }}>{item.productName}</div>
+                    )}
+                    <div style={{ marginTop: 6, fontSize: 11, color: T.ink50 }}>
+                      {item.size ? `サイズ ${item.size}` : 'サイズ未設定'}
+                      {item.fitNote ? ` · ${item.fitNote}` : ''}
+                    </div>
+                  </div>
+                </Link>
+              )),
+            )}
+          </div>
+        ) : activeTab === 'snaps' && posts.length > 0 ? (
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
@@ -415,35 +448,6 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {activeTab === 'items' && itemCount > 0 && (
-          <div style={{ padding: '14px 12px 0', display: 'grid', gap: 10 }}>
-            {posts.flatMap((post) =>
-              post.items.map((item) => (
-                <div
-                  key={item.id}
-                  style={{
-                    padding: '12px 14px',
-                    borderRadius: 12,
-                    background: T.paper,
-                    border: `1px solid ${T.hairline}`,
-                  }}
-                >
-                  <div style={{ fontSize: 11, color: T.terracotta, fontWeight: 600 }}>{item.category}</div>
-                  <div style={{ marginTop: 4, fontSize: 13, fontWeight: 600, color: T.ink }}>
-                    {item.brand ?? 'ブランド未設定'}
-                  </div>
-                  {item.productName && (
-                    <div style={{ marginTop: 2, fontSize: 12, color: T.ink70 }}>{item.productName}</div>
-                  )}
-                  <div style={{ marginTop: 6, fontSize: 11, color: T.ink50 }}>
-                    {item.size ? `サイズ ${item.size}` : 'サイズ未設定'}
-                    {item.fitNote ? ` · ${item.fitNote}` : ''}
-                  </div>
-                </div>
-              )),
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
