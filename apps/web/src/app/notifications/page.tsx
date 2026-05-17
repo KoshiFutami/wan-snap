@@ -282,7 +282,7 @@ export default function NotificationsPage() {
         setUnreadCount(res.unreadCount);
       }
     })();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // タブ切替で通知一覧を再取得
   useEffect(() => {

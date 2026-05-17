@@ -583,7 +583,7 @@ function FollowListSheet({
             list.map((u) => (
               <Link
                 key={u.id}
-                href={`/users/${u.id}`}
+                href={`/users/${u.username}`}
                 onClick={onClose}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 12,

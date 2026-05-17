@@ -156,7 +156,7 @@ export default async function PostDetailPage({ params }: Props) {
         gap: 12,
       }}>
         <Link
-          href={`/users/${post.authorId}`}
+          href={`/users/${post.author?.username ?? post.authorId}`}
           style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', flex: 1, minWidth: 0 }}
         >
           <div style={{

@@ -25,9 +25,9 @@ const USER_PROFILE_POST_LIMIT = 60;
 
 export default function OtherUserProfilePage() {
   const router = useRouter();
-  const params = useParams<{ id: string }>();
-  const userIdParam = params.id;
-  const userId = typeof userIdParam === 'string' ? userIdParam : '';
+  const params = useParams<{ username: string }>();
+  const usernameParam = params.username;
+  const username = typeof usernameParam === 'string' ? usernameParam : '';
   const [status, setStatus] = useState<'loading' | 'ready' | 'not-found'>('loading');
   const [user, setUser] = useState<User | null>(null);
   const [dogs, setDogs] = useState<PublicDog[]>([]);
@@ -41,7 +41,7 @@ export default function OtherUserProfilePage() {
   const [followListTab, setFollowListTab] = useState<'followers' | 'following' | null>(null);
 
   useEffect(() => {
-    if (!userId) {
+    if (!username) {
       setStatus('not-found');
       return;
     }
@@ -57,16 +57,12 @@ export default function OtherUserProfilePage() {
 
       if (cancelled) return;
 
-      if (meResult?.id === userId) {
+      if (meResult?.username === username) {
         router.replace('/profile');
         return;
       }
 
-      const [targetUser, postResponse, dogsResponse] = await Promise.all([
-        api.users.getById(userId, token ?? undefined).catch(() => null),
-        api.posts.list({ limit: USER_PROFILE_POST_LIMIT, authorId: userId }).catch(() => ({ posts: [] as Post[], nextCursor: null })),
-        api.dogs.listByUser(userId).catch(() => [] as PublicDog[]),
-      ]);
+      const targetUser = await api.users.getByUsername(username, token ?? undefined).catch(() => null);
 
       if (cancelled) return;
 
@@ -74,6 +70,13 @@ export default function OtherUserProfilePage() {
         setStatus('not-found');
         return;
       }
+
+      const [postResponse, dogsResponse] = await Promise.all([
+        api.posts.list({ limit: USER_PROFILE_POST_LIMIT, authorId: targetUser.id }).catch(() => ({ posts: [] as Post[], nextCursor: null })),
+        api.dogs.listByUser(targetUser.id).catch(() => [] as PublicDog[]),
+      ]);
+
+      if (cancelled) return;
 
       const authoredPosts = postResponse.posts;
       setUser(targetUser);
@@ -95,18 +98,18 @@ export default function OtherUserProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [router, userId]);
+  }, [router, username]);
 
   const handleToggleFollow = useCallback(async () => {
-    if (!myToken || followLoading) return;
+    if (!myToken || followLoading || !user) return;
     setFollowLoading(true);
     try {
       if (isFollowing) {
-        await api.users.unfollow(userId, myToken);
+        await api.users.unfollow(user.id, myToken);
         setIsFollowing(false);
         setFollowerCount((prev) => Math.max(0, prev - 1));
       } else {
-        await api.users.follow(userId, myToken);
+        await api.users.follow(user.id, myToken);
         setIsFollowing(true);
         setFollowerCount((prev) => prev + 1);
       }
@@ -115,7 +118,7 @@ export default function OtherUserProfilePage() {
     } finally {
       setFollowLoading(false);
     }
-  }, [myToken, followLoading, isFollowing, userId]);
+  }, [myToken, followLoading, isFollowing, user]);
 
   if (status === 'loading') {
     return <div style={{ padding: '80px 12px', textAlign: 'center', color: T.ink50 }}>読み込み中…</div>;
@@ -129,9 +132,9 @@ export default function OtherUserProfilePage() {
 
   return (
     <div style={{ paddingBottom: 120 }}>
-      {followListTab !== null && userId && (
+      {followListTab !== null && user && (
         <FollowListSheet
-          userId={userId}
+          userId={user.id}
           initialTab={followListTab}
           onClose={() => setFollowListTab(null)}
         />
@@ -494,7 +497,7 @@ function FollowListSheet({
             list.map((u) => (
               <Link
                 key={u.id}
-                href={`/users/${u.id}`}
+                href={`/users/${u.username}`}
                 onClick={onClose}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 12,
