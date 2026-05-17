@@ -13,7 +13,22 @@ type Item = {
 };
 
 export function TappableTagOverlays({ items }: { items: Item[] }) {
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>(
+    items.length > 1 ? items[0].id : null,
+  );
+
+  if (items.length === 1) {
+    const item = items[0];
+    return (
+      <ItemTagOverlay
+        xPct={item.xPct}
+        yPct={item.yPct}
+        brand={item.brand}
+        category={item.category}
+        productName={item.productName}
+      />
+    );
+  }
 
   return (
     <>
