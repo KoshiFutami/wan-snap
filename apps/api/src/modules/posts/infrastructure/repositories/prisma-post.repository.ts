@@ -18,6 +18,20 @@ const MAX_LIMIT = 100;
 export class PrismaPostRepository implements IPostRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async getBreedShortNameMap(breeds: string[]) {
+    const uniqueBreeds = [...new Set(breeds.filter(Boolean))];
+    if (uniqueBreeds.length === 0) {
+      return new Map<string, string>();
+    }
+
+    const records = await this.prisma.breed.findMany({
+      where: { name: { in: uniqueBreeds } },
+      select: { name: true, shortName: true },
+    });
+
+    return new Map(records.map((breed) => [breed.name, breed.shortName]));
+  }
+
   async findById(id: PostId): Promise<Post | null> {
     const raw = await this.prisma.post.findUnique({
       where: { id: id.value },
@@ -50,9 +64,10 @@ export class PrismaPostRepository implements IPostRepository {
       },
     });
     if (!raw) return null;
+    const breedShortNameMap = await this.getBreedShortNameMap([raw.dog.breed]);
     return {
       post: PostMapper.toDomain(raw),
-      relations: this.toRelations(raw, requesterId),
+      relations: this.toRelations(raw, breedShortNameMap, requesterId),
     };
   }
 
@@ -100,9 +115,12 @@ export class PrismaPostRepository implements IPostRepository {
 
     const hasNext = raws.length > limit;
     const sliced = raws.slice(0, limit);
+    const breedShortNameMap = await this.getBreedShortNameMap(
+      sliced.map((post) => post.dog.breed),
+    );
     const posts = sliced.map((r) => ({
       post: PostMapper.toDomain(r),
-      relations: this.toRelations(r, options.requesterId),
+      relations: this.toRelations(r, breedShortNameMap, options.requesterId),
     }));
     const nextCursor =
       hasNext && posts.length > 0
@@ -124,11 +142,13 @@ export class PrismaPostRepository implements IPostRepository {
       _count?: { likes: number; bookmarks: number; comments: number };
       likes?: { userId: string }[];
     },
+    breedShortNameMap: Map<string, string>,
     requesterId?: string,
   ): PostRelations {
     return {
       dogName: raw.dog.name,
       dogBreed: raw.dog.breed,
+      dogBreedShortName: breedShortNameMap.get(raw.dog.breed) ?? raw.dog.breed,
       dogWeightKg: raw.dog.weightKg ? raw.dog.weightKg.toNumber() : null,
       dogPhotoUrl: raw.dog.photoUrl,
       authorDisplayName: raw.author.displayName,

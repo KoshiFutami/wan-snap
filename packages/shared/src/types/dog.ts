@@ -15,6 +15,7 @@ export interface DogProfile {
   id: string;
   name: string;
   breed: DogBreed;
+  breedShortName: string;
   birthYear?: number;
   weightKg?: number;
   neckCm?: number;

@@ -2,6 +2,7 @@ export type PublicDogProfile = {
   id: string;
   name: string;
   breed: string;
+  breedShortName: string;
   weightKg: number | null;
   photoUrl: string | null;
   ownerDisplayName: string;

@@ -32,6 +32,7 @@ export type PostItem = {
 export type PostDog = {
   name: string;
   breed: string;
+  breedShortName: string;
   weightKg: number | null;
   photoUrl: string | null;
 };
@@ -69,6 +70,7 @@ export type Dog = {
   id: string;
   name: string;
   breed: string;
+  breedShortName: string;
   birthYear: number | null;
   weightKg: number | null;
   neckCm: number | null;
@@ -83,6 +85,7 @@ export type PublicDog = {
   id: string;
   name: string;
   breed: string;
+  breedShortName: string;
   weightKg: number | null;
   photoUrl: string | null;
   ownerDisplayName: string;
@@ -236,7 +239,7 @@ export const api = {
   },
   breeds: {
     search: (q: string) =>
-      request<{ id: string; name: string }[]>(`/breeds?q=${encodeURIComponent(q)}`),
+      request<{ id: string; name: string; shortName: string }[]>(`/breeds?q=${encodeURIComponent(q)}`),
   },
   users: {
     getMe: (token: string) => request<User>('/users/me', { token }),

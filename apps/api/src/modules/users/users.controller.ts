@@ -188,6 +188,14 @@ export class UsersController {
 
     const hasNext = bookmarks.length > limit;
     const sliced = bookmarks.slice(0, limit);
+    const breedNames = [...new Set(sliced.map(({ post }) => post.dog.breed))];
+    const breeds = await this.prisma.breed.findMany({
+      where: { name: { in: breedNames } },
+      select: { name: true, shortName: true },
+    });
+    const breedShortNameMap = new Map(
+      breeds.map((breed) => [breed.name, breed.shortName]),
+    );
 
     const posts = sliced.map(({ post }) => ({
       id: post.id,
@@ -204,6 +212,7 @@ export class UsersController {
       dog: {
         name: post.dog.name,
         breed: post.dog.breed,
+        breedShortName: breedShortNameMap.get(post.dog.breed) ?? post.dog.breed,
         weightKg: post.dog.weightKg ? Number(post.dog.weightKg) : null,
         photoUrl: post.dog.photoUrl,
       },

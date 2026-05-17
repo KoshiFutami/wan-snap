@@ -11,7 +11,7 @@ export class BreedsController {
       where: q ? { name: { contains: q } } : {},
       orderBy: { name: 'asc' },
       take: 20,
-      select: { id: true, name: true },
+      select: { id: true, name: true, shortName: true },
     });
   }
 }
