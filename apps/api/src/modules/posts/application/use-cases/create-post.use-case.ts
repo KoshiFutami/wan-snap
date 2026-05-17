@@ -32,6 +32,13 @@ export interface CreatePostInput {
   items?: CreatePostItemInput[];
 }
 
+interface DogBodySnapshot {
+  weightKg: { toNumber(): number } | null;
+  neckCm: { toNumber(): number } | null;
+  chestCm: { toNumber(): number } | null;
+  backLengthCm: { toNumber(): number } | null;
+}
+
 @Injectable()
 export class CreatePostUseCase {
   constructor(
@@ -40,7 +47,7 @@ export class CreatePostUseCase {
   ) {}
 
   async execute(input: CreatePostInput): Promise<Post> {
-    await this.verifyDogOwnership(input.dogId, input.authorId);
+    const dog = await this.verifyDogOwnership(input.dogId, input.authorId);
 
     const imageUrl = ImageUrl.of(input.imageUrl);
     const caption = input.caption ? Caption.of(input.caption) : undefined;
@@ -53,6 +60,9 @@ export class CreatePostUseCase {
       ).values(),
     ];
 
+    const toNumber = (v: { toNumber(): number } | null) =>
+      v != null ? v.toNumber() : null;
+
     const post = Post.create({
       authorId: input.authorId,
       dogId: input.dogId,
@@ -62,6 +72,10 @@ export class CreatePostUseCase {
       caption,
       location: input.location ?? null,
       tags,
+      dogWeightKg: toNumber(dog.weightKg),
+      dogNeckCm: toNumber(dog.neckCm),
+      dogChestCm: toNumber(dog.chestCm),
+      dogBackLengthCm: toNumber(dog.backLengthCm),
     });
 
     const items = (input.items ?? []).map((item) =>
@@ -91,10 +105,20 @@ export class CreatePostUseCase {
   private async verifyDogOwnership(
     dogId: string,
     userId: string,
-  ): Promise<void> {
-    const dog = await this.prisma.dog.findUnique({ where: { id: dogId } });
+  ): Promise<DogBodySnapshot> {
+    const dog = await this.prisma.dog.findUnique({
+      where: { id: dogId },
+      select: {
+        ownerId: true,
+        weightKg: true,
+        neckCm: true,
+        chestCm: true,
+        backLengthCm: true,
+      },
+    });
     if (!dog || dog.ownerId !== userId) {
       throw new ForbiddenException('指定された犬はあなたの所有ではありません');
     }
+    return dog;
   }
 }

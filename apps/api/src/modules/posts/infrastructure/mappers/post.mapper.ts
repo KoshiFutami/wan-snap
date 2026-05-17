@@ -17,6 +17,9 @@ type PrismaPostWithItems = PrismaPost & {
   postTags: Pick<PrismaPostTag, 'tag'>[];
 };
 
+const toNum = (v: { toNumber(): number } | null) =>
+  v != null ? v.toNumber() : null;
+
 export class PostMapper {
   static toDomain(raw: PrismaPostWithItems): Post {
     const tags = raw.postTags.map(({ tag }) => Tag.of(tag));
@@ -35,6 +38,10 @@ export class PostMapper {
       location: raw.location,
       tags,
       items,
+      dogWeightKg: toNum(raw.dogWeightKg),
+      dogNeckCm: toNum(raw.dogNeckCm),
+      dogChestCm: toNum(raw.dogChestCm),
+      dogBackLengthCm: toNum(raw.dogBackLengthCm),
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
     });
@@ -73,6 +80,10 @@ export class PostMapper {
         imageHeight: post.imageHeight,
         caption: post.caption?.value ?? null,
         location: post.location,
+        dogWeightKg: post.dogWeightKg,
+        dogNeckCm: post.dogNeckCm,
+        dogChestCm: post.dogChestCm,
+        dogBackLengthCm: post.dogBackLengthCm,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
       },

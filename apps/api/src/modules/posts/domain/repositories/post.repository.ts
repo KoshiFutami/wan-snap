@@ -21,6 +21,9 @@ export interface PostRelations {
   dogBreed: string;
   dogBreedShortName: string;
   dogWeightKg: number | null;
+  dogNeckCm: number | null;
+  dogChestCm: number | null;
+  dogBackLengthCm: number | null;
   dogPhotoUrl: string | null;
   authorDisplayName: string;
   authorUsername: string;
