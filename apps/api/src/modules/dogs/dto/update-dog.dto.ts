@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsIn,
   IsInt,
   IsNumber,
   IsOptional,
@@ -59,4 +60,14 @@ export class UpdateDogDto {
   @IsOptional()
   @IsUrl()
   photoUrl?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['male', 'female'])
+  gender?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  bio?: string;
 }

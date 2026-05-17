@@ -35,13 +35,28 @@ const inputStyle: CSSProperties = {
   boxSizing: 'border-box',
 };
 
+const selectStyle: CSSProperties = {
+  ...inputStyle,
+  appearance: 'none',
+  WebkitAppearance: 'none',
+  cursor: 'pointer',
+  paddingRight: 32,
+};
+
+const currentYear = new Date().getFullYear();
+const birthYearOptions = Array.from({ length: currentYear - 1999 }, (_, i) => currentYear - i);
+
 export default function NewDogPage() {
   const router = useRouter();
   const [name, setName] = useState('');
   const [breedName, setBreedName] = useState('');
   const [breedId, setBreedId] = useState('');
+  const [gender, setGender] = useState('');
   const [weightKg, setWeightKg] = useState('');
+  const [chestCm, setChestCm] = useState('');
+  const [backLengthCm, setBackLengthCm] = useState('');
   const [coatColors, setCoatColors] = useState('');
+  const [birthYear, setBirthYear] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -83,8 +98,12 @@ export default function NewDogPage() {
         {
           name,
           breedId,
+          gender: gender || undefined,
           weightKg: weightKg ? parseFloat(weightKg) : undefined,
+          chestCm: chestCm ? parseFloat(chestCm) : undefined,
+          backLengthCm: backLengthCm ? parseFloat(backLengthCm) : undefined,
           coatColors: coatColors ? coatColors.split(',').map((s) => s.trim()).filter(Boolean) : [],
+          birthYear: birthYear ? parseInt(birthYear, 10) : undefined,
         },
         token,
       );
@@ -99,6 +118,15 @@ export default function NewDogPage() {
     }
   };
 
+  const sizeLabel = (() => {
+    const w = parseFloat(weightKg);
+    if (!w) return null;
+    if (w < 4) return 'XS';
+    if (w < 7) return 'S';
+    if (w < 12) return 'M';
+    return 'L';
+  })();
+
   return (
     <>
     {showCropEditor && rawImageSrc && (
@@ -112,19 +140,13 @@ export default function NewDogPage() {
         }}
       />
     )}
-    <div style={{ padding: '8px 12px 120px' }}>
+    <div style={{ padding: '8px 20px 120px' }}>
       {/* ステップインジケーター */}
       <div style={{ marginBottom: 24, paddingTop: 8 }}>
-        <div
-          style={{
-            fontSize: 10,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: T.ink50,
-            fontWeight: 500,
-            marginBottom: 8,
-          }}
-        >
+        <div style={{
+          fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
+          color: T.ink50, fontWeight: 500, marginBottom: 8,
+        }}>
           step 2 / 3 · 愛犬情報
         </div>
         <div style={{ display: 'flex', gap: 4 }}>
@@ -150,20 +172,14 @@ export default function NewDogPage() {
             onClick={() => fileInputRef.current?.click()}
             aria-label="プロフィール写真を選択"
             style={{
-              width: 100,
-              height: 100,
-              borderRadius: 50,
+              width: 110, height: 110, borderRadius: 55,
               background: T.ink10,
               backgroundImage: imagePreview ? `url(${imagePreview})` : 'none',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              backgroundSize: 'cover', backgroundPosition: 'center',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               border: `3px solid ${T.paper}`,
               boxShadow: `0 0 0 1px ${T.hairline}, 0 6px 16px rgba(31,26,20,0.08)`,
-              padding: 0,
-              cursor: 'pointer',
+              padding: 0, cursor: 'pointer',
             }}
           >
             {!imagePreview && (
@@ -181,19 +197,11 @@ export default function NewDogPage() {
             onClick={() => fileInputRef.current?.click()}
             aria-label="プロフィール写真を選択"
             style={{
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              width: 34,
-              height: 34,
-              borderRadius: 17,
+              position: 'absolute', bottom: 0, right: 0,
+              width: 36, height: 36, borderRadius: 18,
               background: T.terracotta,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: `3px solid ${T.cream}`,
-              cursor: 'pointer',
-              padding: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: `3px solid ${T.cream}`, cursor: 'pointer', padding: 0,
             }}
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -216,99 +224,106 @@ export default function NewDogPage() {
           />
         </FieldRow>
 
-        <FieldRow label="犬種" required>
-          <BreedCombobox
-            value={breedName}
-            breedId={breedId}
-            onChange={({ id, name: nextName }) => {
-              setBreedName(nextName);
-              setBreedId(id);
-            }}
-            required
-          />
-        </FieldRow>
-
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          <FieldRow label="体重">
-            <div style={{ position: 'relative' }}>
-              <input
-                type="number"
-                step="0.1"
-                min="0.1"
-                max="200"
-                value={weightKg}
-                onChange={(e) => setWeightKg(e.target.value)}
-                placeholder="9.5"
-                style={{ ...inputStyle, paddingRight: 36 }}
-              />
-              <span
-                style={{
-                  position: 'absolute',
-                  right: 12,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  fontSize: 11,
-                  color: T.ink50,
-                  fontFamily: 'var(--font-mono, monospace)',
-                  pointerEvents: 'none',
-                }}
-              >
-                kg
-              </span>
-            </div>
-          </FieldRow>
-
-          <FieldRow label="毛色">
-            <input
-              type="text"
-              value={coatColors}
-              onChange={(e) => setCoatColors(e.target.value)}
-              placeholder="赤, クリーム"
-              style={inputStyle}
+          <FieldRow label="犬種" required>
+            <BreedCombobox
+              value={breedName}
+              breedId={breedId}
+              onChange={({ id, name: nextName }) => {
+                setBreedName(nextName);
+                setBreedId(id);
+              }}
+              required
             />
+          </FieldRow>
+          <FieldRow label="性別">
+            <div style={{ position: 'relative' }}>
+              <select
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="">未設定</option>
+                <option value="female">女の子</option>
+                <option value="male">男の子</option>
+              </select>
+              <svg
+                style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+                width="12" height="12" viewBox="0 0 12 12" fill="none"
+              >
+                <path d="M2 4l4 4 4-4" stroke={T.ink50} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </FieldRow>
         </div>
 
-        {/* サイズ推定カード — デモ */}
-        {weightKg && (
-          <div
-            style={{
-              marginTop: 4,
-              padding: '14px',
-              background: T.creamSoft,
-              borderRadius: 14,
-              border: `1px solid ${T.hairline}`,
-            }}
-          >
-            <div
-              style={{
-                fontSize: 10,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: T.ink50,
-                fontWeight: 500,
-                marginBottom: 8,
-              }}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+          <FieldRow label="体重">
+            <SuffixInput value={weightKg} onChange={setWeightKg} suffix="kg" placeholder="9.5" step="0.1" />
+          </FieldRow>
+          <FieldRow label="胴囲">
+            <SuffixInput value={chestCm} onChange={setChestCm} suffix="cm" placeholder="48" />
+          </FieldRow>
+          <FieldRow label="着丈">
+            <SuffixInput value={backLengthCm} onChange={setBackLengthCm} suffix="cm" placeholder="35" />
+          </FieldRow>
+        </div>
+
+        <FieldRow label="毛色">
+          <input
+            type="text"
+            value={coatColors}
+            onChange={(e) => setCoatColors(e.target.value)}
+            placeholder="赤, クリーム"
+            style={inputStyle}
+          />
+        </FieldRow>
+
+        <FieldRow label="誕生年">
+          <div style={{ position: 'relative' }}>
+            <select
+              value={birthYear}
+              onChange={(e) => setBirthYear(e.target.value)}
+              style={selectStyle}
             >
+              <option value="">未設定</option>
+              {birthYearOptions.map((y) => (
+                <option key={y} value={y}>{y}年</option>
+              ))}
+            </select>
+            <svg
+              style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+              width="12" height="12" viewBox="0 0 12 12" fill="none"
+            >
+              <path d="M2 4l4 4 4-4" stroke={T.ink50} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        </FieldRow>
+
+        {/* サイズ推定カード */}
+        {sizeLabel && (
+          <div style={{
+            marginTop: 4, padding: '14px',
+            background: T.creamSoft, borderRadius: 14,
+            border: `1px solid ${T.hairline}`,
+          }}>
+            <div style={{
+              fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
+              color: T.ink50, fontWeight: 500, marginBottom: 8,
+            }}>
               サイズ推定
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-              <div
-                style={{
-                  fontFamily: 'var(--font-serif, serif)',
-                  fontSize: 28,
-                  fontWeight: 500,
-                  color: T.terracotta,
-                  letterSpacing: '-0.01em',
-                  lineHeight: 1,
-                }}
-              >
-                {parseFloat(weightKg) < 4 ? 'XS' : parseFloat(weightKg) < 7 ? 'S' : parseFloat(weightKg) < 12 ? 'M' : 'L'}
+              <div style={{
+                fontFamily: 'var(--font-serif, serif)', fontSize: 28, fontWeight: 500,
+                color: T.terracotta, letterSpacing: '-0.01em', lineHeight: 1,
+              }}>
+                {sizeLabel}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 12, fontWeight: 500, color: T.ink }}>体重から推定したサイズ目安</div>
                 <div style={{ fontSize: 10, color: T.ink50, marginTop: 3, fontFamily: 'var(--font-mono, monospace)' }}>
-                  {weightKg}kg
+                  {weightKg}kg{chestCm ? ` / ${chestCm}cm` : ''}
                 </div>
               </div>
             </div>
@@ -316,44 +331,30 @@ export default function NewDogPage() {
         )}
 
         {error && (
-          <div
-            style={{
-              padding: '10px 14px',
-              borderRadius: 10,
-              background: 'rgba(185,90,61,0.08)',
-              border: `1px solid rgba(185,90,61,0.2)`,
-              fontSize: 12.5,
-              color: T.terracotta,
-            }}
-          >
+          <div style={{
+            padding: '10px 14px', borderRadius: 10,
+            background: 'rgba(185,90,61,0.08)',
+            border: `1px solid rgba(185,90,61,0.2)`,
+            fontSize: 12.5, color: T.terracotta,
+          }}>
             {error}
           </div>
         )}
 
-        {/* 固定CTAフッター */}
         <FloatingFormFooter>
           <button
             type="submit"
             disabled={loading || !breedId}
             style={{
-              width: '100%',
-              maxWidth: 350,
-              display: 'flex',
-              margin: '0 auto',
-              padding: '14px 22px',
-              borderRadius: 999,
-              background: T.ink,
-              color: T.cream,
-              fontSize: 13.5,
-              fontWeight: 600,
-              border: 'none',
+              width: '100%', maxWidth: 350,
+              display: 'flex', margin: '0 auto',
+              padding: '14px 22px', borderRadius: 999,
+              background: T.ink, color: T.cream,
+              fontSize: 13.5, fontWeight: 600, border: 'none',
               cursor: loading || !breedId ? 'not-allowed' : 'pointer',
               opacity: loading || !breedId ? 0.5 : 1,
-              fontFamily: 'inherit',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              letterSpacing: '0.02em',
+              fontFamily: 'inherit', alignItems: 'center',
+              justifyContent: 'center', gap: 8, letterSpacing: '0.02em',
             }}
           >
             {loading ? '登録中...' : '登録して完了'}
@@ -371,15 +372,9 @@ export default function NewDogPage() {
 }
 
 function FieldRow({
-  label,
-  required,
-  hint,
-  children,
+  label, required, hint, children,
 }: {
-  label: string;
-  required?: boolean;
-  hint?: string;
-  children: ReactNode;
+  label: string; required?: boolean; hint?: string; children: ReactNode;
 }) {
   return (
     <div>
@@ -391,6 +386,28 @@ function FieldRow({
         {hint && <div style={{ fontSize: 10, color: T.ink50 }}>{hint}</div>}
       </div>
       {children}
+    </div>
+  );
+}
+
+function SuffixInput({ value, onChange, suffix, placeholder, step }: {
+  value: string; onChange: (v: string) => void; suffix: string; placeholder?: string; step?: string;
+}) {
+  return (
+    <div style={{ position: 'relative' }}>
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        step={step ?? '1'}
+        min="0"
+        style={{ ...inputStyle, paddingRight: suffix.length > 2 ? 42 : 36 }}
+      />
+      <span style={{
+        position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+        fontSize: 11, color: T.ink50, fontFamily: 'var(--font-mono, monospace)', pointerEvents: 'none',
+      }}>{suffix}</span>
     </div>
   );
 }

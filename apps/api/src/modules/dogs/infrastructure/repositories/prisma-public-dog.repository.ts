@@ -16,7 +16,10 @@ export class PrismaPublicDogRepository implements IPublicDogRepository {
         id: true,
         name: true,
         breed: { select: { name: true, shortName: true } },
+        gender: true,
         weightKg: true,
+        chestCm: true,
+        coatColors: true,
         photoUrl: true,
         owner: { select: { displayName: true } },
       },
@@ -28,7 +31,12 @@ export class PrismaPublicDogRepository implements IPublicDogRepository {
       name: dog.name,
       breed: dog.breed.name,
       breedShortName: dog.breed.shortName,
+      gender: dog.gender,
       weightKg: dog.weightKg ? dog.weightKg.toNumber() : null,
+      chestCm: dog.chestCm ? dog.chestCm.toNumber() : null,
+      coatColors: Array.isArray(dog.coatColors)
+        ? dog.coatColors.filter((c): c is string => typeof c === 'string')
+        : [],
       photoUrl: dog.photoUrl,
       ownerDisplayName: dog.owner.displayName,
     };

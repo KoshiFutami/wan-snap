@@ -22,6 +22,8 @@ export interface DogProfile {
   neckCm?: number;
   chestCm?: number;
   backLengthCm?: number;
+  gender?: 'male' | 'female' | null;
+  bio?: string | null;
   coatColor: CoatColor;
   coatColors: CoatColor[];
   photoUrl?: string | null;

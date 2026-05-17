@@ -55,8 +55,13 @@ export default async function DogDetailPage({ params }: Props) {
   const dogPhotoUrl = dog.photoUrl;
   const breed = dog.breed;
   const weightKg = dog.weightKg;
+  const chestCm = dog.chestCm;
+  const gender = dog.gender;
+  const coatColors = dog.coatColors;
   const authorName = dog.ownerDisplayName;
   const dogCode = generateDogCode(dog.id);
+
+  const genderMark = gender === 'female' ? '♀' : gender === 'male' ? '♂' : null;
 
   return (
     <div style={{ background: T.cream, minHeight: '100dvh', paddingBottom: 28, position: 'relative' }}>
@@ -171,9 +176,18 @@ export default async function DogDetailPage({ params }: Props) {
               {dogName}
             </div>
           </div>
-          <div style={{ fontSize: 12.5, color: T.ink70, marginTop: 8, lineHeight: 1.55 }}>
-            {breed}
-            {weightKg != null ? ` · ${weightKg}kg` : ''}
+          <div style={{ fontSize: 12.5, color: T.ink70, marginTop: 8, lineHeight: 1.55, display: 'flex', flexWrap: 'wrap', gap: '0 6px', alignItems: 'center' }}>
+            <span>{breed}</span>
+            {coatColors.length > 0 && <span style={{ color: T.ink50 }}>·</span>}
+            {coatColors.length > 0 && <span>{coatColors.join(' / ')}</span>}
+            {genderMark && <span style={{ color: T.ink50 }}>·</span>}
+            {genderMark && <span>{genderMark}</span>}
+            {weightKg != null && <span style={{ color: T.ink50 }}>·</span>}
+            {weightKg != null && (
+              <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: 12 }}>
+                {weightKg}kg{chestCm != null ? ` · 胴囲${chestCm}cm` : ''}
+              </span>
+            )}
           </div>
         </div>
       </div>
