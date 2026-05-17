@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '../../../lib/api';
 import { saveTokens } from '../../../lib/auth-store';
 import { FloatingFormFooter } from '../../../components/floating-form-footer';
+import { WanSnapLogo } from '../../../components/wan-snap-logo';
 
 const T = {
   ink: '#1F1A14',
@@ -15,6 +16,7 @@ const T = {
   ink10: '#E8E0D0',
   paper: '#FFFEFB',
   cream: '#F4EDE0',
+  creamSoft: '#FAF5EA',
   terracotta: '#B95A3D',
   hairline: 'rgba(31,26,20,0.08)',
 };
@@ -58,46 +60,93 @@ export default function SignUpPage() {
   };
 
   return (
-    <div style={{ padding: '8px 12px 120px' }}>
-      {/* ステップインジケーター */}
-      <div style={{ marginBottom: 22, paddingTop: 8 }}>
+    <div style={{ minHeight: '100vh', background: T.cream, position: 'relative', overflow: 'hidden' }}>
+      {/* ヒーロー — 斜め犬写真 */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 340, overflow: 'hidden' }}>
         <div
           style={{
-            fontSize: 10,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: T.ink50,
-            fontWeight: 500,
-            marginBottom: 8,
+            position: 'absolute',
+            top: 60,
+            right: -40,
+            width: 260,
+            height: 260,
+            borderRadius: 20,
+            background: `url(https://images.unsplash.com/photo-1568393691622-c7ba131d63b4?w=600&auto=format&fit=crop) center/cover`,
+            transform: 'rotate(5deg)',
           }}
-        >
-          step 1 / 3
-        </div>
-        <div style={{ display: 'flex', gap: 4 }}>
-          <div style={{ flex: 1, height: 3, borderRadius: 3, background: T.ink }} />
-          <div style={{ flex: 1, height: 3, borderRadius: 3, background: T.ink10 }} />
-          <div style={{ flex: 1, height: 3, borderRadius: 3, background: T.ink10 }} />
-        </div>
+        />
+        <div
+          style={{
+            position: 'absolute',
+            top: 100,
+            left: -20,
+            width: 160,
+            height: 200,
+            borderRadius: 16,
+            background: `url(https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&auto=format&fit=crop) center/cover`,
+            transform: 'rotate(-8deg)',
+          }}
+        />
       </div>
 
+      {/* ボトムシート — スクロール可能 */}
       <div
         style={{
-          fontFamily: 'var(--font-serif, serif)',
-          fontSize: 26,
-          fontWeight: 500,
-          color: T.ink,
-          letterSpacing: '-0.015em',
-          lineHeight: 1.15,
-          marginBottom: 8,
+          position: 'absolute',
+          top: 220,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: T.creamSoft,
+          borderRadius: '32px 32px 0 0',
+          padding: '32px 16px 120px',
+          boxShadow: '0 -20px 40px rgba(31,26,20,0.06)',
+          overflowY: 'auto',
         }}
       >
-        はじめまして、<br />あなたのこと教えて<span style={{ color: T.terracotta }}>。</span>
-      </div>
-      <div style={{ fontSize: 12.5, color: T.ink70, marginBottom: 28, lineHeight: 1.55 }}>
-        次の画面で愛犬の情報も入れていきます。
-      </div>
+        {/* ロゴ */}
+        <WanSnapLogo />
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div
+          style={{
+            fontFamily: 'var(--font-serif, serif)',
+            fontSize: 28,
+            fontWeight: 500,
+            color: T.ink,
+            letterSpacing: '-0.02em',
+            lineHeight: 1.05,
+            marginTop: 20,
+          }}
+        >
+          はじめまして、<br />あなたのこと教えて<span style={{ color: T.terracotta }}>。</span>
+        </div>
+        <div style={{ fontSize: 12.5, color: T.ink70, marginTop: 8, lineHeight: 1.5 }}>
+          サイズ感とコーデが見つかる、<br />
+          ファッションスナップ・コミュニティ。
+        </div>
+
+        {/* ステップインジケーター */}
+        <div style={{ marginTop: 28, marginBottom: 22 }}>
+          <div
+            style={{
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: T.ink50,
+              fontWeight: 500,
+              marginBottom: 8,
+            }}
+          >
+            step 1 / 3
+          </div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            <div style={{ flex: 1, height: 3, borderRadius: 3, background: T.ink }} />
+            <div style={{ flex: 1, height: 3, borderRadius: 3, background: T.ink10 }} />
+            <div style={{ flex: 1, height: 3, borderRadius: 3, background: T.ink10 }} />
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <FieldRow label="お名前">
           <input
             type="text"
@@ -212,13 +261,14 @@ export default function SignUpPage() {
             )}
           </button>
         </FloatingFormFooter>
-      </form>
+        </form>
 
-      <div style={{ marginTop: 16, textAlign: 'center', fontSize: 12.5, color: T.ink50 }}>
-        すでにアカウントをお持ちの方は{' '}
-        <Link href="/auth/sign-in" style={{ color: T.ink, fontWeight: 600, textDecoration: 'none' }}>
-          ログイン
-        </Link>
+        <div style={{ marginTop: 16, textAlign: 'center', fontSize: 12.5, color: T.ink50 }}>
+          すでにアカウントをお持ちの方は{' '}
+          <Link href="/auth/sign-in" style={{ color: T.ink, fontWeight: 600, textDecoration: 'none' }}>
+            ログイン
+          </Link>
+        </div>
       </div>
     </div>
   );
