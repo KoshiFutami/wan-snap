@@ -42,6 +42,8 @@ export class PostResponseDto {
   authorId: string;
   dogId: string;
   imageUrl: string;
+  imageWidth: number | null;
+  imageHeight: number | null;
   caption: string | null;
   tags: string[];
   items: PostItemResponseDto[];
@@ -63,6 +65,8 @@ export class PostResponseDto {
     dto.authorId = post.authorId;
     dto.dogId = post.dogId;
     dto.imageUrl = post.imageUrl.value;
+    dto.imageWidth = post.imageWidth;
+    dto.imageHeight = post.imageHeight;
     dto.caption = post.caption?.value ?? null;
     dto.tags = post.tags.map((t) => t.value);
     dto.items = post.items.map(PostItemResponseDto.from);

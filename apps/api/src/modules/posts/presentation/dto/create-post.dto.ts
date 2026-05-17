@@ -3,6 +3,7 @@ import {
   IsArray,
   IsInt,
   IsOptional,
+  IsPositive,
   IsString,
   IsUrl,
   MaxLength,
@@ -48,6 +49,16 @@ export class CreatePostItemDto {
 export class CreatePostDto {
   @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
   imageUrl: string;
+
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  imageWidth?: number;
+
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  imageHeight?: number;
 
   @IsString()
   dogId: string;
