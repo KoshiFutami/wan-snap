@@ -70,7 +70,7 @@ export function PostMediaSection({ imageUrl, imageAlt, imageWidth, imageHeight, 
     <>
       {/* メイン写真 */}
       <div style={{
-        margin: '0 20px',
+        margin: '0 20px 16px',
         borderRadius: 20,
         overflow: 'hidden',
         aspectRatio: imageWidth && imageHeight ? `${imageWidth}/${imageHeight}` : '4/5',

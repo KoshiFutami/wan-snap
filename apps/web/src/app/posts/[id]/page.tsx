@@ -190,7 +190,7 @@ export default async function PostDetailPage({ params }: Props) {
 
       {/* キャプション */}
       {post.caption && (
-        <div style={{ padding: '0 20px 18px', fontSize: 13, lineHeight: 1.6, color: T.ink }}>
+        <div style={{ padding: '0 20px 18px', fontSize: 13, lineHeight: 1.6, color: T.ink, whiteSpace: 'pre-wrap' }}>
           {post.caption}
         </div>
       )}
