@@ -2,6 +2,7 @@ import {
   Prisma,
   Post as PrismaPost,
   PostItem as PrismaPostItem,
+  PostTag as PrismaPostTag,
 } from '@prisma/client';
 import { Post } from '../../domain/entities/post.entity';
 import { PostItem } from '../../domain/entities/post-item.entity';
@@ -11,11 +12,14 @@ import { PostId } from '../../domain/value-objects/post-id.vo';
 import { PostItemId } from '../../domain/value-objects/post-item-id.vo';
 import { Tag } from '../../domain/value-objects/tag.vo';
 
-type PrismaPostWithItems = PrismaPost & { items: PrismaPostItem[] };
+type PrismaPostWithItems = PrismaPost & {
+  items: PrismaPostItem[];
+  postTags: Pick<PrismaPostTag, 'tag'>[];
+};
 
 export class PostMapper {
   static toDomain(raw: PrismaPostWithItems): Post {
-    const tags = (raw.tags as string[]).map((t) => Tag.of(t));
+    const tags = raw.postTags.map(({ tag }) => Tag.of(tag));
     const items = raw.items.map((item) =>
       PostMapper.toItemDomain(item, raw.id),
     );
@@ -53,6 +57,7 @@ export class PostMapper {
     postId: string;
     postData: Prisma.PostUncheckedCreateInput;
     items: Prisma.PostItemUncheckedCreateInput[];
+    postTags: Prisma.PostTagUncheckedCreateInput[];
   } {
     return {
       postId: post.id.value,
@@ -64,7 +69,6 @@ export class PostMapper {
         imageWidth: post.imageWidth,
         imageHeight: post.imageHeight,
         caption: post.caption?.value ?? null,
-        tags: post.tags.map((t) => t.value),
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
       },
@@ -78,6 +82,11 @@ export class PostMapper {
         purchaseUrl: item.purchaseUrl,
         priceJpy: item.priceJpy,
         fitNote: item.fitNote,
+      })),
+      postTags: post.tags.map((tag) => ({
+        postId: post.id.value,
+        tag: tag.value,
+        createdAt: post.createdAt,
       })),
     };
   }

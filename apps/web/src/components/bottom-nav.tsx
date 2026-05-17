@@ -85,7 +85,7 @@ export function BottomNav() {
           <HomeIcon active={isHome} />
         </NavItem>
 
-        <NavItem href="/discover" label="さがす" active={pathname === '/discover'}>
+        <NavItem href="/search" label="さがす" active={pathname === '/search' || pathname === '/discover'}>
           <SearchIcon />
         </NavItem>
 
