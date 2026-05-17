@@ -1,7 +1,5 @@
 import { ImageResponse } from 'next/og';
 
-export const runtime = 'edge';
-
 export function GET() {
   return new ImageResponse(
     (
@@ -9,7 +7,6 @@ export function GET() {
         style={{
           width: 512,
           height: 512,
-          borderRadius: 120,
           background: '#F4EDE0',
           display: 'flex',
           alignItems: 'center',
