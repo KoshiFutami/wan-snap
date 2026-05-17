@@ -49,7 +49,7 @@ export default async function PostDetailPage({ params }: Props) {
   const dogPhotoUrl = post.dog?.photoUrl;
 
   return (
-    <div style={{ paddingBottom: 40 }}>
+    <div style={{ paddingBottom: 40, background: T.paper }}>
       {/* ヘッダー：戻る／シェア／ブックマーク */}
       <div style={{
         padding: '16px 20px 8px',
