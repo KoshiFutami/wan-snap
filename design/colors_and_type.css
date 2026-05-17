@@ -4,7 +4,7 @@
 */
 
 /* ─── Webfonts ───────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600&family=Quicksand:wght@400;500;600;700&family=Zen+Maru+Gothic:wght@400;500;700&family=BIZ+UDPGothic:wght@400;700&family=Noto+Sans+JP:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
   /* ─── Base colors ────────────────────────────────────── */
@@ -53,7 +53,12 @@
 
   /* ─── Type stacks ────────────────────────────────────── */
   --ws-font-serif: "Noto Serif JP", "Times New Roman", serif;
-  --ws-font-sans:  "Zen Kaku Gothic New", -apple-system, "SF Pro Text", system-ui, sans-serif;
+  /* body default: 名前・キャプション等のコンテンツ */
+  --ws-font-sans:       "Quicksand", "Zen Maru Gothic", system-ui, sans-serif;
+  /* タブ・ボタン等のUIテキスト */
+  --ws-font-sans-ui:    "Quicksand", "BIZ UDPGothic", system-ui, sans-serif;
+  /* 設定・利用規約等の長文 */
+  --ws-font-sans-read:  "Quicksand", "Noto Sans JP", system-ui, sans-serif;
   --ws-font-mono:  "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   /* ─── Type scale ─────────────────────────────────────── */
@@ -63,7 +68,7 @@
   --ws-display-m:    /* section */ 28px / 1.05 var(--ws-font-serif);
   --ws-display-s:    /* card head */ 20px / 1.1 var(--ws-font-serif);
 
-  /* Body — Zen Kaku Gothic New, 500 weight default */
+  /* Body — Zen Maru Gothic, 500 weight default */
   --ws-text-l:       16px / 1.55 var(--ws-font-sans);
   --ws-text-m:       14px / 1.55 var(--ws-font-sans);
   --ws-text-s:       13px / 1.5 var(--ws-font-sans);

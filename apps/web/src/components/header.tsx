@@ -29,7 +29,7 @@ function PawLogo() {
       <span
         style={{
           fontFamily: 'var(--font-serif), "Noto Serif JP", serif',
-          fontWeight: 600,
+          fontWeight: 700,
           fontSize: 20,
           letterSpacing: '-0.01em',
           color: T.ink,

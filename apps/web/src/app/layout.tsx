@@ -1,12 +1,36 @@
 import type { Metadata } from 'next';
-import { Zen_Kaku_Gothic_New, JetBrains_Mono } from 'next/font/google';
+import { Quicksand, Zen_Maru_Gothic, BIZ_UDPGothic, Noto_Sans_JP, JetBrains_Mono } from 'next/font/google';
 import { AppShell } from '../components/app-shell';
 import './globals.css';
 
-const zenKakuGothicNew = Zen_Kaku_Gothic_New({
+const quicksand = Quicksand({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-quicksand',
+  display: 'swap',
+});
+
+// 名前・キャプション等のコンテンツ本文（デフォルト）
+const zenMaruGothic = Zen_Maru_Gothic({
   subsets: ['latin'],
   weight: ['400', '500', '700'],
-  variable: '--font-sans',
+  variable: '--font-jp-body',
+  display: 'swap',
+});
+
+// タブ・ボタン等のUIテキスト
+const bizUdpGothic = BIZ_UDPGothic({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-jp-ui',
+  display: 'swap',
+});
+
+// 設定・長文・利用規約
+const notoSansJp = Noto_Sans_JP({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-jp-reading',
   display: 'swap',
 });
 
@@ -29,11 +53,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja" className={`${zenKakuGothicNew.variable} ${jetBrainsMono.variable}`}>
+    <html lang="ja" className={`${quicksand.variable} ${zenMaruGothic.variable} ${bizUdpGothic.variable} ${notoSansJp.variable} ${jetBrainsMono.variable}`}>
       <body
         className="antialiased"
         style={{
-          fontFamily: 'var(--font-sans), -apple-system, system-ui, sans-serif',
+          fontFamily: 'var(--font-quicksand), var(--font-jp-body), system-ui, sans-serif',
           background: '#F4EDE0',
           color: '#1F1A14',
           letterSpacing: '0.005em',
