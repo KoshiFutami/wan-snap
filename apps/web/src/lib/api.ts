@@ -67,6 +67,11 @@ export type ListPostsResponse = {
   nextCursor: string | null;
 };
 
+export type TagSummary = {
+  tag: string;
+  postCount: number;
+};
+
 export type Dog = {
   id: string;
   name: string;
@@ -161,10 +166,11 @@ export type UserPublic = {
 
 export const api = {
   posts: {
-    list: (params?: { limit?: number; cursor?: string; tags?: string[]; authorId?: string; dogId?: string; followingOnly?: boolean }, token?: string) => {
+    list: (params?: { limit?: number; cursor?: string; tag?: string; tags?: string[]; authorId?: string; dogId?: string; followingOnly?: boolean }, token?: string) => {
       const qs = new URLSearchParams();
       if (params?.limit) qs.set('limit', String(params.limit));
       if (params?.cursor) qs.set('cursor', params.cursor);
+      if (params?.tag) qs.set('tag', params.tag);
       params?.tags?.forEach((t) => qs.append('tags', t));
       if (params?.authorId) qs.set('authorId', params.authorId);
       if (params?.dogId) qs.set('dogId', params.dogId);
@@ -220,6 +226,15 @@ export const api = {
       request<void>(`/posts/${id}/like`, { method: 'POST', token }),
     unlike: (id: string, token: string) =>
       request<void>(`/posts/${id}/like`, { method: 'DELETE', token }),
+  },
+  tags: {
+    popular: (limit?: number) => {
+      const qs = new URLSearchParams();
+      if (limit) qs.set('limit', String(limit));
+      return request<TagSummary[]>(`/tags/popular${qs.size > 0 ? `?${qs.toString()}` : ''}`);
+    },
+    search: (q: string) =>
+      request<TagSummary[]>(`/tags/search?q=${encodeURIComponent(q)}`),
   },
   comments: {
     delete: (id: string, token: string) =>

@@ -59,8 +59,6 @@ model Post {
   imageWidth  Int?     @map("image_width")
   imageHeight Int?     @map("image_height")
   caption     String?  @db.Text
-  // JSON配列で保存: ["柴犬", "ハーネス"] など
-  tags        Json     @default("[]")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -70,12 +68,26 @@ model Post {
   dog   Dog    @relation(fields: [dogId], references: [id], onDelete: Cascade)
   dogId String @map("dog_id")
 
-  items    PostItem[]
-  likes    Like[]
+  items     PostItem[]
+  postTags  PostTag[]
+  likes     Like[]
   bookmarks Bookmark[]
-  comments Comment[]
+  comments  Comment[]
 
   @@map("posts")
+}
+
+model PostTag {
+  postId    String   @map("post_id")
+  tag       String   @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tag])
+  @@index([tag])
+  @@index([tag, postId])
+  @@map("post_tags")
 }
 
 model Comment {
