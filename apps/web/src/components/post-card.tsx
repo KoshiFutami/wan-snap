@@ -241,7 +241,7 @@ export function PostCard({ post }: Props) {
                 <circle cx="5" cy="5" r="1" fill="#fff" />
               </svg>
               <span style={{ fontWeight: 700 }}>{post.items.length}</span>
-              <span style={{ fontWeight: 500 }}> アイテム</span>
+              <span style={{ fontWeight: 400 }}> アイテム</span>
             </div>
           )}
         </div>
