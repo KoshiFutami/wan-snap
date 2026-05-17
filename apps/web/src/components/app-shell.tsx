@@ -8,8 +8,7 @@ import { BottomNav } from './bottom-nav';
 const BOTTOM_NAV_HEIGHT = 112;
 
 function shouldHideHeader(pathname: string) {
-  return pathname.startsWith('/auth/')
-    || pathname === '/posts/new';
+  return pathname !== '/';
 }
 
 function shouldHideBottomNav(pathname: string) {
