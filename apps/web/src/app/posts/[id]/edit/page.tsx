@@ -20,6 +20,12 @@ const T = {
   hairlineStrong: 'rgba(31,26,20,0.14)',
 };
 
+const UNSET_DETAIL_TEXT = '未設定';
+
+function getPostLocationDetail(post: Post): string {
+  return post.location ?? post.place ?? UNSET_DETAIL_TEXT;
+}
+
 function relativeTime(iso: string): string {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
   if (diff < 60) return 'たった今';
@@ -275,6 +281,31 @@ export default function PostEditPage() {
             onSetPosition={setPlacingItemKey}
           />
         </div>
+
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            background: T.paper,
+            borderRadius: 14,
+            border: `1px solid ${T.hairline}`,
+            overflow: 'hidden',
+            marginBottom: 16,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 14px',
+            }}
+          >
+            <span style={{ fontSize: 12.5, color: T.ink70 }}>場所</span>
+            <span style={{ fontSize: 12, color: T.ink50 }}>{getPostLocationDetail(post)}</span>
+          </div>
+        </div>
+        {/* TODO: スナップの公開範囲仕様が確定したら登録・編集画面に再表示する */}
 
         {error && (
           <div style={{

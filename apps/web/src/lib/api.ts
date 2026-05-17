@@ -53,6 +53,8 @@ export type Post = {
   imageWidth: number | null;
   imageHeight: number | null;
   caption: string | null;
+  location?: string | null;
+  place?: string | null;
   tags: string[];
   items: PostItem[];
   likeCount: number;
