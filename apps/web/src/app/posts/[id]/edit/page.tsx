@@ -194,7 +194,7 @@ export default function PostEditPage() {
               {post.caption ?? '(キャプションなし)'}
             </div>
             <div style={{ fontSize: 10.5, color: T.ink50, marginTop: 6, fontFamily: 'var(--font-mono, monospace)' }}>
-              ✓ {post.items.length}アイテム
+              ♥ {post.likeCount} · 💬 {post.commentCount} · ✓ {post.items.length}
             </div>
           </div>
         </div>
@@ -256,10 +256,10 @@ export default function PostEditPage() {
                 width: 40, height: 40, borderRadius: 8,
                 background: T.cream, flexShrink: 0,
                 border: `1px solid ${T.hairline}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
                 position: 'relative',
               }}>
                 <div style={{
+                  position: 'absolute', top: 6, left: 6,
                   width: 6, height: 6, borderRadius: 6,
                   background: i % 2 === 0 ? T.terracotta : T.forest,
                 }} />
@@ -372,6 +372,13 @@ export default function PostEditPage() {
           )}
         </div>
       </div>
+
+      {/* Home indicator */}
+      <div style={{
+        position: 'fixed', bottom: 8, left: '50%', transform: 'translateX(-50%)',
+        width: 134, height: 5, borderRadius: 3, background: T.ink, opacity: 0.85, zIndex: 10,
+        pointerEvents: 'none',
+      }} />
     </div>
   );
 }
