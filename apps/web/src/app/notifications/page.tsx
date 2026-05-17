@@ -121,7 +121,11 @@ function NotifRow({ n, onFollow }: { n: Notification; onFollow: (actorId: string
   const handleFollowClick = async () => {
     if (following) return;
     setFollowing(true);
-    await onFollow(n.actor.id);
+    try {
+      await onFollow(n.actor.id);
+    } catch {
+      setFollowing(false);
+    }
   };
 
   return (
@@ -321,12 +325,8 @@ export default function NotificationsPage() {
 
   const handleFollow = async (actorId: string) => {
     const token = await getValidToken();
-    if (!token) return;
-    try {
-      await api.users.follow(actorId, token);
-    } catch {
-      // already following
-    }
+    if (!token) throw new Error('unauthenticated');
+    await api.users.follow(actorId, token);
   };
 
   const groups = groupByDate(notifications);
