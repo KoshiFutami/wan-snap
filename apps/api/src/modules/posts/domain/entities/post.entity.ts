@@ -12,6 +12,7 @@ export interface PostProps {
   imageWidth: number | null;
   imageHeight: number | null;
   caption: Caption | null;
+  location: string | null;
   tags: Tag[];
   items: PostItem[];
   createdAt: Date;
@@ -25,6 +26,7 @@ export interface CreatePostProps {
   imageWidth?: number | null;
   imageHeight?: number | null;
   caption?: Caption;
+  location?: string | null;
   tags?: Tag[];
   items?: PostItem[];
 }
@@ -37,6 +39,7 @@ export class Post {
   readonly imageWidth: number | null;
   readonly imageHeight: number | null;
   readonly caption: Caption | null;
+  readonly location: string | null;
   readonly tags: Tag[];
   readonly items: PostItem[];
   readonly createdAt: Date;
@@ -50,6 +53,7 @@ export class Post {
     this.imageWidth = props.imageWidth;
     this.imageHeight = props.imageHeight;
     this.caption = props.caption;
+    this.location = props.location;
     this.tags = props.tags;
     this.items = props.items;
     this.createdAt = props.createdAt;
@@ -66,6 +70,7 @@ export class Post {
       imageWidth: props.imageWidth ?? null,
       imageHeight: props.imageHeight ?? null,
       caption: props.caption ?? null,
+      location: props.location ?? null,
       tags: props.tags ?? [],
       items: props.items ?? [],
       createdAt: now,

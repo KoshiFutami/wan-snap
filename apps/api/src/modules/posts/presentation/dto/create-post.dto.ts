@@ -83,6 +83,11 @@ export class CreatePostDto {
   caption?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  location?: string;
+
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
   @MaxLength(50, { each: true })
