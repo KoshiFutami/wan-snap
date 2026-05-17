@@ -1,8 +1,11 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { api } from '../lib/api';
+import { getValidToken } from '../lib/auth-store';
 
 const T = {
   ink: '#1F1A14',
@@ -67,9 +70,33 @@ function PlusIcon() {
   );
 }
 
+function useUnreadCount() {
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetch() {
+      const token = await getValidToken();
+      if (!token || cancelled) return;
+      try {
+        const res = await api.notifications.list(token, { limit: 1 });
+        if (!cancelled) setHasUnread(res.unreadCount > 0);
+      } catch {
+        // 取得失敗時はバッジなし
+      }
+    }
+    fetch();
+    const id = setInterval(fetch, 60_000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
+
+  return hasUnread;
+}
+
 export function BottomNav() {
   const pathname = usePathname();
   const isHome = pathname === '/';
+  const hasUnread = useUnreadCount();
 
   return (
     <nav
@@ -122,7 +149,23 @@ export function BottomNav() {
         </div>
 
         <NavItem href="/notifications" label="お知らせ" active={pathname === '/notifications'}>
-          <BellIcon active={pathname === '/notifications'} />
+          <div style={{ position: 'relative', display: 'inline-flex' }}>
+            <BellIcon active={pathname === '/notifications'} />
+            {hasUnread && pathname !== '/notifications' && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  background: T.terracotta,
+                  border: `1.5px solid ${T.paper}`,
+                }}
+              />
+            )}
+          </div>
         </NavItem>
 
         <NavItem href="/profile" label="マイわん" active={pathname === '/profile'}>
