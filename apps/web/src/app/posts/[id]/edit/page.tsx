@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getValidToken } from '../../../../lib/auth-store';
 import { api, type Post } from '../../../../lib/api';
-import { ItemEditorSection, type EditableItem } from '../../../../components/item-editor-section';
+import { ItemEditorSection, generateItemKey, validateItems, type EditableItem } from '../../../../components/item-editor-section';
 
 const T = {
   ink: '#1F1A14',
@@ -51,12 +51,14 @@ export default function PostEditPage() {
 
       setPost(p);
       setCaption(p.caption ?? '');
-      setItems(p.items.map((item) => ({ ...item, _key: Math.random().toString(36).slice(2) })));
+      setItems(p.items.map((item) => ({ ...item, _key: generateItemKey() })) as EditableItem[]);
     });
   }, [id, router]);
 
   const handleSave = async () => {
     if (!post) return;
+    const urlError = validateItems(items);
+    if (urlError) { setError(urlError); return; }
     setError(null);
     setSaving(true);
     try {

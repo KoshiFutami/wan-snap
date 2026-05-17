@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { api, type Dog } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
 import { ImageCropEditor } from '../../../components/image-crop-editor';
-import { ItemEditorSection, type EditableItem } from '../../../components/item-editor-section';
+import { ItemEditorSection, validateItems, type EditableItem } from '../../../components/item-editor-section';
 
 const T = {
   ink: '#1F1A14',
@@ -118,6 +118,8 @@ export default function NewPostPage() {
     const token = await getValidToken();
     if (!token) { router.push('/auth/sign-in'); return; }
 
+    const urlError = validateItems(items);
+    if (urlError) { setError(urlError); return; }
     setError('');
     setLoading(true);
     try {

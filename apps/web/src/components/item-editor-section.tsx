@@ -30,11 +30,17 @@ const CATEGORIES = [
   { value: 'other', label: 'その他' },
 ] as const;
 
+type CategoryValue = typeof CATEGORIES[number]['value'];
+
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'フリー', 'カスタム'];
+
+export function generateItemKey(): string {
+  return Math.random().toString(36).slice(2);
+}
 
 export type EditableItem = {
   _key: string;
-  category: string;
+  category: CategoryValue;
   brand: string | null;
   productName: string | null;
   size: string | null;
@@ -45,7 +51,7 @@ export type EditableItem = {
 
 export function newEditableItem(): EditableItem {
   return {
-    _key: Math.random().toString(36).slice(2),
+    _key: generateItemKey(),
     category: 'other',
     brand: null,
     productName: null,
@@ -58,6 +64,20 @@ export function newEditableItem(): EditableItem {
 
 function categoryLabel(value: string): string {
   return CATEGORIES.find((c) => c.value === value)?.label ?? value;
+}
+
+export function validateItems(items: EditableItem[]): string | null {
+  for (const item of items) {
+    if (item.purchaseUrl) {
+      try {
+        new URL(item.purchaseUrl);
+      } catch {
+        const name = item.productName ?? item.brand ?? categoryLabel(item.category);
+        return `「${name}」の購入URLの形式が正しくありません`;
+      }
+    }
+  }
+  return null;
 }
 
 type ItemEditorRowProps = {
@@ -92,6 +112,12 @@ function ItemEditorRow({ item, index, initiallyOpen = false, onUpdate, onRemove 
     color: T.ink50,
     letterSpacing: '0.06em',
     marginBottom: 4,
+  };
+
+  const handlePriceChange = (raw: string) => {
+    if (raw === '') { onUpdate(item._key, { priceJpy: null }); return; }
+    const n = Math.trunc(Number(raw));
+    if (!Number.isNaN(n) && n >= 0) onUpdate(item._key, { priceJpy: n });
   };
 
   return (
@@ -207,7 +233,7 @@ function ItemEditorRow({ item, index, initiallyOpen = false, onUpdate, onRemove 
               <div style={labelStyle}>カテゴリー</div>
               <select
                 value={item.category}
-                onChange={(e) => onUpdate(item._key, { category: e.target.value })}
+                onChange={(e) => onUpdate(item._key, { category: e.target.value as CategoryValue })}
                 style={{ ...fieldStyle, paddingLeft: 8 }}
               >
                 {CATEGORIES.map((c) => (
@@ -289,8 +315,9 @@ function ItemEditorRow({ item, index, initiallyOpen = false, onUpdate, onRemove 
             <input
               type="number"
               min={0}
+              step={1}
               value={item.priceJpy ?? ''}
-              onChange={(e) => onUpdate(item._key, { priceJpy: e.target.value ? parseInt(e.target.value, 10) : null })}
+              onChange={(e) => handlePriceChange(e.target.value)}
               placeholder="例: 3980"
               style={fieldStyle}
             />
@@ -316,6 +343,7 @@ export function ItemEditorSection({ items, onChange }: ItemEditorSectionProps) {
   };
 
   const removeItem = (key: string) => {
+    setNewKeys((prev) => { const s = new Set(prev); s.delete(key); return s; });
     onChange(items.filter((i) => i._key !== key));
   };
 
