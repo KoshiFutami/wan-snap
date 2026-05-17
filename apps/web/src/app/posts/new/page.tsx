@@ -38,8 +38,6 @@ const inputStyle: CSSProperties = {
 };
 
 const IMAGE_TAG_HINT_VERTICAL_POSITION = '78%';
-const UNSET_DETAIL_TEXT = '未設定';
-
 const imageActionButtonStyle: CSSProperties = {
   padding: '6px 12px',
   borderRadius: 999,
@@ -69,14 +67,12 @@ export default function NewPostPage() {
   const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
   const [showCropEditor, setShowCropEditor] = useState(false);
   const [caption, setCaption] = useState('');
+  const [location, setLocation] = useState('');
   const [tags, setTags] = useState('');
   const [items, setItems] = useState<EditableItem[]>([]);
   const [placingItemKey, setPlacingItemKey] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const settingRows = [
-    { label: '場所', detail: UNSET_DETAIL_TEXT },
-  ];
   // TODO: スナップの公開範囲仕様が確定したら登録・編集画面に再表示する
 
   useEffect(() => {
@@ -160,6 +156,7 @@ export default function NewPostPage() {
           imageWidth: uploaded.imageWidth,
           imageHeight: uploaded.imageHeight,
           caption: caption || undefined,
+          location: location.trim() || undefined,
           tags: normalizeTagInput(tags),
           items: items.map(({ _key: _k, ...rest }) => rest),
         },
@@ -478,31 +475,16 @@ export default function NewPostPage() {
             onSetPosition={setPlacingItemKey}
           />
 
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              background: T.paper,
-              borderRadius: 14,
-              border: `1px solid ${T.hairline}`,
-              overflow: 'hidden',
-            }}
-          >
-            {settingRows.map((row, index) => (
-              <div
-                key={row.label}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px 14px',
-                  borderBottom: index < settingRows.length - 1 ? `1px solid ${T.hairline}` : 'none',
-                }}
-              >
-                <span style={{ fontSize: 12.5, color: T.ink70 }}>{row.label}</span>
-                <span style={{ fontSize: 12, color: T.ink50 }}>{row.detail}</span>
-              </div>
-            ))}
+          <div>
+            <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, marginBottom: 6 }}>場所</div>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              maxLength={100}
+              placeholder="例: 代々木公園、渋谷ドッグラン"
+              style={inputStyle}
+            />
           </div>
 
         {error && (

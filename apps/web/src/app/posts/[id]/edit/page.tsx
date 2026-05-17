@@ -20,12 +20,6 @@ const T = {
   hairlineStrong: 'rgba(31,26,20,0.14)',
 };
 
-const UNSET_DETAIL_TEXT = '未設定';
-
-function getPostLocationDetail(post: Post): string {
-  return post.location ?? post.place ?? UNSET_DETAIL_TEXT;
-}
-
 function relativeTime(iso: string): string {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
   if (diff < 60) return 'たった今';
@@ -43,6 +37,7 @@ export default function PostEditPage() {
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [caption, setCaption] = useState('');
+  const [location, setLocation] = useState('');
   const [tags, setTags] = useState('');
   const [items, setItems] = useState<EditableItem[]>([]);
   const [placingItemKey, setPlacingItemKey] = useState<string | null>(null);
@@ -64,6 +59,7 @@ export default function PostEditPage() {
 
       setPost(p);
       setCaption(p.caption ?? '');
+      setLocation(p.location ?? '');
       setTags(p.tags.join(', '));
       setItems(p.items.map(({ id: _id, category, ...item }) => ({ ...item, category: category as EditableItem['category'], _key: generateItemKey() })));
     });
@@ -83,6 +79,7 @@ export default function PostEditPage() {
         post.id,
         {
           caption: caption.trim() || undefined,
+          location: location.trim() || undefined,
           tags: normalizeTagInput(tags),
           items: sanitizedItems,
         },
@@ -282,28 +279,20 @@ export default function PostEditPage() {
           />
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            background: T.paper,
-            borderRadius: 14,
-            border: `1px solid ${T.hairline}`,
-            overflow: 'hidden',
-            marginBottom: 16,
-          }}
-        >
-          <div
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, letterSpacing: '0.02em', marginBottom: 6 }}>場所</div>
+          <input
+            value={location}
+            onChange={(e) => setLocation(e.target.value.slice(0, 100))}
+            maxLength={100}
+            placeholder="例: 代々木公園、渋谷ドッグラン"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '12px 14px',
+              width: '100%', height: 46, background: T.paper, borderRadius: 12,
+              border: `1px solid ${T.hairline}`, padding: '0 14px',
+              fontSize: 14, color: T.ink, fontFamily: 'inherit', outline: 'none',
+              boxSizing: 'border-box',
             }}
-          >
-            <span style={{ fontSize: 12.5, color: T.ink70 }}>場所</span>
-            <span style={{ fontSize: 12, color: T.ink50 }}>{getPostLocationDetail(post)}</span>
-          </div>
+          />
         </div>
         {/* TODO: スナップの公開範囲仕様が確定したら登録・編集画面に再表示する */}
 

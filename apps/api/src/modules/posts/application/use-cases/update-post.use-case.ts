@@ -20,6 +20,7 @@ export interface UpdatePostInput {
   requesterId: string;
   imageUrl?: string;
   caption?: string;
+  location?: string | null;
   tags?: string[];
   items?: CreatePostItemInput[];
 }
@@ -44,6 +45,10 @@ export class UpdatePostUseCase {
           ? Caption.of(input.caption)
           : null
         : post.caption;
+    const location =
+      input.location !== undefined
+        ? input.location?.trim() || null
+        : post.location;
     const imageUrl =
       input.imageUrl !== undefined
         ? ImageUrl.of(input.imageUrl)
@@ -82,6 +87,7 @@ export class UpdatePostUseCase {
       ...post,
       imageUrl,
       caption,
+      location,
       tags,
       items,
       updatedAt: new Date(),
