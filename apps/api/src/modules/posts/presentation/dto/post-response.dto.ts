@@ -93,7 +93,10 @@ export class PostResponseDto {
         }
       : null;
     dto.author = relations
-      ? { displayName: relations.authorDisplayName, username: relations.authorUsername }
+      ? {
+          displayName: relations.authorDisplayName,
+          username: relations.authorUsername,
+        }
       : null;
     return dto;
   }

@@ -214,7 +214,10 @@ export class UsersController {
         weightKg: post.dog.weightKg ? Number(post.dog.weightKg) : null,
         photoUrl: post.dog.photoUrl,
       },
-      author: { displayName: post.author.displayName, username: post.author.username },
+      author: {
+        displayName: post.author.displayName,
+        username: post.author.username,
+      },
     }));
 
     const nextCursor =
