@@ -11,6 +11,8 @@ export class PostItemResponseDto {
   purchaseUrl: string | null;
   priceJpy: number | null;
   fitNote: string | null;
+  xPct: number | null;
+  yPct: number | null;
 
   static from(this: void, item: PostItem): PostItemResponseDto {
     const dto = new PostItemResponseDto();
@@ -22,6 +24,8 @@ export class PostItemResponseDto {
     dto.purchaseUrl = item.purchaseUrl;
     dto.priceJpy = item.priceJpy;
     dto.fitNote = item.fitNote;
+    dto.xPct = item.xPct;
+    dto.yPct = item.yPct;
     return dto;
   }
 }

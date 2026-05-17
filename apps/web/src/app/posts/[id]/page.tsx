@@ -7,6 +7,7 @@ import { BookmarkButton } from './BookmarkButton';
 import { LikeButton } from './LikeButton';
 import { FollowButton } from './FollowButton';
 import { CommentSection } from './CommentSection';
+import { ItemTagOverlay } from '../../../components/photo-tag-canvas';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -47,6 +48,12 @@ export default async function PostDetailPage({ params }: Props) {
   const breed = post.dog?.breed;
   const weight = post.dog?.weightKg;
   const dogPhotoUrl = post.dog?.photoUrl;
+  const positionedItems = post.items.filter(
+    (item) => item.xPct != null && item.yPct != null,
+  );
+  const listItems = post.items.filter(
+    (item) => item.xPct == null || item.yPct == null,
+  );
 
   return (
     <div style={{ paddingBottom: 40, background: T.paper }}>
@@ -119,6 +126,16 @@ export default async function PostDetailPage({ params }: Props) {
           style={{ objectFit: 'cover' }}
           priority
         />
+        {positionedItems.map((item) => (
+          <ItemTagOverlay
+            key={item.id}
+            xPct={item.xPct!}
+            yPct={item.yPct!}
+            brand={item.brand}
+            category={item.category}
+            productName={item.productName}
+          />
+        ))}
       </div>
 
       {/* オーナー・犬情報 */}
@@ -224,7 +241,7 @@ export default async function PostDetailPage({ params }: Props) {
       )}
 
       {/* 着用アイテム */}
-      {post.items.length > 0 && (
+      {listItems.length > 0 && (
         <div style={{
           margin: '0 20px',
           padding: '18px 16px 16px',
@@ -245,12 +262,12 @@ export default async function PostDetailPage({ params }: Props) {
               color: T.ink50,
               fontWeight: 500,
             }}>
-              着用アイテム · {post.items.length}
+              着用アイテム · {listItems.length}
             </div>
             <div style={{ fontSize: 11, color: T.terracotta, fontWeight: 500 }}>すべて見る →</div>
           </div>
 
-          {post.items.map((item, i) => {
+          {listItems.map((item, i) => {
             const color = itemColors[i % itemColors.length];
             return (
               <div key={item.id}>

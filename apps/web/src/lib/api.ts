@@ -27,6 +27,8 @@ export type PostItem = {
   purchaseUrl: string | null;
   priceJpy: number | null;
   fitNote: string | null;
+  xPct: number | null;
+  yPct: number | null;
 };
 
 export type PostDog = {

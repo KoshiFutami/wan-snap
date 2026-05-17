@@ -115,6 +115,8 @@ model PostItem {
   purchaseUrl String? @map("purchase_url") @db.VarChar(512)
   priceJpy    Int?    @map("price_jpy")
   fitNote     String? @map("fit_note") @db.VarChar(500)
+  xPct        Float?  @map("x_pct")
+  yPct        Float?  @map("y_pct")
 
   post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String @map("post_id")

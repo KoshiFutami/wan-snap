@@ -16,6 +16,8 @@ export interface CreatePostItemInput {
   purchaseUrl?: string;
   priceJpy?: number;
   fitNote?: string;
+  xPct?: number;
+  yPct?: number;
 }
 
 export interface CreatePostInput {
@@ -70,6 +72,8 @@ export class CreatePostUseCase {
         purchaseUrl: item.purchaseUrl ?? null,
         priceJpy: item.priceJpy ?? null,
         fitNote: item.fitNote ?? null,
+        xPct: item.xPct ?? null,
+        yPct: item.yPct ?? null,
       }),
     );
 

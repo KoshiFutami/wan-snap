@@ -59,6 +59,8 @@ export class UpdatePostUseCase {
               purchaseUrl: item.purchaseUrl ?? null,
               priceJpy: item.priceJpy ?? null,
               fitNote: item.fitNote ?? null,
+              xPct: item.xPct ?? null,
+              yPct: item.yPct ?? null,
             }),
           )
         : post.items;
