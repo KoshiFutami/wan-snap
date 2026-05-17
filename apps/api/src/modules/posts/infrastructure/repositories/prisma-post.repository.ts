@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type {
   FindAllOptions,
@@ -18,24 +19,10 @@ const MAX_LIMIT = 100;
 export class PrismaPostRepository implements IPostRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private async getBreedShortNameMap(breeds: string[]) {
-    const uniqueBreeds = [...new Set(breeds.filter(Boolean))];
-    if (uniqueBreeds.length === 0) {
-      return new Map<string, string>();
-    }
-
-    const records = await this.prisma.breed.findMany({
-      where: { name: { in: uniqueBreeds } },
-      select: { name: true, shortName: true },
-    });
-
-    return new Map(records.map((breed) => [breed.name, breed.shortName]));
-  }
-
   async findById(id: PostId): Promise<Post | null> {
     const raw = await this.prisma.post.findUnique({
       where: { id: id.value },
-      include: { items: true },
+      include: { items: true, postTags: true },
     });
     return raw ? PostMapper.toDomain(raw) : null;
   }
@@ -48,8 +35,14 @@ export class PrismaPostRepository implements IPostRepository {
       where: { id: id.value },
       include: {
         items: true,
+        postTags: true,
         dog: {
-          select: { name: true, breed: true, weightKg: true, photoUrl: true },
+          select: {
+            name: true,
+            breed: { select: { name: true, shortName: true } },
+            weightKg: true,
+            photoUrl: true,
+          },
         },
         author: { select: { displayName: true } },
         _count: { select: { likes: true, bookmarks: true, comments: true } },
@@ -64,10 +57,9 @@ export class PrismaPostRepository implements IPostRepository {
       },
     });
     if (!raw) return null;
-    const breedShortNameMap = await this.getBreedShortNameMap([raw.dog.breed]);
     return {
       post: PostMapper.toDomain(raw),
-      relations: this.toRelations(raw, breedShortNameMap, requesterId),
+      relations: this.toRelations(raw, requesterId),
     };
   }
 
@@ -76,19 +68,7 @@ export class PrismaPostRepository implements IPostRepository {
   ): Promise<FindAllWithRelationsResult> {
     const limit = Math.min(options.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const cursor = options.cursor ? this.decodeCursor(options.cursor) : null;
-    const where = {
-      ...(options.authorId ? { authorId: options.authorId } : {}),
-      ...(options.dogId ? { dogId: options.dogId } : {}),
-      ...(options.followingUserId
-        ? {
-            author: {
-              followers: {
-                some: { followerId: options.followingUserId },
-              },
-            },
-          }
-        : {}),
-    };
+    const where = this.buildWhere(options);
 
     const raws = await this.prisma.post.findMany({
       take: limit + 1,
@@ -97,8 +77,14 @@ export class PrismaPostRepository implements IPostRepository {
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: {
         items: true,
+        postTags: true,
         dog: {
-          select: { name: true, breed: true, weightKg: true, photoUrl: true },
+          select: {
+            name: true,
+            breed: { select: { name: true, shortName: true } },
+            weightKg: true,
+            photoUrl: true,
+          },
         },
         author: { select: { displayName: true } },
         _count: { select: { likes: true, bookmarks: true, comments: true } },
@@ -115,12 +101,9 @@ export class PrismaPostRepository implements IPostRepository {
 
     const hasNext = raws.length > limit;
     const sliced = raws.slice(0, limit);
-    const breedShortNameMap = await this.getBreedShortNameMap(
-      sliced.map((post) => post.dog.breed),
-    );
     const posts = sliced.map((r) => ({
       post: PostMapper.toDomain(r),
-      relations: this.toRelations(r, breedShortNameMap, options.requesterId),
+      relations: this.toRelations(r, options.requesterId),
     }));
     const nextCursor =
       hasNext && posts.length > 0
@@ -134,7 +117,7 @@ export class PrismaPostRepository implements IPostRepository {
     raw: {
       dog: {
         name: string;
-        breed: string;
+        breed: { name: string; shortName: string };
         weightKg: { toNumber(): number } | null;
         photoUrl: string | null;
       };
@@ -142,13 +125,12 @@ export class PrismaPostRepository implements IPostRepository {
       _count?: { likes: number; bookmarks: number; comments: number };
       likes?: { userId: string }[];
     },
-    breedShortNameMap: Map<string, string>,
     requesterId?: string,
   ): PostRelations {
     return {
       dogName: raw.dog.name,
-      dogBreed: raw.dog.breed,
-      dogBreedShortName: breedShortNameMap.get(raw.dog.breed) ?? raw.dog.breed,
+      dogBreed: raw.dog.breed.name,
+      dogBreedShortName: raw.dog.breed.shortName,
       dogWeightKg: raw.dog.weightKg ? raw.dog.weightKg.toNumber() : null,
       dogPhotoUrl: raw.dog.photoUrl,
       authorDisplayName: raw.author.displayName,
@@ -162,10 +144,7 @@ export class PrismaPostRepository implements IPostRepository {
   async findAll(options: FindAllOptions = {}): Promise<FindAllResult> {
     const limit = Math.min(options.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
     const cursor = options.cursor ? this.decodeCursor(options.cursor) : null;
-    const where = {
-      ...(options.authorId ? { authorId: options.authorId } : {}),
-      ...(options.dogId ? { dogId: options.dogId } : {}),
-    };
+    const where = this.buildWhere(options);
 
     const raws = await this.prisma.post.findMany({
       take: limit + 1,
@@ -175,7 +154,7 @@ export class PrismaPostRepository implements IPostRepository {
       }),
       where,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      include: { items: true },
+      include: { items: true, postTags: true },
     });
 
     const hasNext = raws.length > limit;
@@ -189,7 +168,8 @@ export class PrismaPostRepository implements IPostRepository {
   }
 
   async save(post: Post): Promise<void> {
-    const { postId, postData, items } = PostMapper.toPersistence(post);
+    const { postId, postData, items, postTags } =
+      PostMapper.toPersistence(post);
 
     await this.prisma.$transaction(async (tx) => {
       await tx.post.upsert({
@@ -199,8 +179,12 @@ export class PrismaPostRepository implements IPostRepository {
       });
 
       await tx.postItem.deleteMany({ where: { postId } });
+      await tx.postTag.deleteMany({ where: { postId } });
       if (items.length > 0) {
         await tx.postItem.createMany({ data: items });
+      }
+      if (postTags.length > 0) {
+        await tx.postTag.createMany({ data: postTags });
       }
     });
   }
@@ -222,6 +206,33 @@ export class PrismaPostRepository implements IPostRepository {
     return JSON.parse(Buffer.from(cursor, 'base64url').toString('utf-8')) as {
       createdAt: string;
       id: string;
+    };
+  }
+
+  private buildWhere(options: FindAllOptions): Prisma.PostWhereInput {
+    const tags = options.tags?.filter(Boolean) ?? [];
+
+    return {
+      ...(options.authorId ? { authorId: options.authorId } : {}),
+      ...(options.dogId ? { dogId: options.dogId } : {}),
+      ...(options.followingUserId
+        ? {
+            author: {
+              followers: {
+                some: { followerId: options.followingUserId },
+              },
+            },
+          }
+        : {}),
+      ...(tags.length > 0
+        ? {
+            AND: tags.map((tag) => ({
+              postTags: {
+                some: { tag },
+              },
+            })),
+          }
+        : {}),
     };
   }
 }

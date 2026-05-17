@@ -302,9 +302,13 @@ export function PostCard({ post }: Props) {
         {post.tags.length > 0 && (
           <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {post.tags.map((tag) => (
-              <span key={tag} style={{ fontSize: 12, color: T.ink50, fontWeight: 500 }}>
+              <Link
+                key={tag}
+                href={`/tags/${encodeURIComponent(tag)}`}
+                style={{ fontSize: 12, color: T.ink50, fontWeight: 500, textDecoration: 'none' }}
+              >
                 #{tag}
-              </span>
+              </Link>
             ))}
           </div>
         )}

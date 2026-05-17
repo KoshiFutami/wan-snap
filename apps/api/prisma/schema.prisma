@@ -33,7 +33,6 @@ model User {
 model Dog {
   id           String   @id @default(uuid())
   name         String   @db.VarChar(50)
-  breed        String   @db.VarChar(100)
   birthYear    Int?     @map("birth_year")
   weightKg     Decimal? @map("weight_kg") @db.Decimal(5, 2)
   neckCm       Decimal? @map("neck_cm") @db.Decimal(5, 1)
@@ -48,6 +47,9 @@ model Dog {
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String @map("owner_id")
 
+  breed   Breed  @relation(fields: [breedId], references: [id], onDelete: Restrict)
+  breedId String @map("breed_id")
+
   posts Post[]
 
   @@map("dogs")
@@ -59,8 +61,6 @@ model Post {
   imageWidth  Int?     @map("image_width")
   imageHeight Int?     @map("image_height")
   caption     String?  @db.Text
-  // JSON配列で保存: ["柴犬", "ハーネス"] など
-  tags        Json     @default("[]")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -70,12 +70,26 @@ model Post {
   dog   Dog    @relation(fields: [dogId], references: [id], onDelete: Cascade)
   dogId String @map("dog_id")
 
-  items    PostItem[]
-  likes    Like[]
+  items     PostItem[]
+  postTags  PostTag[]
+  likes     Like[]
   bookmarks Bookmark[]
-  comments Comment[]
+  comments  Comment[]
 
   @@map("posts")
+}
+
+model PostTag {
+  postId    String   @map("post_id")
+  tag       String   @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tag])
+  @@index([tag])
+  @@index([tag, postId])
+  @@map("post_tags")
 }
 
 model Comment {
@@ -103,6 +117,8 @@ model PostItem {
   purchaseUrl String? @map("purchase_url") @db.VarChar(512)
   priceJpy    Int?    @map("price_jpy")
   fitNote     String? @map("fit_note") @db.VarChar(500)
+  xPct        Float?  @map("x_pct")
+  yPct        Float?  @map("y_pct")
 
   post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String @map("post_id")
@@ -128,6 +144,8 @@ model Breed {
   name      String   @unique @db.VarChar(100)
   shortName String   @map("short_name") @db.VarChar(100)
   createdAt DateTime @default(now()) @map("created_at")
+
+  dogs Dog[]
 
   @@map("breeds")
 }

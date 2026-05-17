@@ -3,28 +3,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getValidToken } from '../../../../lib/auth-store';
-import { api, type Post, type PostItem } from '../../../../lib/api';
+import { api, type Post } from '../../../../lib/api';
+import { PhotoTagCanvas } from '../../../../components/photo-tag-canvas';
+import { ItemEditorSection, generateItemKey, validateItems, type EditableItem } from '../../../../components/item-editor-section';
 
 const T = {
   ink: '#1F1A14',
   ink70: '#4A4239',
   ink50: '#7E7567',
-  ink30: '#B8AE9E',
   ink10: '#E8E0D0',
   paper: '#FFFEFB',
   cream: '#F4EDE0',
   creamSoft: '#FAF5EA',
   terracotta: '#B95A3D',
-  forest: '#3D7A4B',
   hairline: 'rgba(31,26,20,0.08)',
   hairlineStrong: 'rgba(31,26,20,0.14)',
 };
-
-type EditableItem = Omit<PostItem, 'id'> & { _key: string };
-
-function itemKey() {
-  return Math.random().toString(36).slice(2);
-}
 
 function relativeTime(iso: string): string {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -34,12 +28,18 @@ function relativeTime(iso: string): string {
   return `${Math.floor(diff / 86400)}日前`;
 }
 
+function normalizeTagInput(value: string): string[] {
+  return [...new Set(value.split(',').map((tag) => tag.trim()).filter(Boolean))];
+}
+
 export default function PostEditPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [caption, setCaption] = useState('');
+  const [tags, setTags] = useState('');
   const [items, setItems] = useState<EditableItem[]>([]);
+  const [placingItemKey, setPlacingItemKey] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -58,19 +58,30 @@ export default function PostEditPage() {
 
       setPost(p);
       setCaption(p.caption ?? '');
-      setItems(p.items.map((item) => ({ ...item, _key: itemKey() })));
+      setTags(p.tags.join(', '));
+      setItems(p.items.map((item) => ({ ...item, _key: generateItemKey() })) as EditableItem[]);
     });
   }, [id, router]);
 
   const handleSave = async () => {
     if (!post) return;
+    const urlError = validateItems(items);
+    if (urlError) { setError(urlError); return; }
     setError(null);
     setSaving(true);
     try {
       const token = tokenRef.current ?? await getValidToken();
       if (!token) throw new Error('ログインが必要です');
       const sanitizedItems = items.map(({ _key: _k, ...rest }) => rest);
-      await api.posts.update(post.id, { caption: caption.trim() || undefined, items: sanitizedItems }, token);
+      await api.posts.update(
+        post.id,
+        {
+          caption: caption.trim() || undefined,
+          tags: normalizeTagInput(tags),
+          items: sanitizedItems,
+        },
+        token,
+      );
       router.push(`/posts/${post.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '保存に失敗しました');
@@ -93,25 +104,21 @@ export default function PostEditPage() {
     }
   };
 
-  const removeItem = (key: string) => {
-    setItems((prev) => prev.filter((i) => i._key !== key));
+  const handlePlaceItem = (key: string, xPct: number, yPct: number) => {
+    setItems((current) =>
+      current.map((item) => (item._key === key ? { ...item, xPct, yPct } : item)),
+    );
+    setPlacingItemKey(null);
   };
 
-  const addItem = () => {
-    setItems((prev) => [
-      ...prev,
-      {
-        _key: itemKey(),
-        category: 'アクセサリー',
-        brand: null,
-        productName: null,
-        size: null,
-        purchaseUrl: null,
-        priceJpy: null,
-        fitNote: null,
-      },
-    ]);
+  const handleClearItemPosition = (key: string) => {
+    setItems((current) =>
+      current.map((item) =>
+        item._key === key ? { ...item, xPct: null, yPct: null } : item,
+      ),
+    );
   };
+
 
   if (!post) {
     return (
@@ -199,6 +206,16 @@ export default function PostEditPage() {
           </div>
         </div>
 
+        <div style={{ marginBottom: 20 }}>
+          <PhotoTagCanvas
+            imageUrl={post.imageUrl}
+            items={items}
+            placingItemKey={placingItemKey}
+            onPlace={handlePlaceItem}
+            onClearPosition={handleClearItemPosition}
+          />
+        </div>
+
         {/* Caption */}
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -222,82 +239,41 @@ export default function PostEditPage() {
           />
         </div>
 
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
+            <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, letterSpacing: '0.02em' }}>タグ</div>
+            <div style={{ fontSize: 10, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>
+              カンマ区切りで編集
+            </div>
+          </div>
+          <input
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            placeholder="例: トイプードル, テディベアカット, 春コーデ"
+            style={{
+              width: '100%',
+              height: 46,
+              background: T.paper,
+              borderRadius: 12,
+              border: `1px solid ${T.hairline}`,
+              padding: '0 14px',
+              fontSize: 14,
+              color: T.ink,
+              fontFamily: 'inherit',
+              outline: 'none',
+              boxSizing: 'border-box',
+            }}
+          />
+        </div>
+
         {/* Tagged items */}
         <div style={{ marginBottom: 24 }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            marginBottom: 8,
-          }}>
-            <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, letterSpacing: '0.02em' }}>
-              着用アイテム{' '}
-              {items.length > 0 && (
-                <span style={{ color: T.ink50, fontWeight: 400 }}>· {items.length}</span>
-              )}
-            </div>
-            <button
-              onClick={addItem}
-              style={{
-                background: 'transparent', border: 'none', color: T.terracotta,
-                fontSize: 11, fontWeight: 500, padding: 0, cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
-              + 追加
-            </button>
-          </div>
-
-          {items.map((item, i) => (
-            <div key={item._key} style={{
-              display: 'flex', alignItems: 'center', gap: 12,
-              background: T.paper, borderRadius: 12, padding: 12, marginBottom: 8,
-              border: `1px solid ${T.hairline}`,
-            }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: 8,
-                background: T.cream, flexShrink: 0,
-                border: `1px solid ${T.hairline}`,
-                position: 'relative',
-              }}>
-                <div style={{
-                  position: 'absolute', top: 6, left: 6,
-                  width: 6, height: 6, borderRadius: 6,
-                  background: i % 2 === 0 ? T.terracotta : T.forest,
-                }} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontSize: 9.5, letterSpacing: '0.14em', textTransform: 'uppercase',
-                  color: T.ink50, fontWeight: 600,
-                }}>
-                  {item.brand ?? item.category}
-                </div>
-                <div style={{ fontSize: 12.5, fontWeight: 500, color: T.ink, marginTop: 2 }}>
-                  {item.productName ?? '—'}
-                </div>
-                <div style={{ display: 'flex', gap: 6, marginTop: 3, fontSize: 10, color: T.ink70 }}>
-                  {item.size && <span>{item.size}</span>}
-                  {item.size && item.fitNote && <span style={{ color: T.ink30 }}>·</span>}
-                  {item.fitNote && (
-                    <span style={{ color: i % 2 === 0 ? T.terracotta : T.forest }}>{item.fitNote}</span>
-                  )}
-                </div>
-              </div>
-              <button
-                onClick={() => removeItem(item._key)}
-                style={{
-                  width: 28, height: 28, borderRadius: 7,
-                  background: 'transparent', border: `1px solid ${T.hairlineStrong}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: T.ink50, cursor: 'pointer', flexShrink: 0,
-                }}
-                aria-label="削除"
-              >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M1 3h10M4 3V1.5h4V3M3 3l.8 8h4.4l.8-8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            </div>
-          ))}
+          <ItemEditorSection
+            items={items}
+            onChange={setItems}
+            placingItemKey={placingItemKey}
+            onSetPosition={setPlacingItemKey}
+          />
         </div>
 
         {error && (

@@ -15,23 +15,19 @@ export class PrismaPublicDogRepository implements IPublicDogRepository {
       select: {
         id: true,
         name: true,
-        breed: true,
+        breed: { select: { name: true, shortName: true } },
         weightKg: true,
         photoUrl: true,
         owner: { select: { displayName: true } },
       },
     });
     if (!dog) return null;
-    const breed = await this.prisma.breed.findUnique({
-      where: { name: dog.breed },
-      select: { shortName: true },
-    });
 
     return {
       id: dog.id,
       name: dog.name,
-      breed: dog.breed,
-      breedShortName: breed?.shortName ?? dog.breed,
+      breed: dog.breed.name,
+      breedShortName: dog.breed.shortName,
       weightKg: dog.weightKg ? dog.weightKg.toNumber() : null,
       photoUrl: dog.photoUrl,
       ownerDisplayName: dog.owner.displayName,

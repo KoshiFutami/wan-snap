@@ -58,6 +58,7 @@ export class PostsController {
   ): Promise<ListPostsResponseDto> {
     const result = await this.listPosts.execute({
       ...query,
+      tags: this.normalizeTags(query),
       requesterId: me?.sub,
       followingUserId: query.followingOnly && me ? me.sub : undefined,
     });
@@ -188,5 +189,13 @@ export class PostsController {
     if (deleted.count === 0) {
       throw new NotFoundException('ブックマークが見つかりません');
     }
+  }
+
+  private normalizeTags(query: ListPostsQueryDto): string[] | undefined {
+    const tags = [...(query.tag ? [query.tag] : []), ...(query.tags ?? [])]
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+
+    return tags.length > 0 ? [...new Set(tags)] : undefined;
   }
 }

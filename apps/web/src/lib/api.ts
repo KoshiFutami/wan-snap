@@ -27,9 +27,12 @@ export type PostItem = {
   purchaseUrl: string | null;
   priceJpy: number | null;
   fitNote: string | null;
+  xPct: number | null;
+  yPct: number | null;
 };
 
 export type PostDog = {
+  breedId?: string;
   name: string;
   breed: string;
   breedShortName: string;
@@ -66,9 +69,15 @@ export type ListPostsResponse = {
   nextCursor: string | null;
 };
 
+export type TagSummary = {
+  tag: string;
+  postCount: number;
+};
+
 export type Dog = {
   id: string;
   name: string;
+  breedId: string;
   breed: string;
   breedShortName: string;
   birthYear: number | null;
@@ -93,6 +102,7 @@ export type PublicDog = {
 
 export type UpdateDogInput = {
   name?: string;
+  breedId?: string;
   birthYear?: number;
   weightKg?: number;
   neckCm?: number;
@@ -162,10 +172,11 @@ export type UserPublic = {
 
 export const api = {
   posts: {
-    list: (params?: { limit?: number; cursor?: string; tags?: string[]; authorId?: string; dogId?: string; followingOnly?: boolean }, token?: string) => {
+    list: (params?: { limit?: number; cursor?: string; tag?: string; tags?: string[]; authorId?: string; dogId?: string; followingOnly?: boolean }, token?: string) => {
       const qs = new URLSearchParams();
       if (params?.limit) qs.set('limit', String(params.limit));
       if (params?.cursor) qs.set('cursor', params.cursor);
+      if (params?.tag) qs.set('tag', params.tag);
       params?.tags?.forEach((t) => qs.append('tags', t));
       if (params?.authorId) qs.set('authorId', params.authorId);
       if (params?.dogId) qs.set('dogId', params.dogId);
@@ -196,7 +207,7 @@ export const api = {
     },
     update: (
       id: string,
-      body: { imageUrl?: string; caption?: string; items?: Omit<PostItem, 'id'>[] },
+      body: { imageUrl?: string; caption?: string; tags?: string[]; items?: Omit<PostItem, 'id'>[] },
       token: string,
     ) => request<Post>(`/posts/${id}`, { method: 'PATCH', body: JSON.stringify(body), token }),
     delete: (id: string, token: string) =>
@@ -222,6 +233,15 @@ export const api = {
     unlike: (id: string, token: string) =>
       request<void>(`/posts/${id}/like`, { method: 'DELETE', token }),
   },
+  tags: {
+    popular: (limit?: number) => {
+      const qs = new URLSearchParams();
+      if (limit) qs.set('limit', String(limit));
+      return request<TagSummary[]>(`/tags/popular${qs.size > 0 ? `?${qs.toString()}` : ''}`);
+    },
+    search: (q: string) =>
+      request<TagSummary[]>(`/tags/search?q=${encodeURIComponent(q)}`),
+  },
   comments: {
     delete: (id: string, token: string) =>
       request<void>(`/comments/${id}`, { method: 'DELETE', token }),
@@ -240,6 +260,12 @@ export const api = {
   breeds: {
     search: (q: string) =>
       request<{ id: string; name: string; shortName: string }[]>(`/breeds?q=${encodeURIComponent(q)}`),
+    create: (name: string, token: string) =>
+      request<{ id: string; name: string; shortName: string }>('/breeds', {
+        method: 'POST',
+        body: JSON.stringify({ name }),
+        token,
+      }),
   },
   users: {
     getMe: (token: string) => request<User>('/users/me', { token }),
@@ -283,7 +309,7 @@ export const api = {
     create: (
       body: {
         name: string;
-        breed: string;
+        breedId: string;
         weightKg?: number;
         coatColors?: string[];
       },

@@ -25,10 +25,10 @@ import { ProfileImageStorageService } from '../../infrastructure/storage/profile
 import { CreateDogDto } from './dto/create-dog.dto';
 import { UpdateDogDto } from './dto/update-dog.dto';
 
-const dogSelect = Prisma.validator<Prisma.DogSelect>()({
+const dogWithBreedSelect = Prisma.validator<Prisma.DogSelect>()({
   id: true,
   name: true,
-  breed: true,
+  breedId: true,
   birthYear: true,
   weightKg: true,
   neckCm: true,
@@ -39,9 +39,38 @@ const dogSelect = Prisma.validator<Prisma.DogSelect>()({
   createdAt: true,
   updatedAt: true,
   ownerId: true,
+  breed: {
+    select: {
+      name: true,
+      shortName: true,
+    },
+  },
 });
 
-type DogRecord = Prisma.DogGetPayload<{ select: typeof dogSelect }>;
+type DogWithBreed = Prisma.DogGetPayload<{ select: typeof dogWithBreedSelect }>;
+
+function toDogResponse(dog: DogWithBreed) {
+  return {
+    id: dog.id,
+    name: dog.name,
+    breedId: dog.breedId,
+    breed: dog.breed.name,
+    breedShortName: dog.breed.shortName,
+    birthYear: dog.birthYear,
+    weightKg: dog.weightKg ? dog.weightKg.toNumber() : null,
+    neckCm: dog.neckCm ? dog.neckCm.toNumber() : null,
+    chestCm: dog.chestCm ? dog.chestCm.toNumber() : null,
+    backLengthCm: dog.backLengthCm ? dog.backLengthCm.toNumber() : null,
+    coatColors: Array.isArray(dog.coatColors)
+      ? dog.coatColors.filter(
+          (color): color is string => typeof color === 'string',
+        )
+      : [],
+    photoUrl: dog.photoUrl,
+    createdAt: dog.createdAt,
+    updatedAt: dog.updatedAt,
+  };
+}
 
 @Controller('dogs')
 @UseGuards(JwtAuthGuard)
@@ -51,88 +80,53 @@ export class DogsController {
     private readonly profileImageStorage: ProfileImageStorageService,
   ) {}
 
-  private async getBreedShortNameMap(breeds: string[]) {
-    const uniqueBreeds = [...new Set(breeds.filter(Boolean))];
-    if (uniqueBreeds.length === 0) {
-      return new Map<string, string>();
-    }
-
-    const records = await this.prisma.breed.findMany({
-      where: { name: { in: uniqueBreeds } },
-      select: { name: true, shortName: true },
-    });
-
-    return new Map(records.map((breed) => [breed.name, breed.shortName]));
-  }
-
-  private toDogResponse(
-    dog: DogRecord,
-    breedShortNameMap: Map<string, string>,
-  ) {
-    return {
-      id: dog.id,
-      name: dog.name,
-      breed: dog.breed,
-      breedShortName: breedShortNameMap.get(dog.breed) ?? dog.breed,
-      birthYear: dog.birthYear,
-      weightKg: dog.weightKg ? dog.weightKg.toNumber() : null,
-      neckCm: dog.neckCm ? dog.neckCm.toNumber() : null,
-      chestCm: dog.chestCm ? dog.chestCm.toNumber() : null,
-      backLengthCm: dog.backLengthCm ? dog.backLengthCm.toNumber() : null,
-      coatColors: Array.isArray(dog.coatColors)
-        ? dog.coatColors.filter(
-            (color): color is string => typeof color === 'string',
-          )
-        : [],
-      photoUrl: dog.photoUrl,
-      createdAt: dog.createdAt,
-      updatedAt: dog.updatedAt,
-    };
-  }
-
   @Get()
   async findAll(@CurrentUser() user: JwtPayload) {
     const dogs = await this.prisma.dog.findMany({
       where: { ownerId: user.sub },
       orderBy: { createdAt: 'asc' },
-      select: dogSelect,
+      select: dogWithBreedSelect,
     });
-    const breedShortNameMap = await this.getBreedShortNameMap(
-      dogs.map((dog) => dog.breed),
-    );
-    return dogs.map((dog) => this.toDogResponse(dog, breedShortNameMap));
+
+    return dogs.map(toDogResponse);
+  }
+
+  private async assertBreedExists(breedId: string) {
+    const breed = await this.prisma.breed.findUnique({
+      where: { id: breedId },
+      select: { id: true },
+    });
+    if (!breed) {
+      throw new BadRequestException('選択した犬種が見つかりません');
+    }
   }
 
   @Post()
   async create(@CurrentUser() user: JwtPayload, @Body() dto: CreateDogDto) {
-    await this.prisma.breed.upsert({
-      where: { name: dto.breed },
-      update: {},
-      create: { name: dto.breed, shortName: dto.breed },
-    });
+    await this.assertBreedExists(dto.breedId);
+
     const dog = await this.prisma.dog.create({
       data: {
         ...dto,
         coatColors: dto.coatColors ?? [],
         ownerId: user.sub,
       },
-      select: dogSelect,
+      select: dogWithBreedSelect,
     });
-    const breedShortNameMap = await this.getBreedShortNameMap([dog.breed]);
-    return this.toDogResponse(dog, breedShortNameMap);
+
+    return toDogResponse(dog);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
     const dog = await this.prisma.dog.findUnique({
       where: { id },
-      select: dogSelect,
+      select: dogWithBreedSelect,
     });
     if (!dog) throw new NotFoundException('犬プロフィールが見つかりません');
     if (dog.ownerId !== user.sub)
       throw new ForbiddenException('閲覧権限がありません');
-    const breedShortNameMap = await this.getBreedShortNameMap([dog.breed]);
-    return this.toDogResponse(dog, breedShortNameMap);
+    return toDogResponse(dog);
   }
 
   @Post(':id/photo')
@@ -146,7 +140,14 @@ export class DogsController {
       throw new BadRequestException('画像ファイルを選択してください');
     }
 
-    const dog = await this.prisma.dog.findUnique({ where: { id } });
+    const dog = await this.prisma.dog.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        ownerId: true,
+        photoUrl: true,
+      },
+    });
     if (!dog) throw new NotFoundException('犬プロフィールが見つかりません');
     if (dog.ownerId !== user.sub)
       throw new ForbiddenException('編集権限がありません');
@@ -159,6 +160,9 @@ export class DogsController {
     const updated = await this.prisma.dog.update({
       where: { id },
       data: { photoUrl },
+      select: {
+        photoUrl: true,
+      },
     });
 
     await this.profileImageStorage.deleteImage(dog.photoUrl);
@@ -174,16 +178,24 @@ export class DogsController {
   ) {
     const dog = await this.prisma.dog.findUnique({
       where: { id },
-      select: dogSelect,
+      select: {
+        id: true,
+        ownerId: true,
+        photoUrl: true,
+      },
     });
     if (!dog) throw new NotFoundException('犬プロフィールが見つかりません');
     if (dog.ownerId !== user.sub)
       throw new ForbiddenException('編集権限がありません');
 
+    if (dto.breedId) {
+      await this.assertBreedExists(dto.breedId);
+    }
+
     const updated = await this.prisma.dog.update({
       where: { id },
       data: dto,
-      select: dogSelect,
+      select: dogWithBreedSelect,
     });
     if (
       dto.photoUrl !== undefined &&
@@ -192,8 +204,7 @@ export class DogsController {
     ) {
       await this.profileImageStorage.deleteImage(dog.photoUrl);
     }
-    const breedShortNameMap = await this.getBreedShortNameMap([updated.breed]);
-    return this.toDogResponse(updated, breedShortNameMap);
+    return toDogResponse(updated);
   }
 
   @Delete(':id')

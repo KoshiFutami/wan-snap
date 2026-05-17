@@ -7,6 +7,8 @@ import { api, type Dog } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
 import { resolveBreedName } from '../../../lib/breed';
 import { ImageCropEditor } from '../../../components/image-crop-editor';
+import { PhotoTagCanvas } from '../../../components/photo-tag-canvas';
+import { ItemEditorSection, validateItems, type EditableItem } from '../../../components/item-editor-section';
 
 const T = {
   ink: '#1F1A14',
@@ -54,6 +56,10 @@ const imageActionButtonStyle: CSSProperties = {
   gap: 4,
 };
 
+function normalizeTagInput(value: string): string[] {
+  return [...new Set(value.split(',').map((tag) => tag.trim()).filter(Boolean))];
+}
+
 export default function NewPostPage() {
   const router = useRouter();
   const [dogs, setDogs] = useState<Dog[]>([]);
@@ -64,6 +70,8 @@ export default function NewPostPage() {
   const [showCropEditor, setShowCropEditor] = useState(false);
   const [caption, setCaption] = useState('');
   const [tags, setTags] = useState('');
+  const [items, setItems] = useState<EditableItem[]>([]);
+  const [placingItemKey, setPlacingItemKey] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const settingRows = [
@@ -98,6 +106,7 @@ export default function NewPostPage() {
   const handleCropComplete = (blob: Blob, previewUrl: string) => {
     setImageFile(new File([blob], 'image.jpg', { type: 'image/jpeg' }));
     setImagePreview(previewUrl);
+    setPlacingItemKey(null);
     setShowCropEditor(false);
   };
 
@@ -112,11 +121,28 @@ export default function NewPostPage() {
     }
   };
 
+  const handlePlaceItem = (key: string, xPct: number, yPct: number) => {
+    setItems((current) =>
+      current.map((item) => (item._key === key ? { ...item, xPct, yPct } : item)),
+    );
+    setPlacingItemKey(null);
+  };
+
+  const handleClearItemPosition = (key: string) => {
+    setItems((current) =>
+      current.map((item) =>
+        item._key === key ? { ...item, xPct: null, yPct: null } : item,
+      ),
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = await getValidToken();
     if (!token) { router.push('/auth/sign-in'); return; }
 
+    const urlError = validateItems(items);
+    if (urlError) { setError(urlError); return; }
     setError('');
     setLoading(true);
     try {
@@ -135,7 +161,8 @@ export default function NewPostPage() {
           imageWidth: uploaded.imageWidth,
           imageHeight: uploaded.imageHeight,
           caption: caption || undefined,
-          tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
+          tags: normalizeTagInput(tags),
+          items: items.map(({ _key: _k, ...rest }) => rest),
         },
         token,
       );
@@ -218,38 +245,25 @@ export default function NewPostPage() {
           </button>
         </div>
         <div style={{ padding: '16px 20px 28px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {/* 画像アップロード */}
-        <div>
-          <label
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              aspectRatio: '4/5',
-              borderRadius: 18,
-              overflow: 'hidden',
-              cursor: 'pointer',
-              background: imagePreview ? 'transparent' : T.ink10,
-              border: imagePreview ? 'none' : `2px dashed ${T.ink30}`,
-              position: 'relative',
-            }}
-          >
+          {/* 画像アップロード */}
+          <div>
             {imagePreview ? (
-              <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imagePreview} alt="プレビュー" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                {/* 編集・変更ボタン */}
+              <div style={{ position: 'relative' }}>
+                <PhotoTagCanvas
+                  imageUrl={imagePreview}
+                  items={items}
+                  placingItemKey={placingItemKey}
+                  onPlace={handlePlaceItem}
+                  onClearPosition={handleClearItemPosition}
+                />
                 <div
                   style={{
                     position: 'absolute',
-                    bottom: 12,
+                    bottom: 52,
                     right: 12,
                     display: 'flex',
                     gap: 6,
                   }}
-                  onClick={(e) => e.stopPropagation()}
                 >
                   {rawImageSrc && (
                     <button
@@ -264,9 +278,7 @@ export default function NewPostPage() {
                       編集
                     </button>
                   )}
-                  <label
-                    style={imageActionButtonStyle}
-                  >
+                  <label style={imageActionButtonStyle}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       <polyline points="17 8 12 3 7 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -276,83 +288,114 @@ export default function NewPostPage() {
                     <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
                   </label>
                 </div>
-              </>
-            ) : (
-              <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: 24, textAlign: 'center', marginTop: 72 }}>
-                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-                    <rect x="3" y="5" width="18" height="14" rx="3" stroke={T.ink50} strokeWidth="1.5" />
-                    <circle cx="12" cy="12" r="3" stroke={T.ink50} strokeWidth="1.5" />
-                    <circle cx="17" cy="8" r="1.2" fill={T.ink50} />
-                  </svg>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: T.ink70 }}>写真を選ぶ</span>
-                  <span style={{ fontSize: 11, color: T.ink50 }}>タップして選択</span>
-                </div>
-                <div style={{ position: 'absolute', left: '50%', top: IMAGE_TAG_HINT_VERTICAL_POSITION, transform: 'translateX(-50%)' }}>
-                  <div style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 18,
-                    background: 'rgba(255,254,251,0.85)',
-                    backdropFilter: 'blur(8px)',
-                    border: `2px dashed ${T.terracotta}`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: T.terracotta,
-                    fontSize: 18,
-                    lineHeight: 1,
-                  }}
-                  >
-                    +
-                  </div>
-                  <div style={{
-                    position: 'absolute',
-                    top: -28,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    padding: '4px 8px',
-                    borderRadius: 6,
-                    background: T.terracotta,
-                    color: '#fff',
-                    fontSize: 10,
-                    fontWeight: 500,
-                    whiteSpace: 'nowrap',
-                  }}
-                  >
-                    タップして写真を選ぶ
-                  </div>
-                </div>
               </div>
+            ) : (
+              <label
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  aspectRatio: '4/5',
+                  borderRadius: 18,
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  background: T.ink10,
+                  border: `2px dashed ${T.ink30}`,
+                  position: 'relative',
+                }}
+              >
+                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: 24, textAlign: 'center', marginTop: 72 }}>
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                      <rect x="3" y="5" width="18" height="14" rx="3" stroke={T.ink50} strokeWidth="1.5" />
+                      <circle cx="12" cy="12" r="3" stroke={T.ink50} strokeWidth="1.5" />
+                      <circle cx="17" cy="8" r="1.2" fill={T.ink50} />
+                    </svg>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: T.ink70 }}>写真を選ぶ</span>
+                    <span style={{ fontSize: 11, color: T.ink50 }}>タップして選択</span>
+                  </div>
+                  <div style={{ position: 'absolute', left: '50%', top: IMAGE_TAG_HINT_VERTICAL_POSITION, transform: 'translateX(-50%)' }}>
+                    <div style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 18,
+                      background: 'rgba(255,254,251,0.85)',
+                      backdropFilter: 'blur(8px)',
+                      border: `2px dashed ${T.terracotta}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: T.terracotta,
+                      fontSize: 18,
+                      lineHeight: 1,
+                    }}
+                    >
+                      +
+                    </div>
+                    <div style={{
+                      position: 'absolute',
+                      top: -28,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      padding: '4px 8px',
+                      borderRadius: 6,
+                      background: T.terracotta,
+                      color: '#fff',
+                      fontSize: 10,
+                      fontWeight: 500,
+                      whiteSpace: 'nowrap',
+                    }}
+                    >
+                      タップして写真を選ぶ
+                    </div>
+                  </div>
+                </div>
+                <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+              </label>
             )}
-            {!imagePreview && <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />}
-          </label>
-        </div>
+          </div>
 
-        {/* キャプション */}
+          {/* キャプション */}
         <div>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
             <label style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>キャプション</label>
             <span style={{ fontSize: 10, color: T.ink50 }}>{caption.length} / 500</span>
           </div>
-          <textarea
-            rows={3}
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            maxLength={500}
-            placeholder="今日のコーデ！Mサイズでぴったりでした"
-            style={{
-              ...inputStyle,
-              height: 'auto',
-              padding: '12px 14px',
-              resize: 'none',
-              lineHeight: 1.55,
-            }}
+            <textarea
+              rows={3}
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              maxLength={500}
+              placeholder="今日のコーデ！Mサイズでぴったりでした"
+              style={{
+                ...inputStyle,
+                height: 'auto',
+                padding: '12px 14px',
+                resize: 'none',
+                lineHeight: 1.55,
+              }}
           />
         </div>
 
-          {/* 愛犬セレクター */}
-          <div>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
+            <label htmlFor="post-tags" style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>タグ</label>
+            <span style={{ fontSize: 10, color: T.ink50 }}>カンマ区切りで追加</span>
+          </div>
+          <input
+            id="post-tags"
+            type="text"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            placeholder="例: トイプードル, テディベアカット, 春コーデ"
+            style={inputStyle}
+          />
+        </div>
+
+        {/* 愛犬セレクター */}
+        <div>
             <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, marginBottom: 8 }}>
               愛犬 <span style={{ color: T.terracotta }}>*</span>
             </div>
@@ -427,6 +470,14 @@ export default function NewPostPage() {
               </button>
             </div>
           </div>
+
+          {/* 着用アイテム */}
+          <ItemEditorSection
+            items={items}
+            onChange={setItems}
+            placingItemKey={placingItemKey}
+            onSetPosition={setPlacingItemKey}
+          />
 
           <div
             style={{

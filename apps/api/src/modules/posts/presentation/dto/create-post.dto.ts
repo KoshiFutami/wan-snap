@@ -2,10 +2,12 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsInt,
+  IsNumber,
   IsOptional,
   IsPositive,
   IsString,
   IsUrl,
+  Max,
   MaxLength,
   Min,
   ValidateNested,
@@ -44,6 +46,18 @@ export class CreatePostItemDto {
   @IsString()
   @MaxLength(500)
   fitNote?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  xPct?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  yPct?: number;
 }
 
 export class CreatePostDto {

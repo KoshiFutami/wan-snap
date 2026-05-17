@@ -22,6 +22,10 @@ export class ListPostsQueryDto {
   cursor?: string;
 
   @IsOptional()
+  @IsString()
+  tag?: string;
+
+  @IsOptional()
   @Transform(({ value }: { value: string | string[] }) =>
     Array.isArray(value) ? value : [value],
   )

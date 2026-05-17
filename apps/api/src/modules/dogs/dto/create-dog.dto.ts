@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   Max,
   MaxLength,
   Min,
@@ -16,10 +17,8 @@ export class CreateDogDto {
   @MaxLength(50)
   name: string;
 
-  @IsString()
-  @MinLength(1)
-  @MaxLength(100)
-  breed: string;
+  @IsUUID()
+  breedId: string;
 
   @IsOptional()
   @IsInt()

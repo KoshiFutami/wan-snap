@@ -7,6 +7,7 @@ import { BookmarkButton } from './BookmarkButton';
 import { LikeButton } from './LikeButton';
 import { FollowButton } from './FollowButton';
 import { CommentSection } from './CommentSection';
+import { ItemTagOverlay } from '../../../components/photo-tag-canvas';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -35,6 +36,19 @@ function relativeTime(iso: string): string {
 }
 
 const itemColors = [T.terracotta, T.forest, '#7B6EA8', '#2E7D8A'];
+const categoryLabels: Record<string, string> = {
+  tops: 'トップス',
+  bottoms: 'ボトムス',
+  dress: 'ワンピース',
+  outerwear: 'アウター',
+  collar: '首輪',
+  harness: 'ハーネス',
+  leash: 'リード',
+  bandana: 'バンダナ',
+  hat: '帽子',
+  shoes: 'シューズ',
+  other: 'その他',
+};
 
 export default async function PostDetailPage({ params }: Props) {
   const { id } = await params;
@@ -47,6 +61,9 @@ export default async function PostDetailPage({ params }: Props) {
   const breed = post.dog?.breed;
   const weight = post.dog?.weightKg;
   const dogPhotoUrl = post.dog?.photoUrl;
+  const positionedItems = post.items.filter(
+    (item) => item.xPct != null && item.yPct != null,
+  );
 
   return (
     <div style={{ paddingBottom: 40, background: T.paper }}>
@@ -119,6 +136,16 @@ export default async function PostDetailPage({ params }: Props) {
           style={{ objectFit: 'cover' }}
           priority
         />
+        {positionedItems.map((item) => (
+          <ItemTagOverlay
+            key={item.id}
+            xPct={item.xPct!}
+            yPct={item.yPct!}
+            brand={item.brand}
+            category={item.category}
+            productName={item.productName}
+          />
+        ))}
       </div>
 
       {/* オーナー・犬情報 */}
@@ -212,7 +239,13 @@ export default async function PostDetailPage({ params }: Props) {
       {post.tags.length > 0 && (
         <div style={{ padding: '0 20px 16px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {post.tags.map((tag) => (
-            <span key={tag} style={{ fontSize: 12, color: T.ink50, fontWeight: 500 }}>#{tag}</span>
+            <Link
+              key={tag}
+              href={`/tags/${encodeURIComponent(tag)}`}
+              style={{ fontSize: 12, color: T.ink50, fontWeight: 500, textDecoration: 'none' }}
+            >
+              #{tag}
+            </Link>
           ))}
         </div>
       )}
@@ -241,11 +274,13 @@ export default async function PostDetailPage({ params }: Props) {
             }}>
               着用アイテム · {post.items.length}
             </div>
-            <div style={{ fontSize: 11, color: T.terracotta, fontWeight: 500 }}>すべて見る →</div>
           </div>
 
           {post.items.map((item, i) => {
             const color = itemColors[i % itemColors.length];
+            const displayBrand = item.brand ?? categoryLabels[item.category] ?? item.category;
+            const displayName =
+              item.productName ?? categoryLabels[item.category] ?? item.category;
             return (
               <div key={item.id}>
                 {i > 0 && <div style={{ height: 1, background: T.hairline, margin: '12px 0' }} />}
@@ -285,13 +320,11 @@ export default async function PostDetailPage({ params }: Props) {
                       color: T.ink50,
                       fontWeight: 600,
                     }}>
-                      {item.brand ?? item.category}
+                      {displayBrand}
                     </div>
-                    {item.productName && (
-                      <div style={{ fontSize: 13, fontWeight: 500, color: T.ink, marginTop: 2 }}>
-                        {item.productName}
-                      </div>
-                    )}
+                    <div style={{ fontSize: 13, fontWeight: 500, color: T.ink, marginTop: 2 }}>
+                      {displayName}
+                    </div>
                     <div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: 10.5, color: T.ink70, flexWrap: 'wrap' }}>
                       {item.size && <span>{item.size}</span>}
                       {item.size && item.fitNote && <span style={{ color: T.ink30 }}>·</span>}

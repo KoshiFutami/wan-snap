@@ -11,6 +11,7 @@ import { PostItem } from '../../domain/entities/post-item.entity';
 import { Caption } from '../../domain/value-objects/caption.vo';
 import { ImageUrl } from '../../domain/value-objects/image-url.vo';
 import { PostId } from '../../domain/value-objects/post-id.vo';
+import { Tag } from '../../domain/value-objects/tag.vo';
 import { PostImageStorageService } from '../../infrastructure/services/post-image-storage.service';
 import type { CreatePostItemInput } from './create-post.use-case';
 
@@ -19,6 +20,7 @@ export interface UpdatePostInput {
   requesterId: string;
   imageUrl?: string;
   caption?: string;
+  tags?: string[];
   items?: CreatePostItemInput[];
 }
 
@@ -46,6 +48,17 @@ export class UpdatePostUseCase {
       input.imageUrl !== undefined
         ? ImageUrl.of(input.imageUrl)
         : post.imageUrl;
+    const tags =
+      input.tags !== undefined
+        ? [
+            ...new Map(
+              input.tags.map((tag) => {
+                const normalized = Tag.of(tag);
+                return [normalized.value, normalized] as const;
+              }),
+            ).values(),
+          ]
+        : post.tags;
 
     const items =
       input.items !== undefined
@@ -59,6 +72,8 @@ export class UpdatePostUseCase {
               purchaseUrl: item.purchaseUrl ?? null,
               priceJpy: item.priceJpy ?? null,
               fitNote: item.fitNote ?? null,
+              xPct: item.xPct ?? null,
+              yPct: item.yPct ?? null,
             }),
           )
         : post.items;
@@ -67,6 +82,7 @@ export class UpdatePostUseCase {
       ...post,
       imageUrl,
       caption,
+      tags,
       items,
       updatedAt: new Date(),
     });
