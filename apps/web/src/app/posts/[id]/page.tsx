@@ -6,6 +6,7 @@ import { EditButton } from './EditButton';
 import { BookmarkButton } from './BookmarkButton';
 import { LikeButton } from './LikeButton';
 import { FollowButton } from './FollowButton';
+import { CommentSection } from './CommentSection';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -27,6 +28,8 @@ export default async function PostDetailPage({ params }: Props) {
   const { id } = await params;
   const post = await api.posts.get(id).catch(() => null);
   if (!post) notFound();
+
+  const commentsRes = await api.posts.listComments(id).catch(() => ({ comments: [], nextCursor: null }));
 
   const dogName = post.dog?.name ?? 'わんこ';
   const breed = post.dog?.breed;
@@ -289,9 +292,33 @@ export default async function PostDetailPage({ params }: Props) {
       )}
 
       {/* 日付 */}
-      <div style={{ padding: '16px 12px 0', fontSize: 10.5, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>
+      <div style={{ padding: '16px 12px 16px', fontSize: 10.5, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>
         {new Date(post.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Tokyo' })}
       </div>
+
+      {/* アクションバー（いいね・コメント件数） */}
+      <div style={{ padding: '0 12px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: T.ink50, fontSize: 13 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 20.5s-7.5-4.7-7.5-10.2c0-2.7 2-4.8 4.5-4.8 1.8 0 2.7 1 3 1.7.3-.7 1.2-1.7 3-1.7 2.5 0 4.5 2.1 4.5 4.8 0 5.5-7.5 10.2-7.5 10.2z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+          </svg>
+          <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>{post.likeCount}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: T.ink50, fontSize: 13 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M4 5h16v11h-9l-4 3.5V16H4V5z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+          </svg>
+          <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>{post.commentCount}</span>
+        </div>
+      </div>
+
+      {/* コメントセクション */}
+      <CommentSection
+        postId={post.id}
+        initialComments={commentsRes.comments}
+        initialNextCursor={commentsRes.nextCursor}
+        commentCount={post.commentCount ?? 0}
+      />
     </div>
   );
 }

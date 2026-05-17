@@ -89,6 +89,7 @@ export function PostCard({ post }: Props) {
   });
   const [bookmarked, setBookmarked] = useState(false);
   const [bookmarkCount, setBookmarkCount] = useState(post.bookmarkCount ?? 0);
+  const commentCount = post.commentCount ?? 0;
 
   const dogName = post.dog?.name ?? 'わんこ';
   const authorName = post.author?.displayName ?? '';
@@ -255,6 +256,9 @@ export function PostCard({ post }: Props) {
             style={{ display: 'flex', alignItems: 'center', gap: 6, color: T.ink, textDecoration: 'none' }}
           >
             <CommentIcon />
+            {commentCount > 0 && (
+              <span style={{ fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-mono, monospace)' }}>{commentCount}</span>
+            )}
           </Link>
 
           <button style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: T.ink }}>

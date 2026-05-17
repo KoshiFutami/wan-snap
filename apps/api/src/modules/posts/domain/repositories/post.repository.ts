@@ -24,6 +24,7 @@ export interface PostRelations {
   authorDisplayName: string;
   likeCount: number;
   bookmarkCount: number;
+  commentCount: number;
   isLikedByMe: boolean;
 }
 

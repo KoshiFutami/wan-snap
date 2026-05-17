@@ -22,6 +22,7 @@ model User {
   posts     Post[]
   likes     Like[]
   bookmarks Bookmark[]
+  comments  Comment[]
   followers Follow[] @relation("Following")
   following Follow[] @relation("Follower")
 
@@ -68,11 +69,28 @@ model Post {
   dog   Dog    @relation(fields: [dogId], references: [id], onDelete: Cascade)
   dogId String @map("dog_id")
 
-  items PostItem[]
-  likes Like[]
+  items    PostItem[]
+  likes    Like[]
   bookmarks Bookmark[]
+  comments Comment[]
 
   @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  body      String   @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String @map("post_id")
+
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String @map("author_id")
+
+  @@index([postId])
+  @@index([authorId])
+  @@map("comments")
 }
 
 model PostItem {

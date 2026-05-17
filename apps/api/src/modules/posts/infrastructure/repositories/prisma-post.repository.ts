@@ -38,7 +38,7 @@ export class PrismaPostRepository implements IPostRepository {
           select: { name: true, breed: true, weightKg: true, photoUrl: true },
         },
         author: { select: { displayName: true } },
-        _count: { select: { likes: true, bookmarks: true } },
+        _count: { select: { likes: true, bookmarks: true, comments: true } },
         ...(requesterId
           ? {
               likes: {
@@ -86,7 +86,7 @@ export class PrismaPostRepository implements IPostRepository {
           select: { name: true, breed: true, weightKg: true, photoUrl: true },
         },
         author: { select: { displayName: true } },
-        _count: { select: { likes: true, bookmarks: true } },
+        _count: { select: { likes: true, bookmarks: true, comments: true } },
         ...(options.requesterId
           ? {
               likes: {
@@ -121,7 +121,7 @@ export class PrismaPostRepository implements IPostRepository {
         photoUrl: string | null;
       };
       author: { displayName: string };
-      _count?: { likes: number; bookmarks: number };
+      _count?: { likes: number; bookmarks: number; comments: number };
       likes?: { userId: string }[];
     },
     requesterId?: string,
@@ -134,6 +134,7 @@ export class PrismaPostRepository implements IPostRepository {
       authorDisplayName: raw.author.displayName,
       likeCount: raw._count?.likes ?? 0,
       bookmarkCount: raw._count?.bookmarks ?? 0,
+      commentCount: raw._count?.comments ?? 0,
       isLikedByMe: raw.likes?.some((l) => l.userId === requesterId) ?? false,
     };
   }

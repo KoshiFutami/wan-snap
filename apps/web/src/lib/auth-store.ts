@@ -56,6 +56,22 @@ async function doRefresh(): Promise<string | null> {
 }
 
 /**
+ * アクセストークンからユーザーIDを取得する。
+ */
+export function getCurrentUserId(): string | null {
+  const token = getAccessToken();
+  if (!token) return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(atob(parts[1])) as { sub: string };
+    return payload.sub ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * 有効なアクセストークンを返す。
  * 期限切れ（または60秒以内に切れる）場合はリフレッシュトークンで自動更新する。
  * 更新失敗（リフレッシュトークン期限切れ等）時は null を返す。
