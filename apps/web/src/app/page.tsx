@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { PostCard } from '../components/post-card';
 import { getAccessToken, getValidToken } from '../lib/auth-store';
 import { api, type Post } from '../lib/api';
@@ -17,14 +18,19 @@ const FILTERS = ['すべて', 'フォロー中'] as const;
 type Filter = (typeof FILTERS)[number];
 
 export default function HomePage() {
+  const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<Filter>('すべて');
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAuthed, setIsAuthed] = useState(false);
 
   useEffect(() => {
-    setIsAuthed(!!getAccessToken());
-  }, []);
+    const authed = !!getAccessToken();
+    setIsAuthed(authed);
+    if (!authed && !sessionStorage.getItem('wan_snap_seen_intro')) {
+      router.replace('/intro');
+    }
+  }, [router]);
 
   const loadPosts = useCallback(async (filter: Filter) => {
     setLoading(true);
