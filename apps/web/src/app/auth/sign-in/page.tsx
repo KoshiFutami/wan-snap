@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '../../../lib/api';
 import { saveTokens } from '../../../lib/auth-store';
+import { WanSnapLogo } from '../../../components/wan-snap-logo';
 
 const T = {
   ink: '#1F1A14',
@@ -86,26 +87,7 @@ export default function SignInPage() {
         }}
       >
         {/* ロゴ */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill={T.ink}>
-            <ellipse cx="6" cy="9" rx="2" ry="2.6" />
-            <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
-            <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
-            <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
-            <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
-          </svg>
-          <span
-            style={{
-              fontFamily: 'var(--font-serif, serif)',
-              fontWeight: 600,
-              fontSize: 18,
-              letterSpacing: '-0.01em',
-              color: T.ink,
-            }}
-          >
-            Wan<span style={{ opacity: 0.45, margin: '0 1px' }}>·</span>Snap
-          </span>
-        </div>
+        <WanSnapLogo />
 
         <div
           style={{
