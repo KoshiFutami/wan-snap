@@ -35,8 +35,8 @@ export default function HomePage() {
   const loadPosts = useCallback(async (filter: Filter) => {
     setLoading(true);
     try {
+      const token = await getValidToken().catch(() => null);
       if (filter === 'フォロー中') {
-        const token = await getValidToken().catch(() => null);
         if (!token) {
           setPosts([]);
           return;
@@ -44,7 +44,7 @@ export default function HomePage() {
         const res = await api.posts.list({ limit: 20, followingOnly: true }, token).catch(() => ({ posts: [] as Post[], nextCursor: null }));
         setPosts(res.posts);
       } else {
-        const res = await api.posts.list({ limit: 20 }).catch(() => ({ posts: [] as Post[], nextCursor: null }));
+        const res = await api.posts.list({ limit: 20 }, token ?? undefined).catch(() => ({ posts: [] as Post[], nextCursor: null }));
         setPosts(res.posts);
       }
     } finally {
