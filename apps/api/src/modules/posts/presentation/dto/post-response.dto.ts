@@ -33,6 +33,7 @@ export class PostItemResponseDto {
 export class PostDogDto {
   name: string;
   breed: string;
+  breedShortName: string;
   weightKg: number | null;
   photoUrl: string | null;
 }
@@ -85,6 +86,7 @@ export class PostResponseDto {
       ? {
           name: relations.dogName,
           breed: relations.dogBreed,
+          breedShortName: relations.dogBreedShortName,
           weightKg: relations.dogWeightKg,
           photoUrl: relations.dogPhotoUrl,
         }

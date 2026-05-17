@@ -42,6 +42,7 @@ const dogWithBreedSelect = Prisma.validator<Prisma.DogSelect>()({
   breed: {
     select: {
       name: true,
+      shortName: true,
     },
   },
 });
@@ -54,6 +55,7 @@ function toDogResponse(dog: DogWithBreed) {
     name: dog.name,
     breedId: dog.breedId,
     breed: dog.breed.name,
+    breedShortName: dog.breed.shortName,
     birthYear: dog.birthYear,
     weightKg: dog.weightKg ? dog.weightKg.toNumber() : null,
     neckCm: dog.neckCm ? dog.neckCm.toNumber() : null,

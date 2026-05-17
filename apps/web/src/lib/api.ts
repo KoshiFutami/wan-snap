@@ -35,6 +35,7 @@ export type PostDog = {
   breedId?: string;
   name: string;
   breed: string;
+  breedShortName: string;
   weightKg: number | null;
   photoUrl: string | null;
 };
@@ -78,6 +79,7 @@ export type Dog = {
   name: string;
   breedId: string;
   breed: string;
+  breedShortName: string;
   birthYear: number | null;
   weightKg: number | null;
   neckCm: number | null;
@@ -92,6 +94,7 @@ export type PublicDog = {
   id: string;
   name: string;
   breed: string;
+  breedShortName: string;
   weightKg: number | null;
   photoUrl: string | null;
   ownerDisplayName: string;
@@ -256,9 +259,9 @@ export const api = {
   },
   breeds: {
     search: (q: string) =>
-      request<{ id: string; name: string }[]>(`/breeds?q=${encodeURIComponent(q)}`),
+      request<{ id: string; name: string; shortName: string }[]>(`/breeds?q=${encodeURIComponent(q)}`),
     create: (name: string, token: string) =>
-      request<{ id: string; name: string }>('/breeds', {
+      request<{ id: string; name: string; shortName: string }>('/breeds', {
         method: 'POST',
         body: JSON.stringify({ name }),
         token,

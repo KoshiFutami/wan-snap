@@ -15,7 +15,7 @@ export class PrismaPublicDogRepository implements IPublicDogRepository {
       select: {
         id: true,
         name: true,
-        breed: { select: { name: true } },
+        breed: { select: { name: true, shortName: true } },
         weightKg: true,
         photoUrl: true,
         owner: { select: { displayName: true } },
@@ -27,6 +27,7 @@ export class PrismaPublicDogRepository implements IPublicDogRepository {
       id: dog.id,
       name: dog.name,
       breed: dog.breed.name,
+      breedShortName: dog.breed.shortName,
       weightKg: dog.weightKg ? dog.weightKg.toNumber() : null,
       photoUrl: dog.photoUrl,
       ownerDisplayName: dog.owner.displayName,

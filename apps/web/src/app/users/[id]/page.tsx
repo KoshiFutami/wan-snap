@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { getAccessToken, getValidToken } from '../../../lib/auth-store';
 import { api, type Post, type PublicDog, type User, type UserPublic } from '../../../lib/api';
+import { resolveBreedName } from '../../../lib/breed';
 
 const T = {
   ink: '#1F1A14',
@@ -606,7 +607,8 @@ function DogCard({ dog, active }: { dog: PublicDog; active: boolean }) {
         fontSize: 9, color: T.ink50, textAlign: 'center', marginTop: 2,
         fontFamily: 'var(--font-mono, monospace)',
       }}>
-        {dog.weightKg != null ? `${dog.breed} · ${dog.weightKg}kg` : dog.breed}
+        {resolveBreedName(dog.breed, dog.breedShortName, { compact: true })}
+        {dog.weightKg != null ? ` · ${dog.weightKg}kg` : ''}
       </div>
     </div>
   );
@@ -620,6 +622,8 @@ function fallbackDogsFromPosts(posts: Post[], ownerDisplayName: string): PublicD
         id: post.dogId,
         name: post.dog?.name ?? 'わんこ',
         breed: post.dog?.breed ?? '不明',
+        breedShortName:
+          post.dog?.breedShortName ?? post.dog?.breed ?? '不明',
         weightKg: post.dog?.weightKg ?? null,
         photoUrl: post.dog?.photoUrl ?? null,
         ownerDisplayName,

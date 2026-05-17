@@ -13,7 +13,7 @@ export class BreedsController {
       where: q ? { name: { contains: q } } : {},
       orderBy: { name: 'asc' },
       take: 20,
-      select: { id: true, name: true },
+      select: { id: true, name: true, shortName: true },
     });
   }
 
@@ -25,8 +25,8 @@ export class BreedsController {
     return this.prisma.breed.upsert({
       where: { name },
       update: {},
-      create: { name },
-      select: { id: true, name: true },
+      create: { name, shortName: name },
+      select: { id: true, name: true, shortName: true },
     });
   }
 }

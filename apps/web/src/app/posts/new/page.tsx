@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, type Dog } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
+import { resolveBreedName } from '../../../lib/breed';
 import { ImageCropEditor } from '../../../components/image-crop-editor';
 import { PhotoTagCanvas } from '../../../components/photo-tag-canvas';
 import { ItemEditorSection, validateItems, type EditableItem } from '../../../components/item-editor-section';
@@ -439,7 +440,11 @@ export default function NewPostPage() {
                     </svg>
                   </div>
                   <span style={{ fontSize: 12.5, fontWeight: 600 }}>{dog.name}</span>
-                  <span style={{ fontSize: 10, opacity: 0.6 }}>{dog.breed}</span>
+                  <span style={{ fontSize: 10, opacity: 0.6 }}>
+                    {resolveBreedName(dog.breed, dog.breedShortName, {
+                      compact: true,
+                    })}
+                  </span>
                 </button>
               ))}
               <button

@@ -6,6 +6,7 @@ import { useState } from 'react';
 import type { Post } from '../lib/api';
 import { api } from '../lib/api';
 import { getValidToken } from '../lib/auth-store';
+import { resolveBreedName } from '../lib/breed';
 import { useLike } from '../hooks/useLike';
 
 const T = {
@@ -93,7 +94,9 @@ export function PostCard({ post }: Props) {
 
   const dogName = post.dog?.name ?? 'わんこ';
   const authorName = post.author?.displayName ?? '';
-  const breed = post.dog?.breed;
+  const breed = resolveBreedName(post.dog?.breed, post.dog?.breedShortName, {
+    compact: true,
+  });
   const weight = post.dog?.weightKg;
   const dogPhotoUrl = post.dog?.photoUrl;
 
