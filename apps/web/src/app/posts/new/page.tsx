@@ -76,9 +76,8 @@ export default function NewPostPage() {
   const [loading, setLoading] = useState(false);
   const settingRows = [
     { label: '場所', detail: UNSET_DETAIL_TEXT },
-    { label: 'サイズ感', detail: UNSET_DETAIL_TEXT },
-    { label: '公開範囲', detail: '全員に公開' },
   ];
+  // TODO: 公開範囲は仕様確定後に再表示する
 
   useEffect(() => {
     getValidToken().then((token) => {
