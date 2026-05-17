@@ -9,6 +9,9 @@ export type PublicDogProfile = {
   coatColors: string[];
   photoUrl: string | null;
   ownerDisplayName: string;
+  bio: string | null;
+  birthYear: number | null;
+  birthMonth: number | null;
 };
 
 export const PUBLIC_DOG_REPOSITORY = Symbol('PUBLIC_DOG_REPOSITORY');

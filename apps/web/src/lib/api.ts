@@ -107,6 +107,9 @@ export type PublicDog = {
   coatColors: string[];
   photoUrl: string | null;
   ownerDisplayName: string;
+  bio: string | null;
+  birthYear: number | null;
+  birthMonth: number | null;
 };
 
 export type UpdateDogInput = {
