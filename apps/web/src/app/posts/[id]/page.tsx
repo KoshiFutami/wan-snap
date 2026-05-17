@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { api } from '../../../lib/api';
+import { resolveBreedName } from '../../../lib/breed';
 import { EditButton } from './EditButton';
 import { BookmarkButton } from './BookmarkButton';
 import { LikeButton } from './LikeButton';
@@ -32,7 +33,7 @@ export default async function PostDetailPage({ params }: Props) {
   const commentsRes = await api.posts.listComments(id).catch(() => ({ comments: [], nextCursor: null }));
 
   const dogName = post.dog?.name ?? 'わんこ';
-  const breed = post.dog?.breed;
+  const breed = resolveBreedName(post.dog?.breed, post.dog?.breedShortName);
   const weight = post.dog?.weightKg;
   const dogPhotoUrl = post.dog?.photoUrl;
 

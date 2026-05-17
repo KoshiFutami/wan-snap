@@ -19,6 +19,7 @@ export interface FindAllResult {
 export interface PostRelations {
   dogName: string;
   dogBreed: string;
+  dogBreedShortName: string;
   dogWeightKg: number | null;
   dogPhotoUrl: string | null;
   authorDisplayName: string;

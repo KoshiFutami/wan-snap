@@ -273,6 +273,7 @@ export class UsersController {
                 breed: {
                   select: {
                     name: true,
+                    shortName: true,
                   },
                 },
                 weightKg: true,
@@ -304,6 +305,7 @@ export class UsersController {
       dog: {
         name: post.dog.name,
         breed: post.dog.breed.name,
+        breedShortName: post.dog.breed.shortName,
         weightKg: post.dog.weightKg ? Number(post.dog.weightKg) : null,
         photoUrl: post.dog.photoUrl,
       },

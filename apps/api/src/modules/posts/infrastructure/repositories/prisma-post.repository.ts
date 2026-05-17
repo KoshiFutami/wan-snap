@@ -39,7 +39,7 @@ export class PrismaPostRepository implements IPostRepository {
         dog: {
           select: {
             name: true,
-            breed: { select: { name: true } },
+            breed: { select: { name: true, shortName: true } },
             weightKg: true,
             photoUrl: true,
           },
@@ -81,7 +81,7 @@ export class PrismaPostRepository implements IPostRepository {
         dog: {
           select: {
             name: true,
-            breed: { select: { name: true } },
+            breed: { select: { name: true, shortName: true } },
             weightKg: true,
             photoUrl: true,
           },
@@ -117,7 +117,7 @@ export class PrismaPostRepository implements IPostRepository {
     raw: {
       dog: {
         name: string;
-        breed: { name: string };
+        breed: { name: string; shortName: string };
         weightKg: { toNumber(): number } | null;
         photoUrl: string | null;
       };
@@ -130,6 +130,7 @@ export class PrismaPostRepository implements IPostRepository {
     return {
       dogName: raw.dog.name,
       dogBreed: raw.dog.breed.name,
+      dogBreedShortName: raw.dog.breed.shortName,
       dogWeightKg: raw.dog.weightKg ? raw.dog.weightKg.toNumber() : null,
       dogPhotoUrl: raw.dog.photoUrl,
       authorDisplayName: raw.author.displayName,

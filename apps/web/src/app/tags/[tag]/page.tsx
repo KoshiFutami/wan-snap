@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { api } from '../../../lib/api';
+import { resolveBreedName } from '../../../lib/breed';
 
 type Props = {
   params: Promise<{ tag: string }>;
@@ -125,7 +126,10 @@ export default async function TagFeedPage({ params }: Props) {
                     {post.dog?.name ?? 'わんこ'}
                   </div>
                   <div style={{ marginTop: 4, fontSize: 11.5, color: T.ink50, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {post.dog?.breed ?? '犬種未設定'}
+                    {resolveBreedName(post.dog?.breed, post.dog?.breedShortName, {
+                      compact: true,
+                      fallback: '犬種未設定',
+                    })}
                   </div>
                 </div>
               </article>

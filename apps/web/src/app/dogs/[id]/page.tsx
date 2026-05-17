@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { api } from '../../../lib/api';
+import { resolveBreedName } from '../../../lib/breed';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -53,7 +54,7 @@ export default async function DogDetailPage({ params }: Props) {
   const posts = await getDogPosts(id);
   const dogName = dog.name;
   const dogPhotoUrl = dog.photoUrl;
-  const breed = dog.breed;
+  const breed = resolveBreedName(dog.breed, dog.breedShortName);
   const weightKg = dog.weightKg;
   const authorName = dog.ownerDisplayName;
   const dogCode = generateDogCode(dog.id);

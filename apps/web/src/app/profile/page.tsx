@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getAccessToken, clearTokens, getValidToken } from '../../lib/auth-store';
 import { api, type User, type Dog, type Post } from '../../lib/api';
+import { resolveBreedName } from '../../lib/breed';
 
 const T = {
   ink: '#1F1A14',
@@ -571,7 +572,8 @@ function DogCard({ dog, active }: { dog: Dog; active: boolean }) {
         fontSize: 9, color: T.ink50, textAlign: 'center', marginTop: 2,
         fontFamily: 'var(--font-mono, monospace)',
       }}>
-        {dog.breed}{dog.weightKg != null ? ` · ${dog.weightKg}kg` : ''}
+        {resolveBreedName(dog.breed, dog.breedShortName, { compact: true })}
+        {dog.weightKg != null ? ` · ${dog.weightKg}kg` : ''}
       </div>
     </div>
   );
