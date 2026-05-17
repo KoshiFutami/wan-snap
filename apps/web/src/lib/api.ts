@@ -86,6 +86,8 @@ export type Dog = {
   chestCm: number | null;
   backLengthCm: number | null;
   coatColors: string[];
+  gender: string | null;
+  bio: string | null;
   photoUrl: string | null;
   createdAt: string;
 };
@@ -95,7 +97,10 @@ export type PublicDog = {
   name: string;
   breed: string;
   breedShortName: string;
+  gender: string | null;
   weightKg: number | null;
+  chestCm: number | null;
+  coatColors: string[];
   photoUrl: string | null;
   ownerDisplayName: string;
 };
@@ -109,6 +114,8 @@ export type UpdateDogInput = {
   chestCm?: number;
   backLengthCm?: number;
   coatColors?: string[];
+  gender?: string | null;
+  bio?: string | null;
   photoUrl?: string | null;
 };
 
@@ -310,8 +317,13 @@ export const api = {
       body: {
         name: string;
         breedId: string;
+        gender?: string;
         weightKg?: number;
+        chestCm?: number;
+        backLengthCm?: number;
         coatColors?: string[];
+        birthYear?: number;
+        bio?: string;
       },
       token: string,
     ) => request<Dog>('/dogs', { method: 'POST', body: JSON.stringify(body), token }),

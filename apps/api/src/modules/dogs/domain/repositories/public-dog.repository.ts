@@ -3,7 +3,10 @@ export type PublicDogProfile = {
   name: string;
   breed: string;
   breedShortName: string;
+  gender: string | null;
   weightKg: number | null;
+  chestCm: number | null;
+  coatColors: string[];
   photoUrl: string | null;
   ownerDisplayName: string;
 };

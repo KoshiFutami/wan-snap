@@ -624,7 +624,10 @@ function fallbackDogsFromPosts(posts: Post[], ownerDisplayName: string): PublicD
         breed: post.dog?.breed ?? '不明',
         breedShortName:
           post.dog?.breedShortName ?? post.dog?.breed ?? '不明',
+        gender: null,
         weightKg: post.dog?.weightKg ?? null,
+        chestCm: null,
+        coatColors: [],
         photoUrl: post.dog?.photoUrl ?? null,
         ownerDisplayName,
       });

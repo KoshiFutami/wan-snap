@@ -35,6 +35,8 @@ const dogWithBreedSelect = Prisma.validator<Prisma.DogSelect>()({
   chestCm: true,
   backLengthCm: true,
   coatColors: true,
+  gender: true,
+  bio: true,
   photoUrl: true,
   createdAt: true,
   updatedAt: true,
@@ -66,6 +68,8 @@ function toDogResponse(dog: DogWithBreed) {
           (color): color is string => typeof color === 'string',
         )
       : [],
+    gender: dog.gender,
+    bio: dog.bio,
     photoUrl: dog.photoUrl,
     createdAt: dog.createdAt,
     updatedAt: dog.updatedAt,

@@ -40,6 +40,8 @@ model Dog {
   backLengthCm Decimal? @map("back_length_cm") @db.Decimal(5, 1)
   // JSON配列で保存: ["black", "white"] など
   coatColors   Json     @map("coat_colors")
+  gender       String?  @db.VarChar(10)
+  bio          String?  @db.Text
   photoUrl     String?  @map("photo_url") @db.VarChar(512)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")

@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsIn,
   IsInt,
   IsNumber,
   IsOptional,
@@ -54,4 +55,14 @@ export class CreateDogDto {
   @IsArray()
   @IsString({ each: true })
   coatColors?: string[];
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['male', 'female'])
+  gender?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  bio?: string;
 }

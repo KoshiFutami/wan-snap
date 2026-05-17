@@ -35,6 +35,14 @@ const inputStyle: CSSProperties = {
   boxSizing: 'border-box',
 };
 
+const selectStyle: CSSProperties = {
+  ...inputStyle,
+  appearance: 'none',
+  WebkitAppearance: 'none',
+  cursor: 'pointer',
+  paddingRight: 32,
+};
+
 function dogAge(birthYear: number | null): string {
   if (!birthYear) return '';
   const diff = new Date().getFullYear() - birthYear;
@@ -47,6 +55,12 @@ function formatCreatedAt(iso: string): string {
     .replace(/\//g, '.');
 }
 
+function genderLabel(g: string | null): string {
+  if (g === 'female') return '♀';
+  if (g === 'male') return '♂';
+  return '';
+}
+
 export default function DogEditPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
@@ -54,12 +68,18 @@ export default function DogEditPage() {
   const [name, setName] = useState('');
   const [breedName, setBreedName] = useState('');
   const [breedId, setBreedId] = useState('');
+  const [gender, setGender] = useState('');
   const [weightKg, setWeightKg] = useState('');
   const [neckCm, setNeckCm] = useState('');
   const [chestCm, setChestCm] = useState('');
   const [backLengthCm, setBackLengthCm] = useState('');
   const [coatColors, setCoatColors] = useState('');
   const [birthYear, setBirthYear] = useState('');
+  const [bio, setBio] = useState('');
+  const [birthYearOptions] = useState(() => {
+    const year = new Date().getFullYear();
+    return Array.from({ length: year - 1999 }, (_, i) => year - i);
+  });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -80,12 +100,14 @@ export default function DogEditPage() {
         setName(d.name);
         setBreedName(d.breed);
         setBreedId(d.breedId);
+        setGender(d.gender ?? '');
         setWeightKg(d.weightKg != null ? String(d.weightKg) : '');
         setNeckCm(d.neckCm != null ? String(d.neckCm) : '');
         setChestCm(d.chestCm != null ? String(d.chestCm) : '');
         setBackLengthCm(d.backLengthCm != null ? String(d.backLengthCm) : '');
         setCoatColors(d.coatColors.join(', '));
         setBirthYear(d.birthYear != null ? String(d.birthYear) : '');
+        setBio(d.bio ?? '');
       }).catch(() => router.replace('/profile'));
     });
   }, [id, router]);
@@ -124,12 +146,14 @@ export default function DogEditPage() {
       await api.dogs.update(id, {
         name: name.trim(),
         breedId,
+        gender: gender || null,
         weightKg: weightKg ? parseFloat(weightKg) : undefined,
         neckCm: neckCm ? parseFloat(neckCm) : undefined,
         chestCm: chestCm ? parseFloat(chestCm) : undefined,
         backLengthCm: backLengthCm ? parseFloat(backLengthCm) : undefined,
         coatColors: coatColors ? coatColors.split(',').map((s) => s.trim()).filter(Boolean) : [],
         birthYear: birthYear ? parseInt(birthYear, 10) : undefined,
+        bio: bio.trim() || null,
       }, token);
       router.back();
     } catch (err) {
@@ -220,15 +244,14 @@ export default function DogEditPage() {
             color: saving || !name.trim() || !breedId ? T.ink50 : T.cream,
             border: 'none', fontSize: 12, fontWeight: 600,
             cursor: saving || !name.trim() || !breedId ? 'not-allowed' : 'pointer',
-            fontFamily: 'inherit', flexShrink: 0,
-            transition: 'background 0.15s',
+            fontFamily: 'inherit', flexShrink: 0, transition: 'background 0.15s',
           }}
         >
           {saving ? '保存中…' : '保存'}
         </button>
       </div>
 
-      <div style={{ padding: '0 12px 40px' }}>
+      <div style={{ padding: '0 20px 40px' }}>
         {/* Avatar + info banner */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 14,
@@ -280,7 +303,9 @@ export default function DogEditPage() {
               fontWeight: 500, color: T.ink, lineHeight: 1,
             }}>{dog.name}</div>
             <div style={{ fontSize: 11, color: T.ink50, marginTop: 5 }}>
-              {breedName}{dog.birthYear ? ` · ${dogAge(dog.birthYear)}` : ''}
+              {breedName}
+              {genderLabel(dog.gender) && ` · ${genderLabel(dog.gender)}`}
+              {dog.birthYear ? ` · ${dogAge(dog.birthYear)}` : ''}
             </div>
             <div style={{
               fontSize: 10, color: T.ink50, marginTop: 4,
@@ -304,17 +329,38 @@ export default function DogEditPage() {
             />
           </FieldRow>
 
-          <FieldRow label="犬種" required>
-            <BreedCombobox
-              value={breedName}
-              breedId={breedId}
-              onChange={({ id: nextId, name: nextName }) => {
-                setBreedName(nextName);
-                setBreedId(nextId);
-              }}
-              required
-            />
-          </FieldRow>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <FieldRow label="犬種" required>
+              <BreedCombobox
+                value={breedName}
+                breedId={breedId}
+                onChange={({ id: nextId, name: nextName }) => {
+                  setBreedName(nextName);
+                  setBreedId(nextId);
+                }}
+                required
+              />
+            </FieldRow>
+            <FieldRow label="性別">
+              <div style={{ position: 'relative' }}>
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  style={selectStyle}
+                >
+                  <option value="">未設定</option>
+                  <option value="female">女の子</option>
+                  <option value="male">男の子</option>
+                </select>
+                <svg
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+                  width="12" height="12" viewBox="0 0 12 12" fill="none"
+                >
+                  <path d="M2 4l4 4 4-4" stroke={T.ink50} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+            </FieldRow>
+          </div>
 
           <FieldRow label="毛色">
             <input
@@ -328,21 +374,22 @@ export default function DogEditPage() {
 
           <FieldRow label="誕生年">
             <div style={{ position: 'relative' }}>
-              <input
-                type="number"
+              <select
                 value={birthYear}
                 onChange={(e) => setBirthYear(e.target.value)}
-                min={2000}
-                max={new Date().getFullYear()}
-                placeholder="2023"
-                style={{ ...inputStyle, paddingRight: 36 }}
-              />
-              <span style={{
-                position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
-                fontSize: 11, color: T.ink50,
-                fontFamily: 'var(--font-mono, monospace)',
-                pointerEvents: 'none',
-              }}>年</span>
+                style={selectStyle}
+              >
+                <option value="">未設定</option>
+                {birthYearOptions.map((y) => (
+                  <option key={y} value={y}>{y}年</option>
+                ))}
+              </select>
+              <svg
+                style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+                width="12" height="12" viewBox="0 0 12 12" fill="none"
+              >
+                <path d="M2 4l4 4 4-4" stroke={T.ink50} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
           </FieldRow>
         </FormSection>
@@ -375,6 +422,26 @@ export default function DogEditPage() {
               </div>
             </FieldRow>
           </div>
+        </FormSection>
+
+        {/* プロフィール */}
+        <FormSection title="プロフィール">
+          <FieldRow label="自己紹介">
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              maxLength={500}
+              placeholder="朝はいつも代々木公園を散歩。少しゆとりのある服が好み。"
+              rows={3}
+              style={{
+                ...inputStyle,
+                height: 'auto',
+                padding: '12px 14px',
+                resize: 'vertical',
+                lineHeight: 1.6,
+              }}
+            />
+          </FieldRow>
         </FormSection>
 
         {error && (
@@ -451,9 +518,7 @@ export default function DogEditPage() {
 }
 
 function FormSection({ title, subtitle, children }: {
-  title: string;
-  subtitle?: string;
-  children: React.ReactNode;
+  title: string; subtitle?: string; children: React.ReactNode;
 }) {
   return (
     <div style={{ marginBottom: 24 }}>
@@ -472,9 +537,7 @@ function FormSection({ title, subtitle, children }: {
 }
 
 function FieldRow({ label, required, children }: {
-  label: string;
-  required?: boolean;
-  children: React.ReactNode;
+  label: string; required?: boolean; children: React.ReactNode;
 }) {
   return (
     <div>
@@ -488,11 +551,7 @@ function FieldRow({ label, required, children }: {
 }
 
 function SuffixInput({ value, onChange, suffix, placeholder, step }: {
-  value: string;
-  onChange: (v: string) => void;
-  suffix: string;
-  placeholder?: string;
-  step?: string;
+  value: string; onChange: (v: string) => void; suffix: string; placeholder?: string; step?: string;
 }) {
   return (
     <div style={{ position: 'relative' }}>
@@ -507,9 +566,7 @@ function SuffixInput({ value, onChange, suffix, placeholder, step }: {
       />
       <span style={{
         position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-        fontSize: 11, color: T.ink50,
-        fontFamily: 'var(--font-mono, monospace)',
-        pointerEvents: 'none',
+        fontSize: 11, color: T.ink50, fontFamily: 'var(--font-mono, monospace)', pointerEvents: 'none',
       }}>{suffix}</span>
     </div>
   );

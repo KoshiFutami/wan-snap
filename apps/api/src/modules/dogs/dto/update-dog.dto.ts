@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsIn,
   IsInt,
   IsNumber,
   IsOptional,
@@ -9,6 +10,7 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateIf,
 } from 'class-validator';
 
 export class UpdateDogDto {
@@ -59,4 +61,16 @@ export class UpdateDogDto {
   @IsOptional()
   @IsUrl()
   photoUrl?: string | null;
+
+  @IsOptional()
+  @ValidateIf((o) => o.gender !== null)
+  @IsString()
+  @IsIn(['male', 'female'])
+  gender?: string | null;
+
+  @IsOptional()
+  @ValidateIf((o) => o.bio !== null)
+  @IsString()
+  @MaxLength(500)
+  bio?: string | null;
 }
