@@ -65,7 +65,7 @@ export default function PostEditPage() {
       setPost(p);
       setCaption(p.caption ?? '');
       setTags(p.tags.join(', '));
-      setItems(p.items.map((item) => ({ ...item, _key: generateItemKey() })) as EditableItem[]);
+      setItems(p.items.map(({ id: _id, category, ...item }) => ({ ...item, category: category as EditableItem['category'], _key: generateItemKey() })));
     });
   }, [id, router]);
 
