@@ -44,7 +44,7 @@ export class PrismaPostRepository implements IPostRepository {
             photoUrl: true,
           },
         },
-        author: { select: { displayName: true } },
+        author: { select: { displayName: true, username: true } },
         _count: { select: { likes: true, bookmarks: true, comments: true } },
         ...(requesterId
           ? {
@@ -86,7 +86,7 @@ export class PrismaPostRepository implements IPostRepository {
             photoUrl: true,
           },
         },
-        author: { select: { displayName: true } },
+        author: { select: { displayName: true, username: true } },
         _count: { select: { likes: true, bookmarks: true, comments: true } },
         ...(options.requesterId
           ? {
@@ -121,7 +121,7 @@ export class PrismaPostRepository implements IPostRepository {
         weightKg: { toNumber(): number } | null;
         photoUrl: string | null;
       };
-      author: { displayName: string };
+      author: { displayName: string; username: string };
       _count?: { likes: number; bookmarks: number; comments: number };
       likes?: { userId: string }[];
     },
@@ -134,6 +134,7 @@ export class PrismaPostRepository implements IPostRepository {
       dogWeightKg: raw.dog.weightKg ? raw.dog.weightKg.toNumber() : null,
       dogPhotoUrl: raw.dog.photoUrl,
       authorDisplayName: raw.author.displayName,
+      authorUsername: raw.author.username,
       likeCount: raw._count?.likes ?? 0,
       bookmarkCount: raw._count?.bookmarks ?? 0,
       commentCount: raw._count?.comments ?? 0,

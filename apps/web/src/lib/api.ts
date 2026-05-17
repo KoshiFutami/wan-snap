@@ -42,6 +42,7 @@ export type PostDog = {
 
 export type PostAuthor = {
   displayName: string;
+  username: string;
 };
 
 export type Post = {

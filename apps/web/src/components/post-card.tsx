@@ -106,7 +106,7 @@ export function PostCard({ post }: Props) {
   const commentCount = post.commentCount ?? 0;
 
   const dogName = post.dog?.name ?? 'わんこ';
-  const authorName = post.author?.displayName ?? '';
+  const authorUsername = post.author?.username ?? '';
   const breed = resolveBreedName(post.dog?.breed, post.dog?.breedShortName, {
     compact: true,
   });
@@ -181,8 +181,8 @@ export function PostCard({ post }: Props) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
             <span style={{ fontSize: 13, fontWeight: 700, color: T.ink }}>{dogName}</span>
-            {authorName && (
-              <span style={{ fontSize: 10.5, color: T.ink50 }}>{authorName}</span>
+            {authorUsername && (
+              <span style={{ fontSize: 10.5, color: T.ink50 }}>@{authorUsername}</span>
             )}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3, flexWrap: 'wrap' }}>
