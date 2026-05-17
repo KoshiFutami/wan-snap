@@ -105,9 +105,7 @@ export default function ProfilePage() {
     );
   }
 
-  const handle = user?.displayName
-    ? `@${user.displayName.trim().replace(/\s+/g, '_')}`
-    : '@wan_snap';
+  const handle = user?.username ? `@${user.username}` : '@wan_snap';
   const postCount = posts.length;
   const itemCount = posts.reduce((count, post) => count + post.items.length, 0);
   const dogNames = dogs.map((dog) => dog.name).join('・');
@@ -202,6 +200,11 @@ export default function ProfilePage() {
         }}>
           {user?.displayName ?? '…'}
         </div>
+        {user?.username && (
+          <div style={{ fontSize: 13, color: T.ink50, marginTop: 2 }}>
+            @{user.username}
+          </div>
+        )}
 
         {/* bio / location */}
         <div style={{ fontSize: 12, color: T.ink70, lineHeight: 1.65, marginTop: 8 }}>

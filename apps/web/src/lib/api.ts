@@ -101,6 +101,7 @@ export type UpdateDogInput = {
 
 export type User = {
   id: string;
+  username: string;
   displayName: string;
   avatarUrl: string | null;
   bio: string | null;
@@ -112,6 +113,7 @@ export type User = {
 };
 
 export type UpdateUserInput = {
+  username?: string;
   displayName?: string;
   avatarUrl?: string | null;
   bio?: string;
@@ -150,6 +152,7 @@ async function request<T>(
 
 export type UserPublic = {
   id: string;
+  username: string;
   displayName: string;
   avatarUrl: string | null;
 };
@@ -255,6 +258,10 @@ export const api = {
       if (params?.cursor) qs.set('cursor', params.cursor);
       return request<ListPostsResponse>(`/users/me/bookmarks?${qs.toString()}`, { token });
     },
+    getByUsername: (username: string, token?: string) =>
+      request<User>(`/users/by-username/${encodeURIComponent(username)}`, token ? { token } : undefined),
+    searchByUsername: (q: string) =>
+      request<UserPublic[]>(`/users/search?q=${encodeURIComponent(q)}`),
     follow: (id: string, token: string) =>
       request<void>(`/users/${id}/follow`, { method: 'POST', token }),
     unfollow: (id: string, token: string) =>

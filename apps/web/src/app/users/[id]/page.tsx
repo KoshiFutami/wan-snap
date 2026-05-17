@@ -150,7 +150,7 @@ export default function OtherUserProfilePage() {
           </svg>
         </button>
         <div style={{ flex: 1, textAlign: 'center', fontSize: 13, fontWeight: 700, color: T.ink }}>
-          @{user.displayName.trim().replace(/\s+/g, '_')}
+          @{user.username}
         </div>
         <div style={{ width: 36, flexShrink: 0 }} />
       </div>
@@ -198,6 +198,9 @@ export default function OtherUserProfilePage() {
           color: T.ink, letterSpacing: '-0.01em', marginTop: 14,
         }}>
           {user.displayName}
+        </div>
+        <div style={{ fontSize: 13, color: T.ink50, marginTop: 2 }}>
+          @{user.username}
         </div>
 
         <div style={{ fontSize: 12, color: T.ink70, lineHeight: 1.65, marginTop: 8 }}>
