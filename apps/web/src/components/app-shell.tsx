@@ -9,9 +9,7 @@ const BOTTOM_NAV_HEIGHT = 112;
 const HEADER_HEIGHT = 58;
 
 function shouldHideHeader(pathname: string) {
-  return pathname.startsWith('/auth/')
-    || pathname === '/posts/new'
-    || (pathname.startsWith('/posts/') && pathname !== '/posts/new');
+  return pathname !== '/';
 }
 
 function shouldHideBottomNav(pathname: string) {
