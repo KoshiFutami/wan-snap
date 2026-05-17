@@ -35,7 +35,11 @@ export class NotificationsController {
     let cursorId: string | undefined;
     if (cursor) {
       try {
-        cursorId = (JSON.parse(Buffer.from(cursor, 'base64url').toString('utf-8')) as { id: string }).id;
+        cursorId = (
+          JSON.parse(Buffer.from(cursor, 'base64url').toString('utf-8')) as {
+            id: string;
+          }
+        ).id;
       } catch {
         throw new BadRequestException('cursor が不正です');
       }
@@ -54,18 +58,29 @@ export class NotificationsController {
         where,
         orderBy: { createdAt: 'desc' },
         include: {
-          actor: { select: { id: true, displayName: true, avatarUrl: true, username: true } },
+          actor: {
+            select: {
+              id: true,
+              displayName: true,
+              avatarUrl: true,
+              username: true,
+            },
+          },
           post: { select: { id: true, imageUrl: true } },
         },
       }),
-      this.prisma.notification.count({ where: { recipientId: user.sub, isRead: false } }),
+      this.prisma.notification.count({
+        where: { recipientId: user.sub, isRead: false },
+      }),
     ]);
 
     const hasNext = notifications.length > limit;
     const sliced = notifications.slice(0, limit);
     const nextCursor =
       hasNext && sliced.length > 0
-        ? Buffer.from(JSON.stringify({ id: sliced[sliced.length - 1].id })).toString('base64url')
+        ? Buffer.from(
+            JSON.stringify({ id: sliced[sliced.length - 1].id }),
+          ).toString('base64url')
         : null;
 
     const followActorIds = sliced
@@ -89,7 +104,8 @@ export class NotificationsController {
         createdAt: n.createdAt.toISOString(),
         actor: {
           ...n.actor,
-          isFollowing: n.type === 'follow' ? followingSet.has(n.actor.id) : undefined,
+          isFollowing:
+            n.type === 'follow' ? followingSet.has(n.actor.id) : undefined,
         },
         post: n.post ?? null,
       })),
