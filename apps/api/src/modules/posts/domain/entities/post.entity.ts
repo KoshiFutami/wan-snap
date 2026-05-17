@@ -12,6 +12,7 @@ export interface PostProps {
   imageWidth: number | null;
   imageHeight: number | null;
   caption: Caption | null;
+  location: string | null;
   tags: Tag[];
   items: PostItem[];
   dogWeightKg: number | null;
@@ -29,6 +30,7 @@ export interface CreatePostProps {
   imageWidth?: number | null;
   imageHeight?: number | null;
   caption?: Caption;
+  location?: string | null;
   tags?: Tag[];
   items?: PostItem[];
   dogWeightKg?: number | null;
@@ -45,6 +47,7 @@ export class Post {
   readonly imageWidth: number | null;
   readonly imageHeight: number | null;
   readonly caption: Caption | null;
+  readonly location: string | null;
   readonly tags: Tag[];
   readonly items: PostItem[];
   readonly dogWeightKg: number | null;
@@ -62,6 +65,7 @@ export class Post {
     this.imageWidth = props.imageWidth;
     this.imageHeight = props.imageHeight;
     this.caption = props.caption;
+    this.location = props.location;
     this.tags = props.tags;
     this.items = props.items;
     this.dogWeightKg = props.dogWeightKg;
@@ -82,6 +86,7 @@ export class Post {
       imageWidth: props.imageWidth ?? null,
       imageHeight: props.imageHeight ?? null,
       caption: props.caption ?? null,
+      location: props.location ?? null,
       tags: props.tags ?? [],
       items: props.items ?? [],
       dogWeightKg: props.dogWeightKg ?? null,

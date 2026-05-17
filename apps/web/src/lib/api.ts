@@ -66,8 +66,7 @@ export type Post = {
   imageWidth: number | null;
   imageHeight: number | null;
   caption: string | null;
-  location?: string | null;
-  place?: string | null;
+  location: string | null;
   tags: string[];
   items: PostItem[];
   likeCount: number;
@@ -248,6 +247,7 @@ export const api = {
         imageWidth?: number;
         imageHeight?: number;
         caption?: string;
+        location?: string;
         tags?: string[];
         items?: Omit<PostItem, 'id'>[];
       },
@@ -264,7 +264,7 @@ export const api = {
     },
     update: (
       id: string,
-      body: { imageUrl?: string; caption?: string; tags?: string[]; items?: Omit<PostItem, 'id'>[] },
+      body: { imageUrl?: string; caption?: string; location?: string; tags?: string[]; items?: Omit<PostItem, 'id'>[] },
       token: string,
     ) => request<Post>(`/posts/${id}`, { method: 'PATCH', body: JSON.stringify(body), token }),
     delete: (id: string, token: string) =>

@@ -67,6 +67,7 @@ model Post {
   imageWidth      Int?     @map("image_width")
   imageHeight     Int?     @map("image_height")
   caption         String?  @db.Text
+  location        String?  @db.VarChar(100)
   dogWeightKg     Decimal? @map("dog_weight_kg") @db.Decimal(5, 2)
   dogNeckCm       Decimal? @map("dog_neck_cm") @db.Decimal(5, 1)
   dogChestCm      Decimal? @map("dog_chest_cm") @db.Decimal(5, 1)

@@ -27,6 +27,7 @@ export interface CreatePostInput {
   imageWidth?: number | null;
   imageHeight?: number | null;
   caption?: string;
+  location?: string | null;
   tags?: string[];
   items?: CreatePostItemInput[];
 }
@@ -69,6 +70,7 @@ export class CreatePostUseCase {
       imageWidth: input.imageWidth ?? null,
       imageHeight: input.imageHeight ?? null,
       caption,
+      location: input.location ?? null,
       tags,
       dogWeightKg: toNumber(dog.weightKg),
       dogNeckCm: toNumber(dog.neckCm),

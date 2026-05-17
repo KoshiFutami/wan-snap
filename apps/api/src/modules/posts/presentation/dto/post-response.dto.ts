@@ -54,6 +54,7 @@ export class PostResponseDto {
   imageWidth: number | null;
   imageHeight: number | null;
   caption: string | null;
+  location: string | null;
   tags: string[];
   items: PostItemResponseDto[];
   likeCount: number;
@@ -79,6 +80,7 @@ export class PostResponseDto {
     dto.imageWidth = post.imageWidth;
     dto.imageHeight = post.imageHeight;
     dto.caption = post.caption?.value ?? null;
+    dto.location = post.location;
     dto.tags = post.tags.map((t) => t.value);
     dto.items = post.items.map(PostItemResponseDto.from);
     dto.likeCount = relations?.likeCount ?? 0;

@@ -27,13 +27,16 @@ const T = {
 };
 
 function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
+  const date = new Date(iso);
+  const diff = Date.now() - date.getTime();
   const m = Math.floor(diff / 60000);
   if (m < 1) return 'たった今';
   if (m < 60) return `${m}分前`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}時間前`;
-  return `${Math.floor(h / 24)}日前`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return `${d}日前`;
+  return date.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' });
 }
 
 const itemColors = [T.terracotta, T.forest, '#7B6EA8', '#2E7D8A'];
@@ -387,7 +390,10 @@ export default async function PostDetailPage({ params }: Props) {
           </span>
         </div>
         <div style={{ flex: 1 }} />
-        <div style={{ fontSize: 11, color: T.ink50 }}>{relativeTime(post.createdAt)}</div>
+        <div style={{ fontSize: 11, color: T.ink50 }}>
+          {relativeTime(post.createdAt)}
+          {post.location && ` · ${post.location}`}
+        </div>
       </div>
 
       {/* コメントセクション */}
