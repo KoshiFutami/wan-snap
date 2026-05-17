@@ -36,6 +36,19 @@ function relativeTime(iso: string): string {
 }
 
 const itemColors = [T.terracotta, T.forest, '#7B6EA8', '#2E7D8A'];
+const categoryLabels: Record<string, string> = {
+  tops: 'トップス',
+  bottoms: 'ボトムス',
+  dress: 'ワンピース',
+  outerwear: 'アウター',
+  collar: '首輪',
+  harness: 'ハーネス',
+  leash: 'リード',
+  bandana: 'バンダナ',
+  hat: '帽子',
+  shoes: 'シューズ',
+  other: 'その他',
+};
 
 export default async function PostDetailPage({ params }: Props) {
   const { id } = await params;
@@ -50,9 +63,6 @@ export default async function PostDetailPage({ params }: Props) {
   const dogPhotoUrl = post.dog?.photoUrl;
   const positionedItems = post.items.filter(
     (item) => item.xPct != null && item.yPct != null,
-  );
-  const listItems = post.items.filter(
-    (item) => item.xPct == null || item.yPct == null,
   );
 
   return (
@@ -241,7 +251,7 @@ export default async function PostDetailPage({ params }: Props) {
       )}
 
       {/* 着用アイテム */}
-      {listItems.length > 0 && (
+      {post.items.length > 0 && (
         <div style={{
           margin: '0 20px',
           padding: '18px 16px 16px',
@@ -262,13 +272,15 @@ export default async function PostDetailPage({ params }: Props) {
               color: T.ink50,
               fontWeight: 500,
             }}>
-              着用アイテム · {listItems.length}
+              着用アイテム · {post.items.length}
             </div>
-            <div style={{ fontSize: 11, color: T.terracotta, fontWeight: 500 }}>すべて見る →</div>
           </div>
 
-          {listItems.map((item, i) => {
+          {post.items.map((item, i) => {
             const color = itemColors[i % itemColors.length];
+            const displayBrand = item.brand ?? categoryLabels[item.category] ?? item.category;
+            const displayName =
+              item.productName ?? categoryLabels[item.category] ?? item.category;
             return (
               <div key={item.id}>
                 {i > 0 && <div style={{ height: 1, background: T.hairline, margin: '12px 0' }} />}
@@ -308,13 +320,11 @@ export default async function PostDetailPage({ params }: Props) {
                       color: T.ink50,
                       fontWeight: 600,
                     }}>
-                      {item.brand ?? item.category}
+                      {displayBrand}
                     </div>
-                    {item.productName && (
-                      <div style={{ fontSize: 13, fontWeight: 500, color: T.ink, marginTop: 2 }}>
-                        {item.productName}
-                      </div>
-                    )}
+                    <div style={{ fontSize: 13, fontWeight: 500, color: T.ink, marginTop: 2 }}>
+                      {displayName}
+                    </div>
                     <div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: 10.5, color: T.ink70, flexWrap: 'wrap' }}>
                       {item.size && <span>{item.size}</span>}
                       {item.size && item.fitNote && <span style={{ color: T.ink30 }}>·</span>}
