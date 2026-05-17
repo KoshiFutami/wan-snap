@@ -22,6 +22,11 @@ const T = {
 
 const UNSET_DETAIL_TEXT = '未設定';
 
+function getPostLocationDetail(post: Post): string {
+  const postWithLocation = post as Post & { location?: string | null; place?: string | null };
+  return postWithLocation.location ?? postWithLocation.place ?? UNSET_DETAIL_TEXT;
+}
+
 function relativeTime(iso: string): string {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
   if (diff < 60) return 'たった今';
@@ -298,10 +303,10 @@ export default function PostEditPage() {
             }}
           >
             <span style={{ fontSize: 12.5, color: T.ink70 }}>場所</span>
-            <span style={{ fontSize: 12, color: T.ink50 }}>{UNSET_DETAIL_TEXT}</span>
+            <span style={{ fontSize: 12, color: T.ink50 }}>{getPostLocationDetail(post)}</span>
           </div>
         </div>
-        {/* TODO: 公開範囲は仕様確定後に再表示する */}
+        {/* TODO: スナップの公開範囲仕様が確定したら登録・編集画面に再表示する */}
 
         {error && (
           <div style={{

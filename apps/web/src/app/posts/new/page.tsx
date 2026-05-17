@@ -77,7 +77,7 @@ export default function NewPostPage() {
   const settingRows = [
     { label: '場所', detail: UNSET_DETAIL_TEXT },
   ];
-  // TODO: 公開範囲は仕様確定後に再表示する
+  // TODO: スナップの公開範囲仕様が確定したら登録・編集画面に再表示する
 
   useEffect(() => {
     getValidToken().then((token) => {
