@@ -59,6 +59,7 @@ export type Post = {
   bookmarkCount: number;
   commentCount: number;
   isLikedByMe: boolean;
+  isBookmarkedByMe: boolean;
   createdAt: string;
   updatedAt: string;
   dog: PostDog | null;

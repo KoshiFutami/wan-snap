@@ -28,6 +28,7 @@ export interface PostRelations {
   bookmarkCount: number;
   commentCount: number;
   isLikedByMe: boolean;
+  isBookmarkedByMe: boolean;
 }
 
 export interface FindAllWithRelationsResult {
