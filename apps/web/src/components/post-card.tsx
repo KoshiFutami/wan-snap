@@ -23,14 +23,27 @@ const T = {
 
 type Props = { post: Post };
 
-function relativeTime(iso: string): string {
+type RelativeTime = { num: string; unit: string } | { full: string };
+
+function parseRelativeTime(iso: string): RelativeTime {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 1) return 'たった今';
-  if (m < 60) return `${m}分前`;
+  if (m < 1) return { full: 'たった今' };
+  if (m < 60) return { num: `${m}`, unit: '分前' };
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}時間前`;
-  return `${Math.floor(h / 24)}日前`;
+  if (h < 24) return { num: `${h}`, unit: '時間前' };
+  return { num: `${Math.floor(h / 24)}`, unit: '日前' };
+}
+
+function RelativeTimeDisplay({ iso }: { iso: string }) {
+  const t = parseRelativeTime(iso);
+  if ('full' in t) return <>{t.full}</>;
+  return (
+    <>
+      <span style={{ fontWeight: 700 }}>{t.num}</span>
+      <span style={{ fontWeight: 400 }}>{t.unit}</span>
+    </>
+  );
 }
 
 function HeartIcon({ filled }: { filled: boolean }) {
@@ -167,7 +180,7 @@ export function PostCard({ post }: Props) {
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: T.ink }}>{dogName}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: T.ink }}>{dogName}</span>
             {authorName && (
               <span style={{ fontSize: 10.5, color: T.ink50 }}>{authorName}</span>
             )}
@@ -183,14 +196,15 @@ export function PostCard({ post }: Props) {
               <span style={{ width: 2, height: 2, borderRadius: 2, background: T.ink30, flexShrink: 0 }} />
             )}
             {weight != null && (
-              <span style={{ fontSize: 10.5, color: T.ink70, fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>
-                {weight}kg
+              <span style={{ fontSize: 10.5, color: T.ink70, fontFamily: 'var(--font-mono, monospace)' }}>
+                <span style={{ fontWeight: 700 }}>{weight}</span>
+                <span style={{ fontWeight: 400 }}>kg</span>
               </span>
             )}
           </div>
         </div>
 
-        <span style={{ fontSize: 10.5, color: T.ink50, flexShrink: 0 }}>{relativeTime(post.createdAt)}</span>
+        <span style={{ fontSize: 10.5, color: T.ink50, flexShrink: 0 }}><RelativeTimeDisplay iso={post.createdAt} /></span>
       </div>
 
       {/* 写真 */}
@@ -226,7 +240,8 @@ export function PostCard({ post }: Props) {
                 <path d="M2 2h6l6 6-6 6-6-6V2z" stroke="#fff" strokeWidth="1.4" strokeLinejoin="round" />
                 <circle cx="5" cy="5" r="1" fill="#fff" />
               </svg>
-              {post.items.length} アイテム
+              <span style={{ fontWeight: 700 }}>{post.items.length}</span>
+              <span style={{ fontWeight: 500 }}> アイテム</span>
             </div>
           )}
         </div>
@@ -250,7 +265,7 @@ export function PostCard({ post }: Props) {
           >
             <HeartIcon filled={liked} />
             {likeCount > 0 && (
-              <span style={{ fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-mono, monospace)' }}>{likeCount}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-mono, monospace)' }}>{likeCount}</span>
             )}
           </button>
 
@@ -260,7 +275,7 @@ export function PostCard({ post }: Props) {
           >
             <CommentIcon />
             {commentCount > 0 && (
-              <span style={{ fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-mono, monospace)' }}>{commentCount}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-mono, monospace)' }}>{commentCount}</span>
             )}
           </Link>
 
@@ -285,7 +300,7 @@ export function PostCard({ post }: Props) {
           >
             <BookmarkIcon filled={bookmarked} />
             {bookmarkCount > 0 && (
-              <span style={{ fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-mono, monospace)' }}>{bookmarkCount}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-mono, monospace)' }}>{bookmarkCount}</span>
             )}
           </button>
         </div>
@@ -293,7 +308,7 @@ export function PostCard({ post }: Props) {
         {/* キャプション */}
         {post.caption && (
           <div style={{ fontSize: 13, color: T.ink, lineHeight: 1.55 }}>
-            <span style={{ fontWeight: 600 }}>{dogName}</span>
+            <span style={{ fontWeight: 700 }}>{dogName}</span>
             <span style={{ color: T.ink70, marginLeft: 8 }}>{post.caption}</span>
           </div>
         )}
