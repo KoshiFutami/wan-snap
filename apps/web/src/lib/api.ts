@@ -323,6 +323,7 @@ export const api = {
         backLengthCm?: number;
         coatColors?: string[];
         birthYear?: number;
+        bio?: string;
       },
       token: string,
     ) => request<Dog>('/dogs', { method: 'POST', body: JSON.stringify(body), token }),

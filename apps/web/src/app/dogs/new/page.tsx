@@ -43,10 +43,11 @@ const selectStyle: CSSProperties = {
   paddingRight: 32,
 };
 
-const currentYear = new Date().getFullYear();
-const birthYearOptions = Array.from({ length: currentYear - 1999 }, (_, i) => currentYear - i);
-
 export default function NewDogPage() {
+  const [birthYearOptions] = useState(() => {
+    const year = new Date().getFullYear();
+    return Array.from({ length: year - 1999 }, (_, i) => year - i);
+  });
   const router = useRouter();
   const [name, setName] = useState('');
   const [breedName, setBreedName] = useState('');

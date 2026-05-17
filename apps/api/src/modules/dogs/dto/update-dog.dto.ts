@@ -10,6 +10,7 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateIf,
 } from 'class-validator';
 
 export class UpdateDogDto {
@@ -62,12 +63,14 @@ export class UpdateDogDto {
   photoUrl?: string | null;
 
   @IsOptional()
+  @ValidateIf((o) => o.gender !== null)
   @IsString()
   @IsIn(['male', 'female'])
-  gender?: string;
+  gender?: string | null;
 
   @IsOptional()
+  @ValidateIf((o) => o.bio !== null)
   @IsString()
   @MaxLength(500)
-  bio?: string;
+  bio?: string | null;
 }

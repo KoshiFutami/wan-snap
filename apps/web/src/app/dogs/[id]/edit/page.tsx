@@ -43,9 +43,6 @@ const selectStyle: CSSProperties = {
   paddingRight: 32,
 };
 
-const currentYear = new Date().getFullYear();
-const birthYearOptions = Array.from({ length: currentYear - 1999 }, (_, i) => currentYear - i);
-
 function dogAge(birthYear: number | null): string {
   if (!birthYear) return '';
   const diff = new Date().getFullYear() - birthYear;
@@ -79,6 +76,10 @@ export default function DogEditPage() {
   const [coatColors, setCoatColors] = useState('');
   const [birthYear, setBirthYear] = useState('');
   const [bio, setBio] = useState('');
+  const [birthYearOptions] = useState(() => {
+    const year = new Date().getFullYear();
+    return Array.from({ length: year - 1999 }, (_, i) => year - i);
+  });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
