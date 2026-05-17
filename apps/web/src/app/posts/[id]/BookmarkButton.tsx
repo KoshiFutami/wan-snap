@@ -57,21 +57,21 @@ export function BookmarkButton({ postId, initialCount, initialBookmarked = false
         height: 38,
         borderRadius: 19,
         padding: '0 10px',
-        background: bookmarked ? T.ink : 'rgba(255,255,255,0.92)',
-        border: bookmarked ? 'none' : '1px solid rgba(31,26,20,0.12)',
+        background: bookmarked ? 'rgba(185,90,61,0.14)' : 'rgba(255,255,255,0.92)',
+        border: bookmarked ? `1px solid ${T.terracotta}` : '1px solid rgba(31,26,20,0.12)',
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',
         justifyContent: 'center',
         cursor: 'pointer',
         fontFamily: 'inherit',
-        color: bookmarked ? '#fff' : T.ink,
+        color: bookmarked ? T.terracotta : T.ink,
       }}
       aria-label={bookmarked ? 'ブックマーク解除' : 'ブックマーク'}
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill={bookmarked ? '#fff' : 'none'}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill={bookmarked ? T.terracotta : 'none'}>
         <path
           d="M6 4h12v17l-6-3.5L6 21V4z"
-          stroke={bookmarked ? '#fff' : T.ink}
+          stroke={bookmarked ? T.terracotta : T.ink}
           strokeWidth="1.6"
           strokeLinejoin="round"
         />
