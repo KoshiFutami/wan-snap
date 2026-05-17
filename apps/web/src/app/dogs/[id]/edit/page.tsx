@@ -1,7 +1,7 @@
 'use client';
 
 import type { CSSProperties } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getValidToken } from '../../../../lib/auth-store';
 import { api, type Dog } from '../../../../lib/api';
@@ -43,10 +43,42 @@ const selectStyle: CSSProperties = {
   paddingRight: 32,
 };
 
-function dogAge(birthYear: number | null): string {
+function dogAge(
+  birthYear: number | null,
+  birthMonth: number | null,
+  birthDay: number | null,
+): string {
   if (!birthYear) return '';
-  const diff = new Date().getFullYear() - birthYear;
-  return `${diff}歳`;
+  if (!birthMonth || !birthDay) {
+    const diff = new Date().getFullYear() - birthYear;
+    return `${diff}歳`;
+  }
+
+  const birthday = new Date(birthYear, birthMonth - 1, birthDay);
+  if (
+    Number.isNaN(birthday.getTime()) ||
+    birthday.getFullYear() !== birthYear ||
+    birthday.getMonth() !== birthMonth - 1 ||
+    birthday.getDate() !== birthDay
+  ) {
+    return '';
+  }
+
+  const today = new Date();
+  let years = today.getFullYear() - birthYear;
+  let months = today.getMonth() + 1 - birthMonth;
+
+  if (today.getDate() < birthDay) {
+    months -= 1;
+  }
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+  if (years < 0) return '';
+  if (years === 0) return `${Math.max(months, 0)}か月`;
+  if (months <= 0) return `${years}歳`;
+  return `${years}歳${months}か月`;
 }
 
 function formatCreatedAt(iso: string): string {
@@ -75,11 +107,14 @@ export default function DogEditPage() {
   const [backLengthCm, setBackLengthCm] = useState('');
   const [coatColors, setCoatColors] = useState('');
   const [birthYear, setBirthYear] = useState('');
+  const [birthMonth, setBirthMonth] = useState('');
+  const [birthDay, setBirthDay] = useState('');
   const [bio, setBio] = useState('');
   const [birthYearOptions] = useState(() => {
     const year = new Date().getFullYear();
     return Array.from({ length: year - 1999 }, (_, i) => year - i);
   });
+  const [birthMonthOptions] = useState(() => Array.from({ length: 12 }, (_, i) => i + 1));
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -107,6 +142,8 @@ export default function DogEditPage() {
         setBackLengthCm(d.backLengthCm != null ? String(d.backLengthCm) : '');
         setCoatColors(d.coatColors.join(', '));
         setBirthYear(d.birthYear != null ? String(d.birthYear) : '');
+        setBirthMonth(d.birthMonth != null ? String(d.birthMonth) : '');
+        setBirthDay(d.birthDay != null ? String(d.birthDay) : '');
         setBio(d.bio ?? '');
       }).catch(() => router.replace('/profile'));
     });
@@ -153,6 +190,8 @@ export default function DogEditPage() {
         backLengthCm: backLengthCm ? parseFloat(backLengthCm) : undefined,
         coatColors: coatColors ? coatColors.split(',').map((s) => s.trim()).filter(Boolean) : [],
         birthYear: birthYear ? parseInt(birthYear, 10) : undefined,
+        birthMonth: birthMonth ? parseInt(birthMonth, 10) : undefined,
+        birthDay: birthDay ? parseInt(birthDay, 10) : undefined,
         bio: bio.trim() || null,
       }, token);
       router.back();
@@ -176,6 +215,13 @@ export default function DogEditPage() {
       setShowDeleteConfirm(false);
     }
   };
+
+  const birthDayOptions = useMemo(() => {
+    const year = birthYear ? parseInt(birthYear, 10) : 2000;
+    const month = birthMonth ? parseInt(birthMonth, 10) : 1;
+    const dayCount = new Date(year, month, 0).getDate();
+    return Array.from({ length: dayCount }, (_, i) => i + 1);
+  }, [birthYear, birthMonth]);
 
   if (!dog) {
     return (
@@ -305,7 +351,7 @@ export default function DogEditPage() {
             <div style={{ fontSize: 11, color: T.ink50, marginTop: 5 }}>
               {breedName}
               {genderLabel(dog.gender) && ` · ${genderLabel(dog.gender)}`}
-              {dog.birthYear ? ` · ${dogAge(dog.birthYear)}` : ''}
+              {dog.birthYear ? ` · ${dogAge(dog.birthYear, dog.birthMonth, dog.birthDay)}` : ''}
             </div>
             <div style={{
               fontSize: 10, color: T.ink50, marginTop: 4,
@@ -372,24 +418,37 @@ export default function DogEditPage() {
             />
           </FieldRow>
 
-          <FieldRow label="誕生年">
-            <div style={{ position: 'relative' }}>
-              <select
-                value={birthYear}
-                onChange={(e) => setBirthYear(e.target.value)}
-                style={selectStyle}
-              >
-                <option value="">未設定</option>
+          <FieldRow label="誕生日">
+            <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr', gap: 8 }}>
+              <SelectWithChevron value={birthYear} onChange={setBirthYear}>
+                <option value="">年</option>
                 {birthYearOptions.map((y) => (
                   <option key={y} value={y}>{y}年</option>
                 ))}
-              </select>
-              <svg
-                style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-                width="12" height="12" viewBox="0 0 12 12" fill="none"
+              </SelectWithChevron>
+              <SelectWithChevron
+                value={birthMonth}
+                onChange={(value) => {
+                  setBirthMonth(value);
+                  setBirthDay((prev) => {
+                    if (!prev || !value) return prev;
+                    const year = birthYear ? parseInt(birthYear, 10) : 2000;
+                    const dayCount = new Date(year, parseInt(value, 10), 0).getDate();
+                    return parseInt(prev, 10) > dayCount ? '' : prev;
+                  });
+                }}
               >
-                <path d="M2 4l4 4 4-4" stroke={T.ink50} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+                <option value="">月</option>
+                {birthMonthOptions.map((m) => (
+                  <option key={m} value={m}>{m}月</option>
+                ))}
+              </SelectWithChevron>
+              <SelectWithChevron value={birthDay} onChange={setBirthDay}>
+                <option value="">日</option>
+                {birthDayOptions.map((d) => (
+                  <option key={d} value={d}>{d}日</option>
+                ))}
+              </SelectWithChevron>
             </div>
           </FieldRow>
         </FormSection>
@@ -568,6 +627,34 @@ function SuffixInput({ value, onChange, suffix, placeholder, step }: {
         position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
         fontSize: 11, color: T.ink50, fontFamily: 'var(--font-mono, monospace)', pointerEvents: 'none',
       }}>{suffix}</span>
+    </div>
+  );
+}
+
+function SelectWithChevron({
+  value,
+  onChange,
+  children,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div style={{ position: 'relative' }}>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={selectStyle}
+      >
+        {children}
+      </select>
+      <svg
+        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+        width="12" height="12" viewBox="0 0 12 12" fill="none"
+      >
+        <path d="M2 4l4 4 4-4" stroke={T.ink50} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
     </div>
   );
 }

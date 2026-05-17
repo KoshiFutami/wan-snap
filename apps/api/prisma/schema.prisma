@@ -36,6 +36,8 @@ model Dog {
   id           String   @id @default(uuid())
   name         String   @db.VarChar(50)
   birthYear    Int?     @map("birth_year")
+  birthMonth   Int?     @map("birth_month")
+  birthDay     Int?     @map("birth_day")
   weightKg     Decimal? @map("weight_kg") @db.Decimal(5, 2)
   neckCm       Decimal? @map("neck_cm") @db.Decimal(5, 1)
   chestCm      Decimal? @map("chest_cm") @db.Decimal(5, 1)
