@@ -34,7 +34,17 @@
 }
 
 :root {
-  --font-serif: var(--font-sans);
+  --font-serif: var(--font-jp-body);
+}
+
+/* タブ・ボタン等のUIテキスト */
+.font-ui {
+  font-family: var(--font-quicksand), var(--font-jp-ui), system-ui, sans-serif;
+}
+
+/* 設定・利用規約等の長文 */
+.font-reading {
+  font-family: var(--font-quicksand), var(--font-jp-reading), system-ui, sans-serif;
 }
 
 body {
