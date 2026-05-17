@@ -16,6 +16,7 @@ const T = {
   cream: '#F4EDE0',
   creamSoft: '#FAF5EA',
   forest: '#6A7D4D',
+  terracotta: '#C0694A',
   hairline: 'rgba(31,26,20,0.08)',
 };
 
@@ -37,6 +38,40 @@ async function getDogPosts(dogId: string) {
   return posts.slice(0, MAX_POSTS);
 }
 
+function calcAge(birthYear: number | null, birthMonth: number | null): { label: string; category: string } | null {
+  if (birthYear == null) return null;
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  let years = currentYear - birthYear;
+  let months = birthMonth != null ? currentMonth - birthMonth : 0;
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+  const totalMonths = years * 12 + months;
+  let label: string;
+  if (years > 0) {
+    label = months > 0 ? `${years}y${months}m` : `${years}y`;
+  } else {
+    label = `${totalMonths}m`;
+  }
+  let category = '成犬';
+  if (totalMonths < 12) category = '子犬';
+  else if (years < 3) category = '若犬';
+  else if (years >= 7) category = 'シニア';
+  return { label, category };
+}
+
+function calcSizeFromChest(chestCm: number | null): string | null {
+  if (chestCm == null) return null;
+  if (chestCm < 32) return 'XS';
+  if (chestCm < 38) return 'S';
+  if (chestCm < 46) return 'M';
+  if (chestCm < 54) return 'L';
+  return 'XL';
+}
+
 export default async function DogDetailPage({ params }: Props) {
   const { id } = await params;
   const dog = await api.dogs.getPublic(id).catch(() => null);
@@ -47,11 +82,18 @@ export default async function DogDetailPage({ params }: Props) {
   const breed = dog.breed;
   const weightKg = dog.weightKg;
   const chestCm = dog.chestCm;
-  const gender = dog.gender;
   const coatColors = dog.coatColors;
   const authorName = dog.ownerDisplayName;
+  const bio = dog.bio;
 
-  const genderMark = gender === 'female' ? '♀' : gender === 'male' ? '♂' : null;
+  const age = calcAge(dog.birthYear, dog.birthMonth);
+  const sizeLabel = calcSizeFromChest(chestCm);
+  const firstCoatColor = coatColors.length > 0 ? coatColors[0] : null;
+
+  const brandSet = new Set(
+    posts.flatMap((p) => p.items.map((item) => item.brand).filter((b): b is string => b != null && b !== '')),
+  );
+  const brandCount = brandSet.size;
 
   return (
     <div style={{ background: T.cream, minHeight: '100dvh', paddingBottom: 28, position: 'relative' }}>
@@ -166,19 +208,11 @@ export default async function DogDetailPage({ params }: Props) {
               {dogName}
             </div>
           </div>
-          <div style={{ fontSize: 12.5, color: T.ink70, marginTop: 8, lineHeight: 1.55, display: 'flex', flexWrap: 'wrap', gap: '0 6px', alignItems: 'center' }}>
-            <span>{breed}</span>
-            {coatColors.length > 0 && <span style={{ color: T.ink50 }}>·</span>}
-            {coatColors.length > 0 && <span>{coatColors.join(' / ')}</span>}
-            {genderMark && <span style={{ color: T.ink50 }}>·</span>}
-            {genderMark && <span>{genderMark}</span>}
-            {weightKg != null && <span style={{ color: T.ink50 }}>·</span>}
-            {weightKg != null && (
-              <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: 12 }}>
-                {weightKg}kg{chestCm != null ? ` · 胴囲${chestCm}cm` : ''}
-              </span>
-            )}
-          </div>
+          {bio && (
+            <div style={{ fontSize: 13, color: T.ink70, marginTop: 10, lineHeight: 1.6 }}>
+              {bio}
+            </div>
+          )}
         </div>
       </div>
 
@@ -190,24 +224,47 @@ export default async function DogDetailPage({ params }: Props) {
             background: T.paper,
             padding: '16px 4px',
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
+            gridTemplateColumns: '1fr 1fr 1fr 1fr',
           }}
         >
+          {/* 犬種 */}
           <div style={{ textAlign: 'center', padding: '4px 8px' }}>
             <div style={{ fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase', color: T.ink50, fontWeight: 500, marginBottom: 4 }}>犬種</div>
-            <div style={{ fontFamily: 'var(--font-serif, serif)', fontSize: 20, fontWeight: 500, color: T.ink, lineHeight: 1 }}>{breed}</div>
+            <div style={{ fontFamily: 'var(--font-serif, serif)', fontSize: 18, fontWeight: 500, color: T.ink, lineHeight: 1 }}>{breed}</div>
+            {firstCoatColor && (
+              <div style={{ fontSize: 10, color: T.terracotta, marginTop: 4 }}>{firstCoatColor}</div>
+            )}
           </div>
+          {/* 体重 */}
           <div style={{ textAlign: 'center', padding: '4px 8px', borderLeft: `1px solid ${T.hairline}` }}>
             <div style={{ fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase', color: T.ink50, fontWeight: 500, marginBottom: 4 }}>体重</div>
-            <div style={{ fontFamily: 'var(--font-serif, serif)', fontSize: 20, fontWeight: 500, color: T.ink, lineHeight: 1 }}>
-              {weightKg != null ? weightKg : '-'}
+            <div style={{ fontFamily: 'var(--font-serif, serif)', fontSize: 18, fontWeight: 500, color: T.ink, lineHeight: 1 }}>
+              {weightKg != null ? (
+                <><span>{weightKg}</span><span style={{ fontSize: 11, fontFamily: 'var(--font-sans, sans-serif)', fontWeight: 400 }}>kg</span></>
+              ) : '-'}
             </div>
-            <div style={{ fontSize: 10, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>kg</div>
           </div>
+          {/* 胴囲 */}
           <div style={{ textAlign: 'center', padding: '4px 8px', borderLeft: `1px solid ${T.hairline}` }}>
-            <div style={{ fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase', color: T.ink50, fontWeight: 500, marginBottom: 4 }}>投稿</div>
-            <div style={{ fontFamily: 'var(--font-serif, serif)', fontSize: 20, fontWeight: 500, color: T.ink, lineHeight: 1 }}>{posts.length}</div>
-            <div style={{ fontSize: 10, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>snaps</div>
+            <div style={{ fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase', color: T.ink50, fontWeight: 500, marginBottom: 4 }}>胴囲</div>
+            <div style={{ fontFamily: 'var(--font-serif, serif)', fontSize: 18, fontWeight: 500, color: T.ink, lineHeight: 1 }}>
+              {chestCm != null ? (
+                <><span>{chestCm}</span><span style={{ fontSize: 11, fontFamily: 'var(--font-sans, sans-serif)', fontWeight: 400 }}>cm</span></>
+              ) : '-'}
+            </div>
+            {sizeLabel && (
+              <div style={{ fontSize: 10, color: T.terracotta, marginTop: 4 }}>{sizeLabel}</div>
+            )}
+          </div>
+          {/* 年齢 */}
+          <div style={{ textAlign: 'center', padding: '4px 8px', borderLeft: `1px solid ${T.hairline}` }}>
+            <div style={{ fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase', color: T.ink50, fontWeight: 500, marginBottom: 4 }}>年齢</div>
+            <div style={{ fontFamily: 'var(--font-serif, serif)', fontSize: 18, fontWeight: 500, color: T.ink, lineHeight: 1 }}>
+              {age ? age.label : '-'}
+            </div>
+            {age && (
+              <div style={{ fontSize: 10, color: T.terracotta, marginTop: 4 }}>{age.category}</div>
+            )}
           </div>
         </div>
 
@@ -219,6 +276,9 @@ export default async function DogDetailPage({ params }: Props) {
               </div>
               <div style={{ fontSize: 11, color: T.ink50, marginTop: 4 }}>
                 <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{posts.length}</span>枚
+                {brandCount > 0 && (
+                  <><span style={{ margin: '0 3px' }}>·</span><span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{brandCount}</span>ブランド</>
+                )}
               </div>
             </div>
             <div style={{ padding: 6, borderRadius: 8, background: T.ink, color: T.cream }}>

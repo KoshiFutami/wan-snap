@@ -633,6 +633,9 @@ function fallbackDogsFromPosts(posts: Post[], ownerDisplayName: string): PublicD
         coatColors: [],
         photoUrl: post.dog?.photoUrl ?? null,
         ownerDisplayName,
+        bio: null,
+        birthYear: null,
+        birthMonth: null,
       });
     }
   });
