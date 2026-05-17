@@ -25,6 +25,6 @@ export class IsValidBirthDateConstraint implements ValidatorConstraintInterface 
   }
 
   defaultMessage(): string {
-    return '誕生日の日付が不正です';
+    return '誕生日は月日をセットで指定し、存在する日付を入力してください';
   }
 }
