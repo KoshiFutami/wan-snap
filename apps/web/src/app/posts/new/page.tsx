@@ -131,6 +131,8 @@ export default function NewPostPage() {
         {
           dogId,
           imageUrl: uploaded.imageUrl,
+          imageWidth: uploaded.imageWidth,
+          imageHeight: uploaded.imageHeight,
           caption: caption || undefined,
           tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
         },
@@ -236,7 +238,7 @@ export default function NewPostPage() {
             {imagePreview ? (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imagePreview} alt="プレビュー" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={imagePreview} alt="プレビュー" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 {/* 編集・変更ボタン */}
                 <div
                   style={{

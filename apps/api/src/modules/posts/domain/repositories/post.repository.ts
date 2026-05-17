@@ -7,6 +7,8 @@ export interface FindAllOptions {
   tags?: string[];
   authorId?: string;
   dogId?: string;
+  requesterId?: string;
+  followingUserId?: string;
 }
 
 export interface FindAllResult {
@@ -23,6 +25,7 @@ export interface PostRelations {
   likeCount: number;
   bookmarkCount: number;
   commentCount: number;
+  isLikedByMe: boolean;
 }
 
 export interface FindAllWithRelationsResult {
@@ -36,6 +39,7 @@ export interface IPostRepository {
   findById(id: PostId): Promise<Post | null>;
   findByIdWithRelations(
     id: PostId,
+    requesterId?: string,
   ): Promise<{ post: Post; relations: PostRelations } | null>;
   findAll(options?: FindAllOptions): Promise<FindAllResult>;
   findAllWithRelations(

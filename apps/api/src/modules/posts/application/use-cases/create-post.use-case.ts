@@ -22,6 +22,8 @@ export interface CreatePostInput {
   authorId: string;
   dogId: string;
   imageUrl: string;
+  imageWidth?: number | null;
+  imageHeight?: number | null;
   caption?: string;
   tags?: string[];
   items?: CreatePostItemInput[];
@@ -45,6 +47,8 @@ export class CreatePostUseCase {
       authorId: input.authorId,
       dogId: input.dogId,
       imageUrl,
+      imageWidth: input.imageWidth ?? null,
+      imageHeight: input.imageHeight ?? null,
       caption,
       tags,
     });

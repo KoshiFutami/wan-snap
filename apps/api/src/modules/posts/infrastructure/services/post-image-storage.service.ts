@@ -41,22 +41,29 @@ export class PostImageStorageService {
     });
   }
 
-  async uploadPostImage(imageBuffer: Buffer): Promise<string> {
+  async uploadPostImage(
+    imageBuffer: Buffer,
+  ): Promise<{ imageUrl: string; imageWidth: number; imageHeight: number }> {
     if (!imageBuffer.length) {
       throw new BadRequestException('画像ファイルが空です');
     }
 
     const key = createPostImageObjectKey(new Date(), () => randomUUID());
     let optimizedImage: Buffer;
+    let imageWidth: number;
+    let imageHeight: number;
     try {
-      optimizedImage = await sharp(imageBuffer)
+      const result = await sharp(imageBuffer)
         .rotate()
         .resize(MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT, {
           fit: 'inside',
           withoutEnlargement: true,
         })
         .webp({ quality: WEBP_QUALITY })
-        .toBuffer();
+        .toBuffer({ resolveWithObject: true });
+      optimizedImage = result.data;
+      imageWidth = result.info.width;
+      imageHeight = result.info.height;
     } catch (error) {
       throw new BadRequestException('画像の変換に失敗しました', {
         cause: error,
@@ -73,7 +80,7 @@ export class PostImageStorageService {
       }),
     );
 
-    return resolvePublicImageUrl({
+    const imageUrl = resolvePublicImageUrl({
       key,
       bucket: this.bucket,
       region: this.region,
@@ -81,6 +88,8 @@ export class PostImageStorageService {
       publicBaseUrl: this.publicBaseUrl,
       endpoint: this.endpoint,
     });
+
+    return { imageUrl, imageWidth, imageHeight };
   }
 
   async deletePostImage(imageUrl: string): Promise<void> {

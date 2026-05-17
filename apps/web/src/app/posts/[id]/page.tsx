@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { api } from '../../../lib/api';
 import { EditButton } from './EditButton';
 import { BookmarkButton } from './BookmarkButton';
+import { LikeButton } from './LikeButton';
+import { FollowButton } from './FollowButton';
 import { CommentSection } from './CommentSection';
 
 type Props = { params: Promise<{ id: string }> };
@@ -59,13 +61,14 @@ export default async function PostDetailPage({ params }: Props) {
           </svg>
         </Link>
         <div style={{ display: 'flex', gap: 8 }}>
+          <LikeButton postId={post.id} initialCount={post.likeCount ?? 0} initialLiked={post.isLikedByMe ?? false} />
           <BookmarkButton postId={post.id} initialCount={post.bookmarkCount ?? 0} />
           <EditButton postId={post.id} authorId={post.authorId} />
         </div>
       </div>
 
       {/* メイン写真 */}
-      <div style={{ margin: '0 12px', borderRadius: 20, overflow: 'hidden', aspectRatio: '4/5', background: T.ink10, position: 'relative' }}>
+      <div style={{ margin: '0 12px', borderRadius: 20, overflow: 'hidden', aspectRatio: post.imageWidth && post.imageHeight ? `${post.imageWidth}/${post.imageHeight}` : '4/5', background: T.ink10, position: 'relative' }}>
         <Image
           src={post.imageUrl}
           alt={post.caption ?? 'スナップ写真'}
@@ -77,82 +80,85 @@ export default async function PostDetailPage({ params }: Props) {
       </div>
 
       {/* オーナー・犬情報 */}
-      <Link
-        href={`/users/${post.authorId}`}
-        style={{ padding: '18px 12px 14px', display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}
-      >
-        <div
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 22,
-            background: T.ink10,
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            position: 'relative',
-          }}
+      <div style={{ padding: '18px 12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <Link
+          href={`/users/${post.authorId}`}
+          style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', flex: 1, minWidth: 0 }}
         >
-          {dogPhotoUrl ? (
-            <Image
-              src={dogPhotoUrl}
-              alt={`${dogName}の登録画像`}
-              fill
-              sizes="44px"
-              style={{ objectFit: 'cover' }}
-            />
-          ) : (
-            <svg width="26" height="26" viewBox="0 0 24 24" fill={T.ink50}>
-              <ellipse cx="6" cy="9" rx="2" ry="2.6" />
-              <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
-              <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
-              <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
-              <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
-            </svg>
-          )}
-        </div>
-
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-            <span
-              style={{
-                fontFamily: 'var(--font-serif, serif)',
-                fontSize: 18,
-                fontWeight: 500,
-                color: T.ink,
-                lineHeight: 1,
-              }}
-            >
-              {dogName}
-            </span>
-            {post.author?.displayName && (
-              <span style={{ fontSize: 11, color: T.ink50 }}>{post.author.displayName}</span>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              background: T.ink10,
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
+            {dogPhotoUrl ? (
+              <Image
+                src={dogPhotoUrl}
+                alt={`${dogName}の登録画像`}
+                fill
+                sizes="44px"
+                style={{ objectFit: 'cover' }}
+              />
+            ) : (
+              <svg width="26" height="26" viewBox="0 0 24 24" fill={T.ink50}>
+                <ellipse cx="6" cy="9" rx="2" ry="2.6" />
+                <ellipse cx="11" cy="6.4" rx="2" ry="2.6" />
+                <ellipse cx="16.3" cy="7.6" rx="2" ry="2.6" />
+                <ellipse cx="20" cy="11.5" rx="1.8" ry="2.3" />
+                <path d="M12 11c-3.5 0-6.5 2.6-6.5 5.8 0 2 1.5 3.4 3.5 3.4 1.2 0 2.2-.6 3-.6s1.8.6 3 .6c2 0 3.5-1.4 3.5-3.4 0-3.2-3-5.8-6.5-5.8z" />
+              </svg>
             )}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 5, flexWrap: 'wrap' }}>
-            {breed && (
+
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
               <span
                 style={{
-                  padding: '2px 7px',
-                  borderRadius: 4,
-                  background: T.cream,
-                  fontSize: 10,
+                  fontFamily: 'var(--font-serif, serif)',
+                  fontSize: 18,
+                  fontWeight: 500,
                   color: T.ink,
+                  lineHeight: 1,
                 }}
               >
-                {breed}
+                {dogName}
               </span>
-            )}
-            {weight != null && (
-              <span style={{ fontSize: 10.5, color: T.ink, fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>
-                {weight}kg
-              </span>
-            )}
+              {post.author?.displayName && (
+                <span style={{ fontSize: 11, color: T.ink50 }}>{post.author.displayName}</span>
+              )}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 5, flexWrap: 'wrap' }}>
+              {breed && (
+                <span
+                  style={{
+                    padding: '2px 7px',
+                    borderRadius: 4,
+                    background: T.cream,
+                    fontSize: 10,
+                    color: T.ink,
+                  }}
+                >
+                  {breed}
+                </span>
+              )}
+              {weight != null && (
+                <span style={{ fontSize: 10.5, color: T.ink, fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>
+                  {weight}kg
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      </Link>
+        </Link>
+        <FollowButton authorId={post.authorId} />
+      </div>
 
       {/* キャプション */}
       {post.caption && (
@@ -287,7 +293,7 @@ export default async function PostDetailPage({ params }: Props) {
 
       {/* 日付 */}
       <div style={{ padding: '16px 12px 16px', fontSize: 10.5, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>
-        {new Date(post.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}
+        {new Date(post.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Tokyo' })}
       </div>
 
       {/* アクションバー（いいね・コメント件数） */}

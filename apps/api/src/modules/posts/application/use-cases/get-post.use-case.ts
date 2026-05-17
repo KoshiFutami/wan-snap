@@ -15,8 +15,12 @@ export class GetPostUseCase {
 
   async execute(
     id: string,
+    requesterId?: string,
   ): Promise<{ post: Post; relations: PostRelations | null }> {
-    const result = await this.postRepo.findByIdWithRelations(PostId.of(id));
+    const result = await this.postRepo.findByIdWithRelations(
+      PostId.of(id),
+      requesterId,
+    );
     if (!result) throw new NotFoundException('投稿が見つかりません');
     return result;
   }

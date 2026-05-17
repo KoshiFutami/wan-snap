@@ -53,13 +53,15 @@ model Dog {
 }
 
 model Post {
-  id        String   @id @default(uuid())
-  imageUrl  String   @map("image_url") @db.VarChar(512)
-  caption   String?  @db.Text
+  id          String   @id @default(uuid())
+  imageUrl    String   @map("image_url") @db.VarChar(512)
+  imageWidth  Int?     @map("image_width")
+  imageHeight Int?     @map("image_height")
+  caption     String?  @db.Text
   // JSON配列で保存: ["柴犬", "ハーネス"] など
-  tags      Json     @default("[]")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  tags        Json     @default("[]")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId String @map("author_id")

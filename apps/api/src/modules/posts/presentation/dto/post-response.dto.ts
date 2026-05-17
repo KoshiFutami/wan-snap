@@ -42,12 +42,15 @@ export class PostResponseDto {
   authorId: string;
   dogId: string;
   imageUrl: string;
+  imageWidth: number | null;
+  imageHeight: number | null;
   caption: string | null;
   tags: string[];
   items: PostItemResponseDto[];
   likeCount: number;
   bookmarkCount: number;
   commentCount: number;
+  isLikedByMe: boolean;
   createdAt: string;
   updatedAt: string;
   dog: PostDogDto | null;
@@ -63,12 +66,15 @@ export class PostResponseDto {
     dto.authorId = post.authorId;
     dto.dogId = post.dogId;
     dto.imageUrl = post.imageUrl.value;
+    dto.imageWidth = post.imageWidth;
+    dto.imageHeight = post.imageHeight;
     dto.caption = post.caption?.value ?? null;
     dto.tags = post.tags.map((t) => t.value);
     dto.items = post.items.map(PostItemResponseDto.from);
     dto.likeCount = relations?.likeCount ?? 0;
     dto.bookmarkCount = relations?.bookmarkCount ?? 0;
     dto.commentCount = relations?.commentCount ?? 0;
+    dto.isLikedByMe = relations?.isLikedByMe ?? false;
     dto.createdAt = post.createdAt.toISOString();
     dto.updatedAt = post.updatedAt.toISOString();
     dto.dog = relations
