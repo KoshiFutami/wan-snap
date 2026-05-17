@@ -1,5 +1,4 @@
 import { Inject, Injectable, ForbiddenException } from '@nestjs/common';
-import { Dog } from '@prisma/client';
 import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { IPostRepository } from '../../domain/repositories/post.repository';
 import { POST_REPOSITORY } from '../../domain/repositories/post.repository';
@@ -32,6 +31,13 @@ export interface CreatePostInput {
   items?: CreatePostItemInput[];
 }
 
+interface DogBodySnapshot {
+  weightKg: { toNumber(): number } | null;
+  neckCm: { toNumber(): number } | null;
+  chestCm: { toNumber(): number } | null;
+  backLengthCm: { toNumber(): number } | null;
+}
+
 @Injectable()
 export class CreatePostUseCase {
   constructor(
@@ -53,7 +59,7 @@ export class CreatePostUseCase {
       ).values(),
     ];
 
-    const toNumber = (v: { toNumber(): number } | null | undefined) =>
+    const toNumber = (v: { toNumber(): number } | null) =>
       v != null ? v.toNumber() : null;
 
     const post = Post.create({
@@ -97,8 +103,17 @@ export class CreatePostUseCase {
   private async verifyDogOwnership(
     dogId: string,
     userId: string,
-  ): Promise<Dog> {
-    const dog = await this.prisma.dog.findUnique({ where: { id: dogId } });
+  ): Promise<DogBodySnapshot> {
+    const dog = await this.prisma.dog.findUnique({
+      where: { id: dogId },
+      select: {
+        ownerId: true,
+        weightKg: true,
+        neckCm: true,
+        chestCm: true,
+        backLengthCm: true,
+      },
+    });
     if (!dog || dog.ownerId !== userId) {
       throw new ForbiddenException('指定された犬はあなたの所有ではありません');
     }
