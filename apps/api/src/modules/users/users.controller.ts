@@ -1,8 +1,12 @@
 import {
   BadRequestException,
   Body,
+  ConflictException,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
   Patch,
@@ -13,6 +17,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../../common/guards/optional-jwt-auth.guard';
 import type { JwtPayload } from '../../common/decorators/current-user.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { imageFileInterceptor } from '../../common/interceptors/image-file.interceptor';
@@ -39,18 +44,24 @@ export class UsersController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  getMe(@CurrentUser() user: JwtPayload) {
-    return this.prisma.user.findUnique({
-      where: { id: user.sub },
-      select: {
-        id: true,
-        displayName: true,
-        avatarUrl: true,
-        bio: true,
-        location: true,
-        createdAt: true,
-      },
-    });
+  async getMe(@CurrentUser() user: JwtPayload) {
+    const [me, followerCount, followingCount] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: user.sub },
+        select: {
+          id: true,
+          displayName: true,
+          avatarUrl: true,
+          bio: true,
+          location: true,
+          createdAt: true,
+        },
+      }),
+      this.prisma.follow.count({ where: { followingId: user.sub } }),
+      this.prisma.follow.count({ where: { followerId: user.sub } }),
+    ]);
+    if (!me) throw new NotFoundException('ユーザーが見つかりません');
+    return { ...me, followerCount, followingCount };
   }
 
   @Post('me/avatar')
@@ -87,20 +98,115 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        displayName: true,
-        avatarUrl: true,
-        bio: true,
-        location: true,
-        createdAt: true,
+  @UseGuards(OptionalJwtAuthGuard)
+  async findOne(@Param('id') id: string, @CurrentUser() me: JwtPayload | null) {
+    const [user, followerCount, followingCount, isFollowingRecord] =
+      await Promise.all([
+        this.prisma.user.findUnique({
+          where: { id },
+          select: {
+            id: true,
+            displayName: true,
+            avatarUrl: true,
+            bio: true,
+            location: true,
+            createdAt: true,
+          },
+        }),
+        this.prisma.follow.count({ where: { followingId: id } }),
+        this.prisma.follow.count({ where: { followerId: id } }),
+        me
+          ? this.prisma.follow.findUnique({
+              where: {
+                followerId_followingId: { followerId: me.sub, followingId: id },
+              },
+              select: { followerId: true },
+            })
+          : Promise.resolve(null),
+      ]);
+    if (!user) throw new NotFoundException('ユーザーが見つかりません');
+    return {
+      ...user,
+      followerCount,
+      followingCount,
+      isFollowing: !!isFollowingRecord,
+    };
+  }
+
+  @Post(':id/follow')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async follow(
+    @Param('id') id: string,
+    @CurrentUser() me: JwtPayload,
+  ): Promise<void> {
+    if (me.sub === id) {
+      throw new BadRequestException('自分自身をフォローできません');
+    }
+    const target = await this.prisma.user.findUnique({ where: { id } });
+    if (!target) throw new NotFoundException('ユーザーが見つかりません');
+    try {
+      await this.prisma.follow.create({
+        data: { followerId: me.sub, followingId: id },
+      });
+    } catch (err: unknown) {
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'code' in err &&
+        (err as { code: string }).code === 'P2002'
+      ) {
+        throw new ConflictException('すでにフォロー済みです');
+      }
+      throw err;
+    }
+  }
+
+  @Delete(':id/follow')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async unfollow(
+    @Param('id') id: string,
+    @CurrentUser() me: JwtPayload,
+  ): Promise<void> {
+    const deleted = await this.prisma.follow.deleteMany({
+      where: { followerId: me.sub, followingId: id },
+    });
+    if (deleted.count === 0) {
+      throw new NotFoundException('フォロー関係が見つかりません');
+    }
+  }
+
+  @Get(':id/followers')
+  async getFollowers(@Param('id') id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException('ユーザーが見つかりません');
+    const follows = await this.prisma.follow.findMany({
+      where: { followingId: id },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        follower: {
+          select: { id: true, displayName: true, avatarUrl: true },
+        },
       },
     });
+    return follows.map((f) => f.follower);
+  }
+
+  @Get(':id/following')
+  async getFollowing(@Param('id') id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('ユーザーが見つかりません');
-    return user;
+    const follows = await this.prisma.follow.findMany({
+      where: { followerId: id },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        following: {
+          select: { id: true, displayName: true, avatarUrl: true },
+        },
+      },
+    });
+    return follows.map((f) => f.following);
   }
 
   @Patch('me')

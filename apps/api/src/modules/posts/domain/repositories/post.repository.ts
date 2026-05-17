@@ -8,6 +8,7 @@ export interface FindAllOptions {
   authorId?: string;
   dogId?: string;
   requesterId?: string;
+  followingUserId?: string;
 }
 
 export interface FindAllResult {

@@ -54,11 +54,12 @@ export class PostsController {
   @UseGuards(OptionalJwtAuthGuard)
   async list(
     @Query() query: ListPostsQueryDto,
-    @CurrentUser() user?: JwtPayload | null,
+    @CurrentUser() me: JwtPayload | null,
   ): Promise<ListPostsResponseDto> {
     const result = await this.listPosts.execute({
       ...query,
-      requesterId: user?.sub,
+      requesterId: me?.sub,
+      followingUserId: query.followingOnly && me ? me.sub : undefined,
     });
     return {
       posts: result.posts.map(({ post, relations }) =>

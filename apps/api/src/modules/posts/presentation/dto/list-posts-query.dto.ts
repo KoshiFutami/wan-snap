@@ -1,6 +1,7 @@
 import { Transform } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsInt,
   IsOptional,
   IsString,
@@ -35,4 +36,9 @@ export class ListPostsQueryDto {
   @IsOptional()
   @IsString()
   dogId?: string;
+
+  @IsOptional()
+  @Transform(({ value }: { value: string }) => value === 'true')
+  @IsBoolean()
+  followingOnly?: boolean;
 }

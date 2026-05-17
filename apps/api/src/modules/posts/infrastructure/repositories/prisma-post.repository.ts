@@ -64,6 +64,15 @@ export class PrismaPostRepository implements IPostRepository {
     const where = {
       ...(options.authorId ? { authorId: options.authorId } : {}),
       ...(options.dogId ? { dogId: options.dogId } : {}),
+      ...(options.followingUserId
+        ? {
+            author: {
+              followers: {
+                some: { followerId: options.followingUserId },
+              },
+            },
+          }
+        : {}),
     };
 
     const raws = await this.prisma.post.findMany({

@@ -12,6 +12,7 @@ export interface ListPostsInput {
   authorId?: string;
   dogId?: string;
   requesterId?: string;
+  followingUserId?: string;
 }
 
 @Injectable()
@@ -28,6 +29,7 @@ export class ListPostsUseCase {
       authorId: input.authorId,
       dogId: input.dogId,
       requesterId: input.requesterId,
+      followingUserId: input.followingUserId,
     });
   }
 }

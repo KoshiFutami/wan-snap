@@ -189,8 +189,8 @@ export default function ProfilePage() {
             gap: 8,
           }}>
             <ProfileStat value={formatCount(postCount)} label="投稿" />
-            <ProfileStat value="-" label="フォロワー" />
-            <ProfileStat value="-" label="フォロー中" />
+            <ProfileStat value={user?.followerCount != null ? formatCount(user.followerCount) : '-'} label="フォロワー" />
+            <ProfileStat value={user?.followingCount != null ? formatCount(user.followingCount) : '-'} label="フォロー中" />
           </div>
         </div>
 
