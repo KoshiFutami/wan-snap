@@ -11,14 +11,46 @@ type Props = {
   postId: string;
   initialCount: number;
   initialLiked: boolean;
+  flat?: boolean;
 };
 
-export function LikeButton({ postId, initialCount, initialLiked }: Props) {
+export function LikeButton({ postId, initialCount, initialLiked, flat }: Props) {
   const { liked, likeCount: count, handleLike } = useLike({
     postId,
     initialLiked,
     initialCount,
   });
+
+  if (flat) {
+    return (
+      <button
+        onClick={handleLike}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+        }}
+        aria-label={liked ? 'いいね取消' : 'いいね'}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill={liked ? T.terracotta : 'none'}>
+          <path
+            d="M12 20.5s-7.5-4.7-7.5-10.2c0-2.7 2-4.8 4.5-4.8 1.8 0 2.7 1 3 1.7.3-.7 1.2-1.7 3-1.7 2.5 0 4.5 2.1 4.5 4.8 0 5.5-7.5 10.2-7.5 10.2z"
+            stroke={liked ? T.terracotta : T.ink}
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+        </svg>
+        <span style={{ fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-mono, monospace)', color: T.ink }}>
+          {count}
+        </span>
+      </button>
+    );
+  }
 
   return (
     <button

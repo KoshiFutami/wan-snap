@@ -63,21 +63,38 @@ function IconCircleBtn({ children, href, onClick }: { children: ReactNode; href?
 
 export function Header() {
   const [isAuthed, setIsAuthed] = useState(false);
+  const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
     setIsAuthed(!!getAccessToken());
   }, []);
 
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y > lastY && y > 60) setHidden(true);
+      else if (y < lastY) setHidden(false);
+      lastY = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <header
       style={{
-        position: 'sticky',
+        position: 'fixed',
         top: 0,
+        left: 0,
+        right: 0,
         zIndex: 50,
         background: 'rgba(244,237,224,0.92)',
         borderBottom: `1px solid ${T.hairline}`,
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
+        transform: hidden ? 'translateY(-100%)' : 'translateY(0)',
+        transition: 'transform 0.25s ease',
       }}
     >
       <div

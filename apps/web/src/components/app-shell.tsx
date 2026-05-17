@@ -6,10 +6,10 @@ import { Header } from './header';
 import { BottomNav } from './bottom-nav';
 
 const BOTTOM_NAV_HEIGHT = 112;
+const HEADER_HEIGHT = 58;
 
 function shouldHideHeader(pathname: string) {
-  return pathname.startsWith('/auth/')
-    || pathname === '/posts/new';
+  return pathname !== '/';
 }
 
 function shouldHideBottomNav(pathname: string) {
@@ -31,6 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           width: '100%',
           maxWidth: 390,
           margin: '0 auto',
+          paddingTop: hideHeader ? 0 : HEADER_HEIGHT,
           paddingBottom: hideBottomNav ? 0 : BOTTOM_NAV_HEIGHT,
         }}
       >

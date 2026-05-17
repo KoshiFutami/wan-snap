@@ -20,6 +20,15 @@
 - PR を作成し、自分でレビューして問題なければマージする
 - マージ後は次の feature ブランチを切って作業を続ける
 
+## デザインファイル
+
+UI・画面に関する実装・修正を行う際は、まず以下を確認する。
+
+- `/Users/koshifutami/Projects/wan-snap/design/` — Figma スクリーンショット等のデザインファイル
+- `docs/design/` — ドメイン・仕様ドキュメント
+
+デザインと実装が乖離する場合はユーザーに確認してから進む。
+
 ## 実装方針
 
 - **posts / dogs モジュール** → DDD（Domain / Application / Infrastructure / Presentation の4層）

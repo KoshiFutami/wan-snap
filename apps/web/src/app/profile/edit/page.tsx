@@ -24,6 +24,8 @@ export default function ProfileEditPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [displayName, setDisplayName] = useState('');
+  const [username, setUsername] = useState('');
+  const [usernameError, setUsernameError] = useState<string | null>(null);
   const [bio, setBio] = useState('');
   const [location, setLocation] = useState('');
   const [saving, setSaving] = useState(false);
@@ -46,6 +48,7 @@ export default function ProfileEditPage() {
       api.users.getMe(token).then((u) => {
         setUser(u);
         setDisplayName(u.displayName ?? '');
+        setUsername(u.username ?? '');
         setBio(u.bio ?? '');
         setLocation(u.location ?? '');
       }).catch(() => router.replace('/auth/sign-in'));
@@ -70,7 +73,23 @@ export default function ProfileEditPage() {
     setShowCropEditor(false);
   };
 
+  const validateUsername = (value: string): string | null => {
+    if (value.length === 0) return 'ユーザーネームは必須です';
+    if (value.length > 30) return '30文字以内で入力してください';
+    if (!/^[a-zA-Z0-9._]+$/.test(value)) return '英数字・アンダースコア・ピリオドのみ使用できます';
+    if (value.startsWith('.') || value.endsWith('.')) return 'ピリオドは先頭・末尾に使用できません';
+    if (value.includes('..')) return '連続するピリオドは使用できません';
+    return null;
+  };
+
+  const handleUsernameChange = (value: string) => {
+    setUsername(value);
+    setUsernameError(validateUsername(value));
+  };
+
   const handleSave = async () => {
+    const uErr = validateUsername(username);
+    if (uErr) { setUsernameError(uErr); return; }
     setError(null);
     setSaving(true);
     try {
@@ -83,6 +102,7 @@ export default function ProfileEditPage() {
         setImagePreview(null);
       }
       const body: Parameters<typeof api.users.updateMe>[0] = {};
+      if (username !== (user?.username ?? '')) body.username = username;
       if (displayName !== (user?.displayName ?? '')) body.displayName = displayName;
       if (bio !== (user?.bio ?? '')) body.bio = bio;
       if (location !== (user?.location ?? '')) body.location = location;
@@ -150,13 +170,13 @@ export default function ProfileEditPage() {
         </div>
         <button
           onClick={handleSave}
-          disabled={saving || !displayName.trim()}
+          disabled={saving || !displayName.trim() || !!usernameError}
           style={{
             padding: '7px 16px', borderRadius: 999,
-            background: saving || !displayName.trim() ? T.ink10 : T.ink,
-            color: saving || !displayName.trim() ? T.ink50 : T.cream,
+            background: saving || !displayName.trim() || !!usernameError ? T.ink10 : T.ink,
+            color: saving || !displayName.trim() || !!usernameError ? T.ink50 : T.cream,
             border: 'none', fontSize: 12, fontWeight: 600,
-            cursor: saving || !displayName.trim() ? 'not-allowed' : 'pointer',
+            cursor: saving || !displayName.trim() || !!usernameError ? 'not-allowed' : 'pointer',
             fontFamily: 'inherit', flexShrink: 0,
             transition: 'background 0.15s',
           }}
@@ -228,21 +248,24 @@ export default function ProfileEditPage() {
             />
           </FieldRow>
 
-          <FieldRow label="ユーザーID">
+          <FieldRow label="ユーザーネーム" required hint={`${username.length} / 30`}>
             <div style={{ position: 'relative' }}>
+              <span style={{
+                position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
+                fontSize: 14, color: T.ink50, pointerEvents: 'none',
+              }}>@</span>
               <input
                 type="text"
-                value={user.id.slice(0, 8)}
-                readOnly
-                style={{ ...inputStyle, paddingRight: 90, color: T.ink50, cursor: 'default' }}
+                value={username}
+                onChange={(e) => handleUsernameChange(e.target.value)}
+                maxLength={30}
+                placeholder="wan_example"
+                style={{ ...inputStyle, paddingLeft: 28 }}
               />
-              <span style={{
-                position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
-                fontSize: 12, color: T.ink50,
-                fontFamily: 'var(--font-mono, monospace)',
-                pointerEvents: 'none',
-              }}>.wansnap</span>
             </div>
+            {usernameError && (
+              <div style={{ fontSize: 11, color: T.terracotta, marginTop: 4 }}>{usernameError}</div>
+            )}
           </FieldRow>
 
           <FieldRow label="自己紹介" hint={`${bio.length} / 160`}>

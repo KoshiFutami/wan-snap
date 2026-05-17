@@ -1,6 +1,23 @@
-import { IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsUrl,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class UpdateUserDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(30)
+  @Matches(/^(?!.*\.\.)(?!\.)[a-zA-Z0-9._]+(?<!\.)$/, {
+    message:
+      'ユーザーネームは英数字・アンダースコア・ピリオドのみ使用可能で、先頭・末尾のピリオドと連続ピリオドは使用できません',
+  })
+  username?: string;
+
   @IsOptional()
   @IsString()
   @MaxLength(100)

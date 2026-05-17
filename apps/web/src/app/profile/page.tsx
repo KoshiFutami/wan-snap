@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getAccessToken, clearTokens, getValidToken } from '../../lib/auth-store';
-import { api, type User, type Dog, type Post } from '../../lib/api';
+import { api, type User, type Dog, type Post, type UserPublic } from '../../lib/api';
 
 const T = {
   ink: '#1F1A14',
@@ -28,6 +28,7 @@ export default function ProfilePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [activeTab, setActiveTab] = useState<'snaps' | 'items' | 'saved'>('snaps');
+  const [followListTab, setFollowListTab] = useState<'followers' | 'following' | null>(null);
 
   useEffect(() => {
     const token = getAccessToken();
@@ -105,9 +106,7 @@ export default function ProfilePage() {
     );
   }
 
-  const handle = user?.displayName
-    ? `@${user.displayName.trim().replace(/\s+/g, '_')}`
-    : '@wan_snap';
+  const handle = user?.username ? `@${user.username}` : '@wan_snap';
   const postCount = posts.length;
   const itemCount = posts.reduce((count, post) => count + post.items.length, 0);
   const dogNames = dogs.map((dog) => dog.name).join('・');
@@ -115,6 +114,13 @@ export default function ProfilePage() {
 
   return (
     <div style={{ paddingBottom: 120 }}>
+      {followListTab !== null && user && (
+        <FollowListSheet
+          userId={user.id}
+          initialTab={followListTab}
+          onClose={() => setFollowListTab(null)}
+        />
+      )}
       {/* トップバー */}
       <div style={{
         padding: '8px 12px 6px',
@@ -189,8 +195,8 @@ export default function ProfilePage() {
             gap: 8,
           }}>
             <ProfileStat value={formatCount(postCount)} label="投稿" />
-            <ProfileStat value={user?.followerCount != null ? formatCount(user.followerCount) : '-'} label="フォロワー" />
-            <ProfileStat value={user?.followingCount != null ? formatCount(user.followingCount) : '-'} label="フォロー中" />
+            <ProfileStat value={user?.followerCount != null ? formatCount(user.followerCount) : '-'} label="フォロワー" onClick={user ? () => setFollowListTab('followers') : undefined} />
+            <ProfileStat value={user?.followingCount != null ? formatCount(user.followingCount) : '-'} label="フォロー中" onClick={user ? () => setFollowListTab('following') : undefined} />
           </div>
         </div>
 
@@ -202,6 +208,11 @@ export default function ProfilePage() {
         }}>
           {user?.displayName ?? '…'}
         </div>
+        {user?.username && (
+          <div style={{ fontSize: 13, color: T.ink50, marginTop: 2 }}>
+            @{user.username}
+          </div>
+        )}
 
         {/* bio / location */}
         <div style={{ fontSize: 12, color: T.ink70, lineHeight: 1.65, marginTop: 8 }}>
@@ -445,9 +456,20 @@ function formatCount(value: number): string {
   return String(value);
 }
 
-function ProfileStat({ value, label }: { value: string; label: string }) {
+function ProfileStat({ value, label, onClick }: { value: string; label: string; onClick?: () => void }) {
   return (
-    <div style={{ textAlign: 'center' }}>
+    <button
+      onClick={onClick}
+      disabled={!onClick}
+      style={{
+        textAlign: 'center',
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        cursor: onClick ? 'pointer' : 'default',
+        fontFamily: 'inherit',
+      }}
+    >
       <div style={{
         fontFamily: 'var(--font-serif, serif)',
         fontSize: 28,
@@ -457,7 +479,137 @@ function ProfileStat({ value, label }: { value: string; label: string }) {
         {value}
       </div>
       <div style={{ marginTop: 8, fontSize: 11, color: T.ink50 }}>{label}</div>
-    </div>
+    </button>
+  );
+}
+
+function FollowListSheet({
+  userId,
+  initialTab,
+  onClose,
+}: {
+  userId: string;
+  initialTab: 'followers' | 'following';
+  onClose: () => void;
+}) {
+  const [tab, setTab] = useState<'followers' | 'following'>(initialTab);
+  const [followers, setFollowers] = useState<UserPublic[] | null>(null);
+  const [following, setFollowing] = useState<UserPublic[] | null>(null);
+
+  useEffect(() => {
+    if (tab === 'followers' && followers === null) {
+      api.users.getFollowers(userId).then(setFollowers).catch(() => setFollowers([]));
+    }
+    if (tab === 'following' && following === null) {
+      api.users.getFollowing(userId).then(setFollowing).catch(() => setFollowing([]));
+    }
+  }, [tab, userId, followers, following]);
+
+  const list = tab === 'followers' ? followers : following;
+
+  return (
+    <>
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 100,
+          background: 'rgba(31,26,20,0.4)',
+        }}
+      />
+      <div style={{
+        position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 101,
+        background: T.paper,
+        borderRadius: '20px 20px 0 0',
+        maxHeight: '80vh',
+        display: 'flex', flexDirection: 'column',
+        boxShadow: '0 -4px 24px rgba(31,26,20,0.12)',
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '16px 16px 0',
+        }}>
+          <div style={{ display: 'flex', gap: 0 }}>
+            {(['followers', 'following'] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                style={{
+                  padding: '8px 14px',
+                  border: 'none',
+                  background: 'none',
+                  fontFamily: 'inherit',
+                  fontSize: 13.5,
+                  fontWeight: tab === t ? 700 : 500,
+                  color: tab === t ? T.ink : T.ink50,
+                  cursor: 'pointer',
+                  borderBottom: tab === t ? `2px solid ${T.ink}` : '2px solid transparent',
+                  marginBottom: -1,
+                }}
+              >
+                {t === 'followers' ? 'フォロワー' : 'フォロー中'}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              width: 32, height: 32, borderRadius: 16,
+              background: T.cream, border: 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 1l12 12M13 1L1 13" stroke={T.ink} strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        <div style={{ borderBottom: `1px solid ${T.hairline}`, margin: '0 16px' }} />
+
+        <div style={{ overflowY: 'auto', flex: 1, padding: '8px 0 24px' }}>
+          {list === null ? (
+            <div style={{ padding: '24px', textAlign: 'center', color: T.ink50, fontSize: 13 }}>読み込み中…</div>
+          ) : list.length === 0 ? (
+            <div style={{ padding: '24px', textAlign: 'center', color: T.ink50, fontSize: 13 }}>
+              {tab === 'followers' ? 'フォロワーはいません' : 'フォロー中のユーザーはいません'}
+            </div>
+          ) : (
+            list.map((u) => (
+              <Link
+                key={u.id}
+                href={`/users/${u.id}`}
+                onClick={onClose}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '10px 16px',
+                  textDecoration: 'none',
+                }}
+              >
+                <div style={{
+                  width: 44, height: 44, borderRadius: 22, flexShrink: 0,
+                  background: T.cream,
+                  border: `1px solid ${T.hairline}`,
+                  overflow: 'hidden', position: 'relative',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {u.avatarUrl ? (
+                    <Image src={u.avatarUrl} alt={u.displayName} fill sizes="44px" style={{ objectFit: 'cover' }} />
+                  ) : (
+                    <span style={{ fontFamily: 'var(--font-serif, serif)', fontSize: 20, color: T.ink }}>
+                      {u.displayName.slice(0, 1)}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <div style={{ fontSize: 13.5, fontWeight: 600, color: T.ink }}>{u.displayName}</div>
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
+      </div>
+    </>
   );
 }
 

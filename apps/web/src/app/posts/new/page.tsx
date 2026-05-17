@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { api, type Dog } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
 import { ImageCropEditor } from '../../../components/image-crop-editor';
+import { ItemEditorSection, validateItems, type EditableItem } from '../../../components/item-editor-section';
 
 const T = {
   ink: '#1F1A14',
@@ -63,6 +64,7 @@ export default function NewPostPage() {
   const [showCropEditor, setShowCropEditor] = useState(false);
   const [caption, setCaption] = useState('');
   const [tags, setTags] = useState('');
+  const [items, setItems] = useState<EditableItem[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const settingRows = [
@@ -116,6 +118,8 @@ export default function NewPostPage() {
     const token = await getValidToken();
     if (!token) { router.push('/auth/sign-in'); return; }
 
+    const urlError = validateItems(items);
+    if (urlError) { setError(urlError); return; }
     setError('');
     setLoading(true);
     try {
@@ -135,6 +139,7 @@ export default function NewPostPage() {
           imageHeight: uploaded.imageHeight,
           caption: caption || undefined,
           tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
+          items: items.map(({ _key: _k, ...rest }) => rest),
         },
         token,
       );
@@ -422,6 +427,9 @@ export default function NewPostPage() {
               </button>
             </div>
           </div>
+
+          {/* 着用アイテム */}
+          <ItemEditorSection items={items} onChange={setItems} />
 
           <div
             style={{
