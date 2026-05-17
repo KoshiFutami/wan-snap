@@ -190,6 +190,7 @@ export type Notification = {
     displayName: string;
     avatarUrl: string | null;
     username: string;
+    isFollowing?: boolean;
   };
   post: { id: string; imageUrl: string } | null;
 };

@@ -116,6 +116,13 @@ function notifTarget(n: Notification): string {
 function NotifRow({ n, onFollow }: { n: Notification; onFollow: (actorId: string) => void }) {
   const color = notifColor(n.type);
   const target = notifTarget(n);
+  const [following, setFollowing] = useState(n.actor.isFollowing ?? false);
+
+  const handleFollowClick = async () => {
+    if (following) return;
+    setFollowing(true);
+    await onFollow(n.actor.id);
+  };
 
   return (
     <div
@@ -217,20 +224,21 @@ function NotifRow({ n, onFollow }: { n: Notification; onFollow: (actorId: string
 
       {n.type === 'follow' && (
         <button
-          onClick={() => onFollow(n.actor.id)}
+          onClick={handleFollowClick}
+          disabled={following}
           style={{
             padding: '6px 12px',
             borderRadius: 999,
-            background: T.ink,
-            color: T.cream,
-            border: 'none',
+            background: following ? 'transparent' : T.ink,
+            color: following ? T.ink50 : T.cream,
+            border: following ? `1.5px solid ${T.hairline}` : 'none',
             fontSize: 11,
             fontWeight: 600,
             flexShrink: 0,
-            cursor: 'pointer',
+            cursor: following ? 'default' : 'pointer',
           }}
         >
-          フォロー
+          {following ? 'フォロー済み' : 'フォロー'}
         </button>
       )}
     </div>

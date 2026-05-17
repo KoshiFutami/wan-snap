@@ -68,13 +68,29 @@ export class NotificationsController {
         ? Buffer.from(JSON.stringify({ id: sliced[sliced.length - 1].id })).toString('base64url')
         : null;
 
+    const followActorIds = sliced
+      .filter((n) => n.type === 'follow')
+      .map((n) => n.actor.id);
+
+    const followingSet = new Set<string>();
+    if (followActorIds.length > 0) {
+      const existingFollows = await this.prisma.follow.findMany({
+        where: { followerId: user.sub, followingId: { in: followActorIds } },
+        select: { followingId: true },
+      });
+      existingFollows.forEach((f) => followingSet.add(f.followingId));
+    }
+
     return {
       notifications: sliced.map((n) => ({
         id: n.id,
         type: n.type,
         isRead: n.isRead,
         createdAt: n.createdAt.toISOString(),
-        actor: n.actor,
+        actor: {
+          ...n.actor,
+          isFollowing: n.type === 'follow' ? followingSet.has(n.actor.id) : undefined,
+        },
         post: n.post ?? null,
       })),
       unreadCount,
