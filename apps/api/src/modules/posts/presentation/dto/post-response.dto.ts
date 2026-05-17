@@ -35,6 +35,9 @@ export class PostDogDto {
   breed: string;
   breedShortName: string;
   weightKg: number | null;
+  neckCm: number | null;
+  chestCm: number | null;
+  backLengthCm: number | null;
   photoUrl: string | null;
 }
 
@@ -91,6 +94,9 @@ export class PostResponseDto {
           breed: relations.dogBreed,
           breedShortName: relations.dogBreedShortName,
           weightKg: relations.dogWeightKg,
+          neckCm: relations.dogNeckCm,
+          chestCm: relations.dogChestCm,
+          backLengthCm: relations.dogBackLengthCm,
           photoUrl: relations.dogPhotoUrl,
         }
       : null;

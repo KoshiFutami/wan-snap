@@ -47,6 +47,9 @@ export type PostDog = {
   breed: string;
   breedShortName: string;
   weightKg: number | null;
+  neckCm: number | null;
+  chestCm: number | null;
+  backLengthCm: number | null;
   photoUrl: string | null;
 };
 

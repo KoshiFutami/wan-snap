@@ -62,13 +62,17 @@ model Dog {
 }
 
 model Post {
-  id          String   @id @default(uuid())
-  imageUrl    String   @map("image_url") @db.VarChar(512)
-  imageWidth  Int?     @map("image_width")
-  imageHeight Int?     @map("image_height")
-  caption     String?  @db.Text
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id              String   @id @default(uuid())
+  imageUrl        String   @map("image_url") @db.VarChar(512)
+  imageWidth      Int?     @map("image_width")
+  imageHeight     Int?     @map("image_height")
+  caption         String?  @db.Text
+  dogWeightKg     Decimal? @map("dog_weight_kg") @db.Decimal(5, 2)
+  dogNeckCm       Decimal? @map("dog_neck_cm") @db.Decimal(5, 1)
+  dogChestCm      Decimal? @map("dog_chest_cm") @db.Decimal(5, 1)
+  dogBackLengthCm Decimal? @map("dog_back_length_cm") @db.Decimal(5, 1)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId String @map("author_id")

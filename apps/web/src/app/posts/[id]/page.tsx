@@ -61,6 +61,9 @@ export default async function PostDetailPage({ params }: Props) {
   const dogName = post.dog?.name ?? 'わんこ';
   const breed = post.dog?.breed;
   const weight = post.dog?.weightKg;
+  const neckCm = post.dog?.neckCm;
+  const chestCm = post.dog?.chestCm;
+  const backLengthCm = post.dog?.backLengthCm;
   const dogPhotoUrl = post.dog?.photoUrl;
   const positionedItems = post.items.filter(
     (item) => item.xPct != null && item.yPct != null,
@@ -204,6 +207,15 @@ export default async function PostDetailPage({ params }: Props) {
               {weight != null && (
                 <span style={{ fontSize: 10.5, color: T.ink, fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>
                   {weight}kg
+                </span>
+              )}
+              {(neckCm != null || chestCm != null || backLengthCm != null) && (
+                <span style={{ fontSize: 10, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>
+                  {[
+                    neckCm != null ? `首${neckCm}` : null,
+                    chestCm != null ? `胸${chestCm}` : null,
+                    backLengthCm != null ? `背${backLengthCm}` : null,
+                  ].filter(Boolean).join(' / ')}cm
                 </span>
               )}
             </div>

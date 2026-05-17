@@ -1,4 +1,5 @@
 import { Inject, Injectable, ForbiddenException } from '@nestjs/common';
+import { Dog } from '@prisma/client';
 import { PrismaService } from '../../../../infrastructure/database/prisma.service';
 import type { IPostRepository } from '../../domain/repositories/post.repository';
 import { POST_REPOSITORY } from '../../domain/repositories/post.repository';
@@ -39,7 +40,7 @@ export class CreatePostUseCase {
   ) {}
 
   async execute(input: CreatePostInput): Promise<Post> {
-    await this.verifyDogOwnership(input.dogId, input.authorId);
+    const dog = await this.verifyDogOwnership(input.dogId, input.authorId);
 
     const imageUrl = ImageUrl.of(input.imageUrl);
     const caption = input.caption ? Caption.of(input.caption) : undefined;
@@ -52,6 +53,9 @@ export class CreatePostUseCase {
       ).values(),
     ];
 
+    const toNumber = (v: { toNumber(): number } | null | undefined) =>
+      v != null ? v.toNumber() : null;
+
     const post = Post.create({
       authorId: input.authorId,
       dogId: input.dogId,
@@ -60,6 +64,10 @@ export class CreatePostUseCase {
       imageHeight: input.imageHeight ?? null,
       caption,
       tags,
+      dogWeightKg: toNumber(dog.weightKg),
+      dogNeckCm: toNumber(dog.neckCm),
+      dogChestCm: toNumber(dog.chestCm),
+      dogBackLengthCm: toNumber(dog.backLengthCm),
     });
 
     const items = (input.items ?? []).map((item) =>
@@ -89,10 +97,11 @@ export class CreatePostUseCase {
   private async verifyDogOwnership(
     dogId: string,
     userId: string,
-  ): Promise<void> {
+  ): Promise<Dog> {
     const dog = await this.prisma.dog.findUnique({ where: { id: dogId } });
     if (!dog || dog.ownerId !== userId) {
       throw new ForbiddenException('指定された犬はあなたの所有ではありません');
     }
+    return dog;
   }
 }

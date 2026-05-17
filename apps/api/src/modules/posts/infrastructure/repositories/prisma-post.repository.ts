@@ -40,7 +40,6 @@ export class PrismaPostRepository implements IPostRepository {
           select: {
             name: true,
             breed: { select: { name: true, shortName: true } },
-            weightKg: true,
             photoUrl: true,
           },
         },
@@ -86,7 +85,6 @@ export class PrismaPostRepository implements IPostRepository {
           select: {
             name: true,
             breed: { select: { name: true, shortName: true } },
-            weightKg: true,
             photoUrl: true,
           },
         },
@@ -126,9 +124,12 @@ export class PrismaPostRepository implements IPostRepository {
       dog: {
         name: string;
         breed: { name: string; shortName: string };
-        weightKg: { toNumber(): number } | null;
         photoUrl: string | null;
       };
+      dogWeightKg: { toNumber(): number } | null;
+      dogNeckCm: { toNumber(): number } | null;
+      dogChestCm: { toNumber(): number } | null;
+      dogBackLengthCm: { toNumber(): number } | null;
       author: { displayName: string; username: string };
       _count?: { likes: number; bookmarks: number; comments: number };
       likes?: { userId: string }[];
@@ -136,11 +137,16 @@ export class PrismaPostRepository implements IPostRepository {
     },
     requesterId?: string,
   ): PostRelations {
+    const toNum = (v: { toNumber(): number } | null) =>
+      v != null ? v.toNumber() : null;
     return {
       dogName: raw.dog.name,
       dogBreed: raw.dog.breed.name,
       dogBreedShortName: raw.dog.breed.shortName,
-      dogWeightKg: raw.dog.weightKg ? raw.dog.weightKg.toNumber() : null,
+      dogWeightKg: toNum(raw.dogWeightKg),
+      dogNeckCm: toNum(raw.dogNeckCm),
+      dogChestCm: toNum(raw.dogChestCm),
+      dogBackLengthCm: toNum(raw.dogBackLengthCm),
       dogPhotoUrl: raw.dog.photoUrl,
       authorDisplayName: raw.author.displayName,
       authorUsername: raw.author.username,

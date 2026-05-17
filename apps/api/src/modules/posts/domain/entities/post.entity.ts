@@ -14,6 +14,10 @@ export interface PostProps {
   caption: Caption | null;
   tags: Tag[];
   items: PostItem[];
+  dogWeightKg: number | null;
+  dogNeckCm: number | null;
+  dogChestCm: number | null;
+  dogBackLengthCm: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,6 +31,10 @@ export interface CreatePostProps {
   caption?: Caption;
   tags?: Tag[];
   items?: PostItem[];
+  dogWeightKg?: number | null;
+  dogNeckCm?: number | null;
+  dogChestCm?: number | null;
+  dogBackLengthCm?: number | null;
 }
 
 export class Post {
@@ -39,6 +47,10 @@ export class Post {
   readonly caption: Caption | null;
   readonly tags: Tag[];
   readonly items: PostItem[];
+  readonly dogWeightKg: number | null;
+  readonly dogNeckCm: number | null;
+  readonly dogChestCm: number | null;
+  readonly dogBackLengthCm: number | null;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 
@@ -52,6 +64,10 @@ export class Post {
     this.caption = props.caption;
     this.tags = props.tags;
     this.items = props.items;
+    this.dogWeightKg = props.dogWeightKg;
+    this.dogNeckCm = props.dogNeckCm;
+    this.dogChestCm = props.dogChestCm;
+    this.dogBackLengthCm = props.dogBackLengthCm;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }
@@ -68,6 +84,10 @@ export class Post {
       caption: props.caption ?? null,
       tags: props.tags ?? [],
       items: props.items ?? [],
+      dogWeightKg: props.dogWeightKg ?? null,
+      dogNeckCm: props.dogNeckCm ?? null,
+      dogChestCm: props.dogChestCm ?? null,
+      dogBackLengthCm: props.dogBackLengthCm ?? null,
       createdAt: now,
       updatedAt: now,
     });
