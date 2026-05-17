@@ -111,7 +111,7 @@ export function HashtagInput({ value, onChange }: HashtagInputProps) {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={() => { if (inputValue) addTag(inputValue); }}
-            placeholder={value.length === 0 ? '#春コーデ #柴犬…' : ''}
+            placeholder={value.length === 0 ? '春コーデ　柴犬…' : ''}
             style={{
               border: 'none',
               outline: 'none',
