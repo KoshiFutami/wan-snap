@@ -55,6 +55,10 @@ const imageActionButtonStyle: CSSProperties = {
   gap: 4,
 };
 
+function normalizeTagInput(value: string): string[] {
+  return [...new Set(value.split(',').map((tag) => tag.trim()).filter(Boolean))];
+}
+
 export default function NewPostPage() {
   const router = useRouter();
   const [dogs, setDogs] = useState<Dog[]>([]);
@@ -156,7 +160,7 @@ export default function NewPostPage() {
           imageWidth: uploaded.imageWidth,
           imageHeight: uploaded.imageHeight,
           caption: caption || undefined,
-          tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
+          tags: normalizeTagInput(tags),
           items: items.map(({ _key: _k, ...rest }) => rest),
         },
         token,
@@ -353,11 +357,11 @@ export default function NewPostPage() {
           </div>
 
           {/* キャプション */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
-              <label style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>キャプション</label>
-              <span style={{ fontSize: 10, color: T.ink50 }}>{caption.length} / 500</span>
-            </div>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
+            <label style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>キャプション</label>
+            <span style={{ fontSize: 10, color: T.ink50 }}>{caption.length} / 500</span>
+          </div>
             <textarea
               rows={3}
               value={caption}
@@ -371,11 +375,26 @@ export default function NewPostPage() {
                 resize: 'none',
                 lineHeight: 1.55,
               }}
-            />
-          </div>
+          />
+        </div>
 
-          {/* 愛犬セレクター */}
-          <div>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
+            <label htmlFor="post-tags" style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>タグ</label>
+            <span style={{ fontSize: 10, color: T.ink50 }}>カンマ区切りで追加</span>
+          </div>
+          <input
+            id="post-tags"
+            type="text"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            placeholder="例: トイプードル, テディベアカット, 春コーデ"
+            style={inputStyle}
+          />
+        </div>
+
+        {/* 愛犬セレクター */}
+        <div>
             <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, marginBottom: 8 }}>
               愛犬 <span style={{ color: T.terracotta }}>*</span>
             </div>

@@ -21,6 +21,12 @@ export class UpdatePostDto {
 
   @IsOptional()
   @IsArray()
+  @IsString({ each: true })
+  @MaxLength(50, { each: true })
+  tags?: string[];
+
+  @IsOptional()
+  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreatePostItemDto)
   items?: CreatePostItemDto[];

@@ -16,7 +16,8 @@ const T = {
 };
 
 export default async function TagFeedPage({ params }: Props) {
-  const { tag } = await params;
+  const { tag: rawTag } = await params;
+  const tag = decodeTagParam(rawTag);
   const response = await api.posts.list({ tag, limit: 40 }).catch(() => ({ posts: [], nextCursor: null }));
 
   return (
@@ -135,4 +136,12 @@ export default async function TagFeedPage({ params }: Props) {
       )}
     </div>
   );
+}
+
+function decodeTagParam(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
 }
