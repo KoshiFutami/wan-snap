@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { api } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
+import { applyOptimisticCountCorrection } from '../../../lib/optimistic-toggle';
 
 const T = {
   ink: '#1F1A14',
@@ -39,7 +40,10 @@ export function BookmarkButton({ postId, initialCount, initialBookmarked = false
       } else {
         await api.posts.unbookmark(postId, token);
       }
-    } catch {
+    } catch (error) {
+      if (applyOptimisticCountCorrection(next, error, setCount)) {
+        return;
+      }
       setBookmarked(!next);
       setCount((c) => (next ? c - 1 : c + 1));
     }

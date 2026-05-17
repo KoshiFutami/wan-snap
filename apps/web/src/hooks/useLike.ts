@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '../lib/api';
 import { getValidToken } from '../lib/auth-store';
+import { applyOptimisticCountCorrection } from '../lib/optimistic-toggle';
 
 type UseLikeOptions = {
   postId: string;
@@ -37,7 +38,10 @@ export function useLike({ postId, initialLiked, initialCount }: UseLikeOptions):
       } else {
         await api.posts.unlike(postId, token);
       }
-    } catch {
+    } catch (error) {
+      if (applyOptimisticCountCorrection(next, error, setLikeCount)) {
+        return;
+      }
       // ロールバック
       setLiked(!next);
       setLikeCount((c) => (next ? c - 1 : c + 1));

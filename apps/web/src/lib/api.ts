@@ -1,5 +1,15 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 export type CommentAuthor = {
   id: string;
   displayName: string;
@@ -172,7 +182,10 @@ async function request<T>(
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error((body as { message?: string }).message ?? `HTTP ${res.status}`);
+    throw new ApiError(
+      (body as { message?: string }).message ?? `HTTP ${res.status}`,
+      res.status,
+    );
   }
   if (res.status === 204) return undefined as T;
 

@@ -9,6 +9,7 @@ import { getValidToken } from '../lib/auth-store';
 import { resolveBreedName } from '../lib/breed';
 import { useLike } from '../hooks/useLike';
 import { useShare } from '../hooks/useShare';
+import { applyOptimisticCountCorrection } from '../lib/optimistic-toggle';
 
 const T = {
   ink: '#1F1A14',
@@ -128,7 +129,10 @@ export function PostCard({ post }: Props) {
       } else {
         await api.posts.unbookmark(post.id, token);
       }
-    } catch {
+    } catch (error) {
+      if (applyOptimisticCountCorrection(next, error, setBookmarkCount)) {
+        return;
+      }
       // ロールバック
       setBookmarked(!next);
       setBookmarkCount((c) => (next ? c - 1 : c + 1));
