@@ -23,8 +23,7 @@ const T = {
 const UNSET_DETAIL_TEXT = '未設定';
 
 function getPostLocationDetail(post: Post): string {
-  const postWithLocation = post as Post & { location?: string | null; place?: string | null };
-  return postWithLocation.location ?? postWithLocation.place ?? UNSET_DETAIL_TEXT;
+  return post.location ?? post.place ?? UNSET_DETAIL_TEXT;
 }
 
 function relativeTime(iso: string): string {
