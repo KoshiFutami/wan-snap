@@ -24,6 +24,18 @@ const T = {
   hairline: 'rgba(31,26,20,0.08)',
 };
 
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'たった今';
+  if (m < 60) return `${m}分前`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}時間前`;
+  return `${Math.floor(h / 24)}日前`;
+}
+
+const itemColors = [T.terracotta, T.forest, '#7B6EA8', '#2E7D8A'];
+
 export default async function PostDetailPage({ params }: Props) {
   const { id } = await params;
   const post = await api.posts.get(id).catch(() => null);
@@ -38,67 +50,100 @@ export default async function PostDetailPage({ params }: Props) {
 
   return (
     <div style={{ paddingBottom: 40 }}>
-      {/* 戻るボタン・編集ボタン */}
-      <div style={{ padding: '16px 12px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* ヘッダー：戻る／シェア／ブックマーク */}
+      <div style={{
+        padding: '16px 20px 8px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
         <Link
           href="/"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 6,
+            justifyContent: 'center',
             width: 38,
             height: 38,
             borderRadius: 19,
             background: T.paper,
             border: `1px solid ${T.hairline}`,
-            justifyContent: 'center',
             textDecoration: 'none',
             color: T.ink,
+            flexShrink: 0,
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path d="M14 5l-7 7 7 7" stroke={T.ink} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <LikeButton postId={post.id} initialCount={post.likeCount ?? 0} initialLiked={post.isLikedByMe ?? false} />
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {/* シェアボタン */}
+          <button
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 38,
+              height: 38,
+              borderRadius: 19,
+              background: T.paper,
+              border: `1px solid ${T.hairline}`,
+              cursor: 'pointer',
+            }}
+            aria-label="シェア"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3v13M7 8l5-5 5 5M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2" stroke={T.ink} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
           <BookmarkButton postId={post.id} initialCount={post.bookmarkCount ?? 0} />
           <EditButton postId={post.id} authorId={post.authorId} />
         </div>
       </div>
 
       {/* メイン写真 */}
-      <div style={{ margin: '0 12px', borderRadius: 20, overflow: 'hidden', aspectRatio: post.imageWidth && post.imageHeight ? `${post.imageWidth}/${post.imageHeight}` : '4/5', background: T.ink10, position: 'relative' }}>
+      <div style={{
+        margin: '0 20px',
+        borderRadius: 20,
+        overflow: 'hidden',
+        aspectRatio: post.imageWidth && post.imageHeight ? `${post.imageWidth}/${post.imageHeight}` : '4/5',
+        background: T.ink10,
+        position: 'relative',
+      }}>
         <Image
           src={post.imageUrl}
           alt={post.caption ?? 'スナップ写真'}
           fill
-          sizes="(max-width: 390px) 100vw, 390px"
+          sizes="(max-width: 390px) calc(100vw - 40px), 350px"
           style={{ objectFit: 'cover' }}
           priority
         />
       </div>
 
       {/* オーナー・犬情報 */}
-      <div style={{ padding: '18px 12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{
+        padding: '18px 20px 14px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+      }}>
         <Link
           href={`/users/${post.authorId}`}
           style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', flex: 1, minWidth: 0 }}
         >
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 22,
-              background: T.ink10,
-              flexShrink: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-              position: 'relative',
-            }}
-          >
+          <div style={{
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            background: T.ink10,
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            position: 'relative',
+          }}>
             {dogPhotoUrl ? (
               <Image
                 src={dogPhotoUrl}
@@ -120,15 +165,13 @@ export default async function PostDetailPage({ params }: Props) {
 
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-              <span
-                style={{
-                  fontFamily: 'var(--font-serif, serif)',
-                  fontSize: 18,
-                  fontWeight: 500,
-                  color: T.ink,
-                  lineHeight: 1,
-                }}
-              >
+              <span style={{
+                fontFamily: 'var(--font-serif, serif)',
+                fontSize: 18,
+                fontWeight: 500,
+                color: T.ink,
+                lineHeight: 1,
+              }}>
                 {dogName}
               </span>
               {post.author?.displayName && (
@@ -137,15 +180,13 @@ export default async function PostDetailPage({ params }: Props) {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 5, flexWrap: 'wrap' }}>
               {breed && (
-                <span
-                  style={{
-                    padding: '2px 7px',
-                    borderRadius: 4,
-                    background: T.cream,
-                    fontSize: 10,
-                    color: T.ink,
-                  }}
-                >
+                <span style={{
+                  padding: '2px 7px',
+                  borderRadius: 4,
+                  background: T.cream,
+                  fontSize: 10,
+                  color: T.ink,
+                }}>
                   {breed}
                 </span>
               )}
@@ -162,14 +203,14 @@ export default async function PostDetailPage({ params }: Props) {
 
       {/* キャプション */}
       {post.caption && (
-        <div style={{ padding: '0 12px 18px', fontSize: 13, lineHeight: 1.6, color: T.ink }}>
+        <div style={{ padding: '0 20px 18px', fontSize: 13, lineHeight: 1.6, color: T.ink }}>
           {post.caption}
         </div>
       )}
 
       {/* タグ */}
       {post.tags.length > 0 && (
-        <div style={{ padding: '0 12px 16px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        <div style={{ padding: '0 20px 16px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {post.tags.map((tag) => (
             <span key={tag} style={{ fontSize: 12, color: T.ink50, fontWeight: 500 }}>#{tag}</span>
           ))}
@@ -178,138 +219,146 @@ export default async function PostDetailPage({ params }: Props) {
 
       {/* 着用アイテム */}
       {post.items.length > 0 && (
-        <div
-          style={{
-            margin: '0 12px',
-            padding: '18px 16px',
-            borderRadius: 18,
-            background: T.creamSoft,
-            border: `1px solid ${T.hairline}`,
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: 16,
-            }}
-          >
-            <div
-              style={{
-                fontSize: 10,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                color: T.ink50,
-                fontWeight: 500,
-              }}
-            >
+        <div style={{
+          margin: '0 20px',
+          padding: '18px 16px 16px',
+          borderRadius: 18,
+          background: T.creamSoft,
+          border: `1px solid ${T.hairline}`,
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 14,
+          }}>
+            <div style={{
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: T.ink50,
+              fontWeight: 500,
+            }}>
               着用アイテム · {post.items.length}
             </div>
+            <div style={{ fontSize: 11, color: T.terracotta, fontWeight: 500 }}>すべて見る →</div>
           </div>
 
-          {post.items.map((item, i) => (
-            <div key={item.id}>
-              {i > 0 && <div style={{ height: 1, background: T.hairline, margin: '14px 0' }} />}
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                {/* プロダクトプレースホルダー */}
-                <div
-                  style={{
+          {post.items.map((item, i) => {
+            const color = itemColors[i % itemColors.length];
+            return (
+              <div key={item.id}>
+                {i > 0 && <div style={{ height: 1, background: T.hairline, margin: '12px 0' }} />}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  {/* プロダクトサムネイル */}
+                  <div style={{
                     width: 52,
                     height: 52,
                     borderRadius: 10,
                     background: T.paper,
                     border: `1px solid ${T.hairline}`,
                     flexShrink: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <div
-                    style={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}>
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      backgroundImage: `repeating-linear-gradient(45deg, ${T.ink10} 0, ${T.ink10} 4px, transparent 4px, transparent 8px)`,
+                    }} />
+                    <div style={{
+                      position: 'absolute',
+                      top: 6,
+                      left: 6,
                       width: 8,
                       height: 8,
                       borderRadius: 8,
-                      background: i === 0 ? T.terracotta : T.forest,
-                    }}
-                  />
-                </div>
+                      background: color,
+                    }} />
+                  </div>
 
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
                       fontSize: 9.5,
                       letterSpacing: '0.14em',
                       textTransform: 'uppercase',
                       color: T.ink50,
                       fontWeight: 600,
-                    }}
-                  >
-                    {item.brand ?? item.category}
-                  </div>
-                  {item.productName && (
-                    <div style={{ fontSize: 13, fontWeight: 500, color: T.ink, marginTop: 2 }}>
-                      {item.productName}
+                    }}>
+                      {item.brand ?? item.category}
                     </div>
-                  )}
-                  <div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: 10.5, color: T.ink70, flexWrap: 'wrap' }}>
-                    {item.size && <span>{item.size}</span>}
-                    {item.size && item.fitNote && <span style={{ color: T.ink30 }}>·</span>}
-                    {item.fitNote && (
-                      <span style={{ color: i === 0 ? T.terracotta : T.forest }}>{item.fitNote}</span>
+                    {item.productName && (
+                      <div style={{ fontSize: 13, fontWeight: 500, color: T.ink, marginTop: 2 }}>
+                        {item.productName}
+                      </div>
                     )}
+                    <div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: 10.5, color: T.ink70, flexWrap: 'wrap' }}>
+                      {item.size && <span>{item.size}</span>}
+                      {item.size && item.fitNote && <span style={{ color: T.ink30 }}>·</span>}
+                      {item.fitNote && <span style={{ color }}>{item.fitNote}</span>}
+                    </div>
                   </div>
+
                   {item.priceJpy != null && (
-                    <div
-                      style={{
-                        fontSize: 13,
-                        fontWeight: 500,
-                        color: T.ink,
-                        marginTop: 4,
-                        fontFamily: 'var(--font-mono, monospace)',
-                        letterSpacing: '-0.02em',
-                      }}
-                    >
+                    <div style={{
+                      fontFamily: 'var(--font-mono, monospace)',
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: T.ink,
+                      letterSpacing: '-0.02em',
+                      flexShrink: 0,
+                    }}>
                       ¥{item.priceJpy.toLocaleString('ja-JP')}
                     </div>
                   )}
-                  {item.purchaseUrl && (
-                    <a
-                      href={item.purchaseUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ fontSize: 11, fontWeight: 500, color: T.terracotta, textDecoration: 'none', marginTop: 4, display: 'inline-block' }}
-                    >
-                      購入ページを見る →
-                    </a>
-                  )}
                 </div>
+                {item.purchaseUrl && (
+                  <a
+                    href={item.purchaseUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 500,
+                      color: T.terracotta,
+                      textDecoration: 'none',
+                      marginTop: 6,
+                      display: 'inline-block',
+                      paddingLeft: 64,
+                    }}
+                  >
+                    購入ページを見る →
+                  </a>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {/* 日付 */}
-      <div style={{ padding: '16px 12px 16px', fontSize: 10.5, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>
-        {new Date(post.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Tokyo' })}
-      </div>
-
-      {/* アクションバー（いいね・コメント件数） */}
-      <div style={{ padding: '0 12px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: T.ink50, fontSize: 13 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M12 20.5s-7.5-4.7-7.5-10.2c0-2.7 2-4.8 4.5-4.8 1.8 0 2.7 1 3 1.7.3-.7 1.2-1.7 3-1.7 2.5 0 4.5 2.1 4.5 4.8 0 5.5-7.5 10.2-7.5 10.2z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      {/* アクションバー：いいね・コメント件数・時刻 */}
+      <div style={{
+        padding: '18px 20px 12px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 14,
+      }}>
+        <LikeButton
+          postId={post.id}
+          initialCount={post.likeCount ?? 0}
+          initialLiked={post.isLikedByMe ?? false}
+          flat
+        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M4 5h16v11h-9l-4 3.5V16H4V5z" stroke={T.ink} strokeWidth="1.6" strokeLinejoin="round" />
           </svg>
-          <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>{post.likeCount}</span>
+          <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: 13, fontWeight: 500, color: T.ink }}>
+            {post.commentCount}
+          </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: T.ink50, fontSize: 13 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M4 5h16v11h-9l-4 3.5V16H4V5z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-          </svg>
-          <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 500 }}>{post.commentCount}</span>
-        </div>
+        <div style={{ flex: 1 }} />
+        <div style={{ fontSize: 11, color: T.ink50 }}>{relativeTime(post.createdAt)}</div>
       </div>
 
       {/* コメントセクション */}
