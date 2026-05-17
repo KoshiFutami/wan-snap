@@ -30,10 +30,22 @@ function SearchIcon() {
   );
 }
 
-function BookmarkIcon() {
+function BellIcon({ active }: { active: boolean }) {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <path d="M6 4h12v17l-6-3.5L6 21V4z" stroke={T.ink50} strokeWidth="1.6" strokeLinejoin="round" />
+      <path
+        d="M12 3a7 7 0 0 0-7 7v4l-1.5 2.5h17L19 14v-4a7 7 0 0 0-7-7z"
+        stroke={active ? T.ink : T.ink50}
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+        fill={active ? T.ink : 'none'}
+      />
+      <path
+        d="M10 19a2 2 0 0 0 4 0"
+        stroke={active ? T.ink : T.ink50}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -109,8 +121,8 @@ export function BottomNav() {
           </Link>
         </div>
 
-        <NavItem href="/album" label="保存" active={pathname === '/album'}>
-          <BookmarkIcon />
+        <NavItem href="/notifications" label="お知らせ" active={pathname === '/notifications'}>
+          <BellIcon active={pathname === '/notifications'} />
         </NavItem>
 
         <NavItem href="/profile" label="マイわん" active={pathname === '/profile'}>

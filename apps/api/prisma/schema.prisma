@@ -19,13 +19,15 @@ model User {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  dogs      Dog[]
-  posts     Post[]
-  likes     Like[]
-  bookmarks Bookmark[]
-  comments  Comment[]
-  followers Follow[] @relation("Following")
-  following Follow[] @relation("Follower")
+  dogs                  Dog[]
+  posts                 Post[]
+  likes                 Like[]
+  bookmarks             Bookmark[]
+  comments              Comment[]
+  followers             Follow[]         @relation("Following")
+  following             Follow[]         @relation("Follower")
+  receivedNotifications Notification[]   @relation("ReceivedNotifications")
+  sentNotifications     Notification[]   @relation("SentNotifications")
 
   @@map("users")
 }
@@ -72,11 +74,12 @@ model Post {
   dog   Dog    @relation(fields: [dogId], references: [id], onDelete: Cascade)
   dogId String @map("dog_id")
 
-  items     PostItem[]
-  postTags  PostTag[]
-  likes     Like[]
-  bookmarks Bookmark[]
-  comments  Comment[]
+  items         PostItem[]
+  postTags      PostTag[]
+  likes         Like[]
+  bookmarks     Bookmark[]
+  comments      Comment[]
+  notifications Notification[]
 
   @@map("posts")
 }
@@ -176,4 +179,23 @@ model Bookmark {
 
   @@id([userId, postId])
   @@map("bookmarks")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  type      String   @db.VarChar(20) // "like" | "comment" | "follow"
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  recipient   User   @relation("ReceivedNotifications", fields: [recipientId], references: [id], onDelete: Cascade)
+  recipientId String @map("recipient_id")
+
+  actor   User   @relation("SentNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+  actorId String @map("actor_id")
+
+  post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String? @map("post_id")
+
+  @@index([recipientId, createdAt(sort: Desc)])
+  @@map("notifications")
 }

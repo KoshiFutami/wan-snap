@@ -178,6 +178,28 @@ export type UserPublic = {
   avatarUrl: string | null;
 };
 
+export type NotificationType = 'like' | 'comment' | 'follow';
+
+export type Notification = {
+  id: string;
+  type: NotificationType;
+  isRead: boolean;
+  createdAt: string;
+  actor: {
+    id: string;
+    displayName: string;
+    avatarUrl: string | null;
+    username: string;
+  };
+  post: { id: string; imageUrl: string } | null;
+};
+
+export type ListNotificationsResponse = {
+  notifications: Notification[];
+  unreadCount: number;
+  nextCursor: string | null;
+};
+
 export const api = {
   posts: {
     list: (params?: { limit?: number; cursor?: string; tag?: string; tags?: string[]; authorId?: string; dogId?: string; followingOnly?: boolean }, token?: string) => {
@@ -341,5 +363,17 @@ export const api = {
     },
     delete: (id: string, token: string) =>
       request<void>(`/dogs/${id}`, { method: 'DELETE', token }),
+  },
+  notifications: {
+    list: (token: string, params?: { type?: NotificationType; unread?: boolean; limit?: number; cursor?: string }) => {
+      const qs = new URLSearchParams();
+      if (params?.type) qs.set('type', params.type);
+      if (params?.unread) qs.set('unread', 'true');
+      if (params?.limit) qs.set('limit', String(params.limit));
+      if (params?.cursor) qs.set('cursor', params.cursor);
+      return request<ListNotificationsResponse>(`/notifications?${qs.toString()}`, { token });
+    },
+    markAllRead: (token: string) =>
+      request<void>('/notifications/read-all', { method: 'PATCH', token }),
   },
 };

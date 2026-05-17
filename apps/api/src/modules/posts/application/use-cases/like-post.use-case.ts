@@ -34,5 +34,11 @@ export class LikePostUseCase {
       }
       throw err;
     }
+    // いいね成功後に通知を作成（失敗してもいいね自体は成功済みのため握りつぶす）
+    if (post.authorId !== userId) {
+      await this.prisma.notification
+        .create({ data: { type: 'like', recipientId: post.authorId, actorId: userId, postId } })
+        .catch(() => undefined);
+    }
   }
 }

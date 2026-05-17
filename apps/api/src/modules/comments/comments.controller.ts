@@ -94,6 +94,13 @@ export class CommentsController {
       },
     });
 
+    // コメント成功後に通知を作成（失敗してもコメント自体は成功済みのため握りつぶす）
+    if (post.authorId !== user.sub) {
+      await this.prisma.notification
+        .create({ data: { type: 'comment', recipientId: post.authorId, actorId: user.sub, postId } })
+        .catch(() => undefined);
+    }
+
     return {
       id: comment.id,
       body: comment.body,
