@@ -201,7 +201,7 @@ export const api = {
     },
     update: (
       id: string,
-      body: { imageUrl?: string; caption?: string; items?: Omit<PostItem, 'id'>[] },
+      body: { imageUrl?: string; caption?: string; tags?: string[]; items?: Omit<PostItem, 'id'>[] },
       token: string,
     ) => request<Post>(`/posts/${id}`, { method: 'PATCH', body: JSON.stringify(body), token }),
     delete: (id: string, token: string) =>
