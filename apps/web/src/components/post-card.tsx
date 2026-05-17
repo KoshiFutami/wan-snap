@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import type { Post } from '../lib/api';
-import { api } from '../lib/api';
+import { api, ApiError } from '../lib/api';
 import { getValidToken } from '../lib/auth-store';
 import { resolveBreedName } from '../lib/breed';
 import { useLike } from '../hooks/useLike';
@@ -129,12 +129,11 @@ export function PostCard({ post }: Props) {
         await api.posts.unbookmark(post.id, token);
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : '';
-      if (next && message.includes('すでにブックマーク済みです')) {
+      if (next && error instanceof ApiError && error.status === 409) {
         setBookmarkCount((c) => c - 1);
         return;
       }
-      if (!next && message.includes('ブックマークが見つかりません')) {
+      if (!next && error instanceof ApiError && error.status === 404) {
         setBookmarkCount((c) => c + 1);
         return;
       }

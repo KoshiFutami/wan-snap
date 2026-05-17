@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '../lib/api';
+import { api, ApiError } from '../lib/api';
 import { getValidToken } from '../lib/auth-store';
 
 type UseLikeOptions = {
@@ -38,12 +38,11 @@ export function useLike({ postId, initialLiked, initialCount }: UseLikeOptions):
         await api.posts.unlike(postId, token);
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : '';
-      if (next && message.includes('すでにいいね済みです')) {
+      if (next && error instanceof ApiError && error.status === 409) {
         setLikeCount((c) => c - 1);
         return;
       }
-      if (!next && message.includes('いいねが見つかりません')) {
+      if (!next && error instanceof ApiError && error.status === 404) {
         setLikeCount((c) => c + 1);
         return;
       }

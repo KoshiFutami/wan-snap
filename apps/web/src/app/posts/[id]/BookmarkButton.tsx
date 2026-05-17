@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { api } from '../../../lib/api';
+import { api, ApiError } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
 
 const T = {
@@ -40,12 +40,11 @@ export function BookmarkButton({ postId, initialCount, initialBookmarked = false
         await api.posts.unbookmark(postId, token);
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : '';
-      if (next && message.includes('すでにブックマーク済みです')) {
+      if (next && error instanceof ApiError && error.status === 409) {
         setCount((c) => c - 1);
         return;
       }
-      if (!next && message.includes('ブックマークが見つかりません')) {
+      if (!next && error instanceof ApiError && error.status === 404) {
         setCount((c) => c + 1);
         return;
       }
