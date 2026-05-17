@@ -57,7 +57,7 @@ export default function OtherUserProfilePage() {
 
       if (cancelled) return;
 
-      if (meResult?.username === username) {
+      if (meResult?.username.toLowerCase() === username.toLowerCase()) {
         router.replace('/profile');
         return;
       }
