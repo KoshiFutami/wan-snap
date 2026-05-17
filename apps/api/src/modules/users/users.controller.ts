@@ -266,6 +266,7 @@ export class UsersController {
         post: {
           include: {
             items: true,
+            postTags: true,
             dog: {
               select: {
                 name: true,
@@ -290,7 +291,7 @@ export class UsersController {
       dogId: post.dogId,
       imageUrl: post.imageUrl,
       caption: post.caption,
-      tags: post.tags as string[],
+      tags: post.postTags.map((postTag) => postTag.tag),
       items: post.items,
       likeCount: post._count.likes,
       bookmarkCount: post._count.bookmarks,

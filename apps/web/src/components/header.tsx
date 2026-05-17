@@ -95,7 +95,7 @@ export function Header() {
         <div style={{ display: 'flex', gap: 8 }}>
           {isAuthed ? (
             <>
-              <IconCircleBtn href="/discover">
+              <IconCircleBtn href="/search">
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                   <circle cx="9" cy="9" r="6" stroke={T.ink} strokeWidth="1.6" />
                   <path d="M13.5 13.5L17 17" stroke={T.ink} strokeWidth="1.6" strokeLinecap="round" />

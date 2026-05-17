@@ -4,6 +4,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { DogsModule } from './modules/dogs/dogs.module';
 import { PostsModule } from './modules/posts/posts.module';
+import { TagsModule } from './modules/tags/tags.module';
 import { LikesModule } from './modules/likes/likes.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { PrismaModule } from './infrastructure/database/prisma.module';
@@ -19,6 +20,7 @@ import { HealthController } from './health.controller';
     UsersModule,
     DogsModule,
     PostsModule,
+    TagsModule,
     LikesModule,
     CommentsModule,
   ],

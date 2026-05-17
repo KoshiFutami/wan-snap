@@ -171,7 +171,13 @@ export default async function PostDetailPage({ params }: Props) {
       {post.tags.length > 0 && (
         <div style={{ padding: '0 12px 16px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {post.tags.map((tag) => (
-            <span key={tag} style={{ fontSize: 12, color: T.ink50, fontWeight: 500 }}>#{tag}</span>
+            <Link
+              key={tag}
+              href={`/tags/${encodeURIComponent(tag)}`}
+              style={{ fontSize: 12, color: T.ink50, fontWeight: 500, textDecoration: 'none' }}
+            >
+              #{tag}
+            </Link>
           ))}
         </div>
       )}

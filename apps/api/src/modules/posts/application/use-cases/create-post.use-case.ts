@@ -41,7 +41,14 @@ export class CreatePostUseCase {
 
     const imageUrl = ImageUrl.of(input.imageUrl);
     const caption = input.caption ? Caption.of(input.caption) : undefined;
-    const tags = (input.tags ?? []).map((t) => Tag.of(t));
+    const tags = [
+      ...new Map(
+        (input.tags ?? []).map((tag) => {
+          const normalized = Tag.of(tag);
+          return [normalized.value, normalized] as const;
+        }),
+      ).values(),
+    ];
 
     const post = Post.create({
       authorId: input.authorId,
