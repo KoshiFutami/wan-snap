@@ -24,6 +24,11 @@ export class LikePostUseCase {
       await this.prisma.like.create({
         data: { userId, postId },
       });
+      if (post.authorId !== userId) {
+        await this.prisma.notification.create({
+          data: { type: 'like', recipientId: post.authorId, actorId: userId, postId },
+        });
+      }
     } catch (err: unknown) {
       // P2002: ユニーク制約違反（重複いいね）
       if (

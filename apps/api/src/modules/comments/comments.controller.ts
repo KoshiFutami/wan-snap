@@ -94,6 +94,12 @@ export class CommentsController {
       },
     });
 
+    if (post.authorId !== user.sub) {
+      await this.prisma.notification.create({
+        data: { type: 'comment', recipientId: post.authorId, actorId: user.sub, postId },
+      });
+    }
+
     return {
       id: comment.id,
       body: comment.body,

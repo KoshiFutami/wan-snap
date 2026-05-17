@@ -342,6 +342,9 @@ export class UsersController {
       await this.prisma.follow.create({
         data: { followerId: me.sub, followingId: id },
       });
+      await this.prisma.notification.create({
+        data: { type: 'follow', recipientId: id, actorId: me.sub },
+      });
     } catch (err: unknown) {
       if (
         typeof err === 'object' &&
