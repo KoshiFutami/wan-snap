@@ -35,7 +35,12 @@ function relativeTime(iso: string): string {
   if (h < 24) return `${h}時間前`;
   const d = Math.floor(h / 24);
   if (d < 7) return `${d}日前`;
-  return date.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' });
+  const sameYear = date.getFullYear() === new Date().getFullYear();
+  return date.toLocaleDateString('ja-JP', {
+    ...(!sameYear && { year: 'numeric' }),
+    month: 'long',
+    day: 'numeric',
+  });
 }
 
 
