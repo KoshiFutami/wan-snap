@@ -1,7 +1,7 @@
 'use client';
 
 import type { CSSProperties, ReactNode } from 'react';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
@@ -133,12 +133,12 @@ export default function NewDogPage() {
     return 'L';
   })();
 
-  const birthDayOptions = (() => {
+  const birthDayOptions = useMemo(() => {
     const year = birthYear ? parseInt(birthYear, 10) : 2000;
     const month = birthMonth ? parseInt(birthMonth, 10) : 1;
     const dayCount = new Date(year, month, 0).getDate();
     return Array.from({ length: dayCount }, (_, i) => i + 1);
-  })();
+  }, [birthYear, birthMonth]);
 
   return (
     <>

@@ -1,7 +1,7 @@
 'use client';
 
 import type { CSSProperties } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getValidToken } from '../../../../lib/auth-store';
 import { api, type Dog } from '../../../../lib/api';
@@ -216,6 +216,13 @@ export default function DogEditPage() {
     }
   };
 
+  const birthDayOptions = useMemo(() => {
+    const year = birthYear ? parseInt(birthYear, 10) : 2000;
+    const month = birthMonth ? parseInt(birthMonth, 10) : 1;
+    const dayCount = new Date(year, month, 0).getDate();
+    return Array.from({ length: dayCount }, (_, i) => i + 1);
+  }, [birthYear, birthMonth]);
+
   if (!dog) {
     return (
       <div style={{ padding: '64px 12px', textAlign: 'center', color: T.ink50, fontSize: 14 }}>
@@ -231,13 +238,6 @@ export default function DogEditPage() {
     if (w < 7) return 'S';
     if (w < 12) return 'M';
     return 'L';
-  })();
-
-  const birthDayOptions = (() => {
-    const year = birthYear ? parseInt(birthYear, 10) : 2000;
-    const month = birthMonth ? parseInt(birthMonth, 10) : 1;
-    const dayCount = new Date(year, month, 0).getDate();
-    return Array.from({ length: dayCount }, (_, i) => i + 1);
   })();
 
   const photoSrc = imagePreview ?? dog.photoUrl;
