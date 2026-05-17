@@ -14,6 +14,7 @@ function shouldHideHeader(pathname: string) {
 
 function shouldHideBottomNav(pathname: string) {
   return pathname.startsWith('/auth/')
+    || pathname === '/intro'
     || pathname === '/posts/new'
     || pathname === '/dogs/new';
 }
