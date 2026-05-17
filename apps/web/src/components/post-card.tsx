@@ -8,6 +8,7 @@ import { api } from '../lib/api';
 import { getValidToken } from '../lib/auth-store';
 import { resolveBreedName } from '../lib/breed';
 import { useLike } from '../hooks/useLike';
+import { useShare } from '../hooks/useShare';
 
 const T = {
   ink: '#1F1A14',
@@ -18,6 +19,7 @@ const T = {
   paper: '#FFFEFB',
   cream: '#F4EDE0',
   terracotta: '#B95A3D',
+  forest: '#3F5A40',
   hairline: 'rgba(31,26,20,0.08)',
 };
 
@@ -104,6 +106,7 @@ export function PostCard({ post }: Props) {
   const [bookmarked, setBookmarked] = useState(post.isBookmarkedByMe ?? false);
   const [bookmarkCount, setBookmarkCount] = useState(post.bookmarkCount ?? 0);
   const commentCount = post.commentCount ?? 0;
+  const { shared, handleShare } = useShare(post.id);
 
   const dogName = post.dog?.name ?? 'わんこ';
   const authorUsername = post.author?.username ?? '';
@@ -279,8 +282,18 @@ export function PostCard({ post }: Props) {
             )}
           </Link>
 
-          <button style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: T.ink }}>
-            <ShareIcon />
+          <button
+            onClick={handleShare}
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: shared ? T.forest : T.ink }}
+            aria-label={shared ? 'URLをコピーしました' : 'シェア'}
+          >
+            {shared ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12l5 5L19 7" stroke={T.forest} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            ) : (
+              <ShareIcon />
+            )}
           </button>
 
           <div style={{ flex: 1 }} />

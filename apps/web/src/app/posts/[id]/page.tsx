@@ -7,6 +7,7 @@ import { BookmarkButton } from './BookmarkButton';
 import { LikeButton } from './LikeButton';
 import { FollowButton } from './FollowButton';
 import { CommentSection } from './CommentSection';
+import { ShareButton } from './ShareButton';
 import { ItemTagOverlay } from '../../../components/photo-tag-canvas';
 
 type Props = { params: Promise<{ id: string }> };
@@ -96,24 +97,7 @@ export default async function PostDetailPage({ params }: Props) {
         </Link>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {/* シェアボタン */}
-          <button
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 38,
-              height: 38,
-              borderRadius: 19,
-              background: T.paper,
-              border: `1px solid ${T.hairline}`,
-              cursor: 'pointer',
-            }}
-            aria-label="シェア"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M12 3v13M7 8l5-5 5 5M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2" stroke={T.ink} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
+          <ShareButton postId={post.id} />
           <BookmarkButton postId={post.id} initialCount={post.bookmarkCount ?? 0} initialBookmarked={post.isBookmarkedByMe ?? false} />
           <EditButton postId={post.id} authorId={post.authorId} />
         </div>
