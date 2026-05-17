@@ -10,11 +10,10 @@ const T = {
   ink50: '#7E7567',
   ink10: '#E8E0D0',
   cream: '#F4EDE0',
-  terracotta: '#B95A3D',
   hairlineStrong: 'rgba(31,26,20,0.14)',
 };
 
-const FILTERS = ['すべて', 'フォロー中', '似たサイズ', '近所', '新着'] as const;
+const FILTERS = ['すべて', 'フォロー中'] as const;
 type Filter = (typeof FILTERS)[number];
 
 export default function HomePage() {
@@ -74,12 +73,10 @@ export default function HomePage() {
       >
         {FILTERS.map((label) => {
           const active = label === activeFilter;
-          const available = label === 'すべて' || label === 'フォロー中';
           return (
             <button
               key={label}
-              onClick={() => { if (available) handleFilterClick(label); }}
-              disabled={!available}
+              onClick={() => handleFilterClick(label)}
               style={{
                 padding: '7px 13px',
                 borderRadius: 999,
@@ -89,18 +86,14 @@ export default function HomePage() {
                 fontSize: 12.5,
                 fontWeight: 500,
                 lineHeight: 1.2,
-                cursor: available ? 'pointer' : 'default',
+                cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
                 fontFamily: 'inherit',
-                opacity: available ? 1 : 0.5,
               }}
             >
-              {label === '似たサイズ' && (
-                <span style={{ width: 6, height: 6, borderRadius: 6, background: T.terracotta, flexShrink: 0 }} />
-              )}
               {label}
             </button>
           );
