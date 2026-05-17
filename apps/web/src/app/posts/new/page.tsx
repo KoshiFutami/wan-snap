@@ -9,6 +9,7 @@ import { resolveBreedName } from '../../../lib/breed';
 import { ImageCropEditor } from '../../../components/image-crop-editor';
 import { PhotoTagCanvas } from '../../../components/photo-tag-canvas';
 import { ItemEditorSection, validateItems, type EditableItem } from '../../../components/item-editor-section';
+import { HashtagInput } from '../../../components/hashtag-input';
 
 const T = {
   ink: '#1F1A14',
@@ -54,9 +55,6 @@ const imageActionButtonStyle: CSSProperties = {
   gap: 4,
 };
 
-function normalizeTagInput(value: string): string[] {
-  return [...new Set(value.split(',').map((tag) => tag.trim()).filter(Boolean))];
-}
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -68,7 +66,7 @@ export default function NewPostPage() {
   const [showCropEditor, setShowCropEditor] = useState(false);
   const [caption, setCaption] = useState('');
   const [location, setLocation] = useState('');
-  const [tags, setTags] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
   const [items, setItems] = useState<EditableItem[]>([]);
   const [placingItemKey, setPlacingItemKey] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -157,7 +155,7 @@ export default function NewPostPage() {
           imageHeight: uploaded.imageHeight,
           caption: caption || undefined,
           location: location.trim() || undefined,
-          tags: normalizeTagInput(tags),
+          tags,
           items: items.map(({ _key: _k, ...rest }) => rest),
         },
         token,
@@ -376,18 +374,8 @@ export default function NewPostPage() {
         </div>
 
         <div>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
-            <label htmlFor="post-tags" style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>タグ</label>
-            <span style={{ fontSize: 10, color: T.ink50 }}>カンマ区切りで追加</span>
-          </div>
-          <input
-            id="post-tags"
-            type="text"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            placeholder="例: トイプードル, テディベアカット, 春コーデ"
-            style={inputStyle}
-          />
+          <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, marginBottom: 6 }}>タグ</div>
+          <HashtagInput value={tags} onChange={setTags} />
         </div>
 
         {/* 愛犬セレクター */}
