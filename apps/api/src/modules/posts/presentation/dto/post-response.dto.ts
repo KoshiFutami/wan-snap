@@ -57,6 +57,7 @@ export class PostResponseDto {
   bookmarkCount: number;
   commentCount: number;
   isLikedByMe: boolean;
+  isBookmarkedByMe: boolean;
   createdAt: string;
   updatedAt: string;
   dog: PostDogDto | null;
@@ -81,6 +82,7 @@ export class PostResponseDto {
     dto.bookmarkCount = relations?.bookmarkCount ?? 0;
     dto.commentCount = relations?.commentCount ?? 0;
     dto.isLikedByMe = relations?.isLikedByMe ?? false;
+    dto.isBookmarkedByMe = relations?.isBookmarkedByMe ?? false;
     dto.createdAt = post.createdAt.toISOString();
     dto.updatedAt = post.updatedAt.toISOString();
     dto.dog = relations

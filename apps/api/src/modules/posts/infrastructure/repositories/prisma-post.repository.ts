@@ -52,6 +52,10 @@ export class PrismaPostRepository implements IPostRepository {
                 where: { userId: requesterId },
                 select: { userId: true },
               },
+              bookmarks: {
+                where: { userId: requesterId },
+                select: { userId: true },
+              },
             }
           : {}),
       },
@@ -94,6 +98,10 @@ export class PrismaPostRepository implements IPostRepository {
                 where: { userId: options.requesterId },
                 select: { userId: true },
               },
+              bookmarks: {
+                where: { userId: options.requesterId },
+                select: { userId: true },
+              },
             }
           : {}),
       },
@@ -124,6 +132,7 @@ export class PrismaPostRepository implements IPostRepository {
       author: { displayName: string; username: string };
       _count?: { likes: number; bookmarks: number; comments: number };
       likes?: { userId: string }[];
+      bookmarks?: { userId: string }[];
     },
     requesterId?: string,
   ): PostRelations {
@@ -139,6 +148,8 @@ export class PrismaPostRepository implements IPostRepository {
       bookmarkCount: raw._count?.bookmarks ?? 0,
       commentCount: raw._count?.comments ?? 0,
       isLikedByMe: raw.likes?.some((l) => l.userId === requesterId) ?? false,
+      isBookmarkedByMe:
+        raw.bookmarks?.some((b) => b.userId === requesterId) ?? false,
     };
   }
 

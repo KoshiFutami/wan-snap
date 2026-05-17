@@ -114,7 +114,7 @@ export default async function PostDetailPage({ params }: Props) {
               <path d="M12 3v13M7 8l5-5 5 5M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2" stroke={T.ink} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-          <BookmarkButton postId={post.id} initialCount={post.bookmarkCount ?? 0} />
+          <BookmarkButton postId={post.id} initialCount={post.bookmarkCount ?? 0} initialBookmarked={post.isBookmarkedByMe ?? false} />
           <EditButton postId={post.id} authorId={post.authorId} />
         </div>
       </div>

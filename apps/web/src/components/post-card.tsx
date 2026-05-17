@@ -101,7 +101,7 @@ export function PostCard({ post }: Props) {
     initialLiked: post.isLikedByMe ?? false,
     initialCount: post.likeCount ?? 0,
   });
-  const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarked, setBookmarked] = useState(post.isBookmarkedByMe ?? false);
   const [bookmarkCount, setBookmarkCount] = useState(post.bookmarkCount ?? 0);
   const commentCount = post.commentCount ?? 0;
 

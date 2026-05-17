@@ -20,10 +20,11 @@ function BookmarkIcon({ filled }: { filled: boolean }) {
 type Props = {
   postId: string;
   initialCount: number;
+  initialBookmarked?: boolean;
 };
 
-export function BookmarkButton({ postId, initialCount }: Props) {
-  const [bookmarked, setBookmarked] = useState(false);
+export function BookmarkButton({ postId, initialCount, initialBookmarked = false }: Props) {
+  const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const [count, setCount] = useState(initialCount);
 
   const handleBookmark = async () => {
