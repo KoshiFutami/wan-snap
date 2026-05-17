@@ -77,8 +77,8 @@ function ShareIcon() {
 
 function BookmarkIcon({ filled }: { filled: boolean }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill={filled ? T.ink : 'none'}>
-      <path d="M6 4h12v17l-6-3.5L6 21V4z" stroke={T.ink} strokeWidth="1.6" strokeLinejoin="round" />
+    <svg width="22" height="22" viewBox="0 0 24 24" fill={filled ? T.terracotta : 'none'}>
+      <path d="M6 4h12v17l-6-3.5L6 21V4z" stroke={filled ? T.terracotta : T.ink} strokeWidth="1.6" strokeLinejoin="round" />
     </svg>
   );
 }
