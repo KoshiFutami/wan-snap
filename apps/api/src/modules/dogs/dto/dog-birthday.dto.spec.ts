@@ -9,9 +9,9 @@ describe('Dog birthday DTO validation', () => {
     const dto = Object.assign(new CreateDogDto(), {
       name: 'エマ',
       breedId: validBreedId,
-      birthYear: 2023,
-      birthMonth: 12,
-      birthDay: 3,
+      birthYear: 2024,
+      birthMonth: 2,
+      birthDay: 29,
     });
 
     expect(validateSync(dto)).toHaveLength(0);
@@ -33,13 +33,29 @@ describe('Dog birthday DTO validation', () => {
     );
   });
 
-  it('accepts valid birthday values on update', () => {
+  it('rejects invalid day combinations on update', () => {
     const dto = Object.assign(new UpdateDogDto(), {
       birthYear: 2022,
       birthMonth: 2,
       birthDay: 29,
     });
 
-    expect(validateSync(dto)).toHaveLength(0);
+    const errors = validateSync(dto);
+    const invalidProperties = errors.map((error) => error.property);
+
+    expect(invalidProperties).toEqual(
+      expect.arrayContaining(['birthMonth', 'birthDay']),
+    );
+  });
+
+  it('rejects incomplete birthday values on update', () => {
+    const dto = Object.assign(new UpdateDogDto(), {
+      birthMonth: 4,
+    });
+
+    const errors = validateSync(dto);
+    const invalidProperties = errors.map((error) => error.property);
+
+    expect(invalidProperties).toContain('birthMonth');
   });
 });
