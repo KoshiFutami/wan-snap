@@ -72,7 +72,7 @@ export default function OtherUserProfilePage() {
       }
 
       const [postResponse, dogsResponse] = await Promise.all([
-        api.posts.list({ limit: USER_PROFILE_POST_LIMIT, authorId: targetUser.id }).catch(() => ({ posts: [] as Post[], nextCursor: null })),
+        api.posts.list({ limit: USER_PROFILE_POST_LIMIT, authorId: targetUser.id }, token ?? undefined).catch(() => ({ posts: [] as Post[], nextCursor: null })),
         api.dogs.listByUser(targetUser.id).catch(() => [] as PublicDog[]),
       ]);
 

@@ -41,7 +41,7 @@ export default function ProfilePage() {
         setUser(u);
         return Promise.all([
           api.dogs.list(t),
-          api.posts.list({ limit: 20, authorId: u.id }),
+          api.posts.list({ limit: 20, authorId: u.id }, t),
           api.users.getMyBookmarks(t, { limit: 20 }),
         ]);
       }).then(([d, postResponse, bookmarkResponse]) => {
