@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getValidToken } from '../../../../lib/auth-store';
 import { api, type Dog } from '../../../../lib/api';
+import { BreedCombobox } from '../../../../components/breed-combobox';
 import { ImageCropEditor } from '../../../../components/image-crop-editor';
 
 const T = {
@@ -51,6 +52,8 @@ export default function DogEditPage() {
   const { id } = useParams<{ id: string }>();
   const [dog, setDog] = useState<Dog | null>(null);
   const [name, setName] = useState('');
+  const [breedName, setBreedName] = useState('');
+  const [breedId, setBreedId] = useState('');
   const [weightKg, setWeightKg] = useState('');
   const [neckCm, setNeckCm] = useState('');
   const [chestCm, setChestCm] = useState('');
@@ -75,6 +78,8 @@ export default function DogEditPage() {
       api.dogs.get(id, token).then((d) => {
         setDog(d);
         setName(d.name);
+        setBreedName(d.breed);
+        setBreedId(d.breedId);
         setWeightKg(d.weightKg != null ? String(d.weightKg) : '');
         setNeckCm(d.neckCm != null ? String(d.neckCm) : '');
         setChestCm(d.chestCm != null ? String(d.chestCm) : '');
@@ -104,7 +109,7 @@ export default function DogEditPage() {
   };
 
   const handleSave = async () => {
-    if (!name.trim()) return;
+    if (!name.trim() || !breedId) return;
     setError(null);
     setSaving(true);
     try {
@@ -118,6 +123,7 @@ export default function DogEditPage() {
       }
       await api.dogs.update(id, {
         name: name.trim(),
+        breedId,
         weightKg: weightKg ? parseFloat(weightKg) : undefined,
         neckCm: neckCm ? parseFloat(neckCm) : undefined,
         chestCm: chestCm ? parseFloat(chestCm) : undefined,
@@ -207,13 +213,13 @@ export default function DogEditPage() {
         </div>
         <button
           onClick={handleSave}
-          disabled={saving || !name.trim()}
+          disabled={saving || !name.trim() || !breedId}
           style={{
             padding: '7px 16px', borderRadius: 999,
-            background: saving || !name.trim() ? T.ink10 : T.ink,
-            color: saving || !name.trim() ? T.ink50 : T.cream,
+            background: saving || !name.trim() || !breedId ? T.ink10 : T.ink,
+            color: saving || !name.trim() || !breedId ? T.ink50 : T.cream,
             border: 'none', fontSize: 12, fontWeight: 600,
-            cursor: saving || !name.trim() ? 'not-allowed' : 'pointer',
+            cursor: saving || !name.trim() || !breedId ? 'not-allowed' : 'pointer',
             fontFamily: 'inherit', flexShrink: 0,
             transition: 'background 0.15s',
           }}
@@ -274,7 +280,7 @@ export default function DogEditPage() {
               fontWeight: 500, color: T.ink, lineHeight: 1,
             }}>{dog.name}</div>
             <div style={{ fontSize: 11, color: T.ink50, marginTop: 5 }}>
-              {dog.breed}{dog.birthYear ? ` · ${dogAge(dog.birthYear)}` : ''}
+              {breedName}{dog.birthYear ? ` · ${dogAge(dog.birthYear)}` : ''}
             </div>
             <div style={{
               fontSize: 10, color: T.ink50, marginTop: 4,
@@ -298,11 +304,16 @@ export default function DogEditPage() {
             />
           </FieldRow>
 
-          <FieldRow label="犬種">
-            <div style={{ ...inputStyle, display: 'flex', alignItems: 'center', height: 46, cursor: 'default' }}>
-              <span style={{ color: T.ink50, fontSize: 14 }}>{dog.breed}</span>
-              <span style={{ marginLeft: 'auto', fontSize: 10, color: T.ink50 }}>変更不可</span>
-            </div>
+          <FieldRow label="犬種" required>
+            <BreedCombobox
+              value={breedName}
+              breedId={breedId}
+              onChange={({ id: nextId, name: nextName }) => {
+                setBreedName(nextName);
+                setBreedId(nextId);
+              }}
+              required
+            />
           </FieldRow>
 
           <FieldRow label="毛色">
