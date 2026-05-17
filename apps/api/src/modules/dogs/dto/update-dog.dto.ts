@@ -30,6 +30,18 @@ export class UpdateDogDto {
   birthYear?: number;
 
   @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  birthMonth?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(31)
+  birthDay?: number;
+
+  @IsOptional()
   @IsNumber()
   @Min(0.1)
   @Max(200)
@@ -63,13 +75,13 @@ export class UpdateDogDto {
   photoUrl?: string | null;
 
   @IsOptional()
-  @ValidateIf((o) => o.gender !== null)
+  @ValidateIf((o: UpdateDogDto) => o.gender !== null)
   @IsString()
   @IsIn(['male', 'female'])
   gender?: string | null;
 
   @IsOptional()
-  @ValidateIf((o) => o.bio !== null)
+  @ValidateIf((o: UpdateDogDto) => o.bio !== null)
   @IsString()
   @MaxLength(500)
   bio?: string | null;

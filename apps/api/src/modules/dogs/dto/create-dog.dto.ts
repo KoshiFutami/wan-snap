@@ -28,6 +28,18 @@ export class CreateDogDto {
   birthYear?: number;
 
   @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  birthMonth?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(31)
+  birthDay?: number;
+
+  @IsOptional()
   @IsNumber()
   @Min(0.1)
   @Max(200)

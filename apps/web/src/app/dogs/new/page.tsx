@@ -48,6 +48,7 @@ export default function NewDogPage() {
     const year = new Date().getFullYear();
     return Array.from({ length: year - 1999 }, (_, i) => year - i);
   });
+  const [birthMonthOptions] = useState(() => Array.from({ length: 12 }, (_, i) => i + 1));
   const router = useRouter();
   const [name, setName] = useState('');
   const [breedName, setBreedName] = useState('');
@@ -58,6 +59,8 @@ export default function NewDogPage() {
   const [backLengthCm, setBackLengthCm] = useState('');
   const [coatColors, setCoatColors] = useState('');
   const [birthYear, setBirthYear] = useState('');
+  const [birthMonth, setBirthMonth] = useState('');
+  const [birthDay, setBirthDay] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -105,6 +108,8 @@ export default function NewDogPage() {
           backLengthCm: backLengthCm ? parseFloat(backLengthCm) : undefined,
           coatColors: coatColors ? coatColors.split(',').map((s) => s.trim()).filter(Boolean) : [],
           birthYear: birthYear ? parseInt(birthYear, 10) : undefined,
+          birthMonth: birthMonth ? parseInt(birthMonth, 10) : undefined,
+          birthDay: birthDay ? parseInt(birthDay, 10) : undefined,
         },
         token,
       );
@@ -126,6 +131,13 @@ export default function NewDogPage() {
     if (w < 7) return 'S';
     if (w < 12) return 'M';
     return 'L';
+  })();
+
+  const birthDayOptions = (() => {
+    const year = birthYear ? parseInt(birthYear, 10) : 2000;
+    const month = birthMonth ? parseInt(birthMonth, 10) : 1;
+    const dayCount = new Date(year, month, 0).getDate();
+    return Array.from({ length: dayCount }, (_, i) => i + 1);
   })();
 
   return (
@@ -280,24 +292,37 @@ export default function NewDogPage() {
           />
         </FieldRow>
 
-        <FieldRow label="誕生年">
-          <div style={{ position: 'relative' }}>
-            <select
-              value={birthYear}
-              onChange={(e) => setBirthYear(e.target.value)}
-              style={selectStyle}
-            >
-              <option value="">未設定</option>
+        <FieldRow label="誕生日">
+          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr', gap: 8 }}>
+            <SelectWithChevron value={birthYear} onChange={setBirthYear}>
+              <option value="">年</option>
               {birthYearOptions.map((y) => (
                 <option key={y} value={y}>{y}年</option>
               ))}
-            </select>
-            <svg
-              style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-              width="12" height="12" viewBox="0 0 12 12" fill="none"
+            </SelectWithChevron>
+            <SelectWithChevron
+              value={birthMonth}
+              onChange={(value) => {
+                setBirthMonth(value);
+                setBirthDay((prev) => {
+                  if (!prev || !value) return prev;
+                  const year = birthYear ? parseInt(birthYear, 10) : 2000;
+                  const dayCount = new Date(year, parseInt(value, 10), 0).getDate();
+                  return parseInt(prev, 10) > dayCount ? '' : prev;
+                });
+              }}
             >
-              <path d="M2 4l4 4 4-4" stroke={T.ink50} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+              <option value="">月</option>
+              {birthMonthOptions.map((m) => (
+                <option key={m} value={m}>{m}月</option>
+              ))}
+            </SelectWithChevron>
+            <SelectWithChevron value={birthDay} onChange={setBirthDay}>
+              <option value="">日</option>
+              {birthDayOptions.map((d) => (
+                <option key={d} value={d}>{d}日</option>
+              ))}
+            </SelectWithChevron>
           </div>
         </FieldRow>
 
@@ -409,6 +434,34 @@ function SuffixInput({ value, onChange, suffix, placeholder, step }: {
         position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
         fontSize: 11, color: T.ink50, fontFamily: 'var(--font-mono, monospace)', pointerEvents: 'none',
       }}>{suffix}</span>
+    </div>
+  );
+}
+
+function SelectWithChevron({
+  value,
+  onChange,
+  children,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  children: ReactNode;
+}) {
+  return (
+    <div style={{ position: 'relative' }}>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={selectStyle}
+      >
+        {children}
+      </select>
+      <svg
+        style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+        width="12" height="12" viewBox="0 0 12 12" fill="none"
+      >
+        <path d="M2 4l4 4 4-4" stroke={T.ink50} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
     </div>
   );
 }

@@ -18,6 +18,8 @@ export interface DogProfile {
   breed: DogBreed;
   breedShortName: string;
   birthYear?: number;
+  birthMonth?: number;
+  birthDay?: number;
   weightKg?: number;
   neckCm?: number;
   chestCm?: number;

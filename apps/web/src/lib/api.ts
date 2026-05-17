@@ -83,6 +83,8 @@ export type Dog = {
   breed: string;
   breedShortName: string;
   birthYear: number | null;
+  birthMonth: number | null;
+  birthDay: number | null;
   weightKg: number | null;
   neckCm: number | null;
   chestCm: number | null;
@@ -111,6 +113,8 @@ export type UpdateDogInput = {
   name?: string;
   breedId?: string;
   birthYear?: number;
+  birthMonth?: number;
+  birthDay?: number;
   weightKg?: number;
   neckCm?: number;
   chestCm?: number;
@@ -348,6 +352,8 @@ export const api = {
         backLengthCm?: number;
         coatColors?: string[];
         birthYear?: number;
+        birthMonth?: number;
+        birthDay?: number;
         bio?: string;
       },
       token: string,
