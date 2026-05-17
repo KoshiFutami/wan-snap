@@ -8,7 +8,7 @@ import { LikeButton } from './LikeButton';
 import { FollowButton } from './FollowButton';
 import { CommentSection } from './CommentSection';
 import { ShareButton } from './ShareButton';
-import { TappableTagOverlays } from '../../../components/tappable-tag-overlays';
+import { PostMediaSection } from './PostMediaSection';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -20,7 +20,6 @@ const T = {
   ink10: '#E8E0D0',
   paper: '#FFFEFB',
   cream: '#F4EDE0',
-  creamSoft: '#FAF5EA',
   terracotta: '#B95A3D',
   forest: '#3F5A40',
   hairline: 'rgba(31,26,20,0.08)',
@@ -39,20 +38,6 @@ function relativeTime(iso: string): string {
   return date.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' });
 }
 
-const itemColors = [T.terracotta, T.forest, '#7B6EA8', '#2E7D8A'];
-const categoryLabels: Record<string, string> = {
-  tops: 'トップス',
-  bottoms: 'ボトムス',
-  dress: 'ワンピース',
-  outerwear: 'アウター',
-  collar: '首輪',
-  harness: 'ハーネス',
-  leash: 'リード',
-  bandana: 'バンダナ',
-  hat: '帽子',
-  shoes: 'シューズ',
-  other: 'その他',
-};
 
 export default async function PostDetailPage({ params }: Props) {
   const { id } = await params;
@@ -68,9 +53,6 @@ export default async function PostDetailPage({ params }: Props) {
   const chestCm = post.dog?.chestCm;
   const backLengthCm = post.dog?.backLengthCm;
   const dogPhotoUrl = post.dog?.photoUrl;
-  const positionedItems = post.items.filter(
-    (item) => item.xPct != null && item.yPct != null,
-  );
 
   return (
     <div style={{ paddingBottom: 40, background: T.paper }}>
@@ -109,32 +91,13 @@ export default async function PostDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* メイン写真 */}
-      <div style={{
-        margin: '0 20px 16px',
-        borderRadius: 20,
-        overflow: 'hidden',
-        aspectRatio: post.imageWidth && post.imageHeight ? `${post.imageWidth}/${post.imageHeight}` : '4/5',
-        background: T.ink10,
-        position: 'relative',
-      }}>
-        <Image
-          src={post.imageUrl}
-          alt={post.caption ?? 'スナップ写真'}
-          fill
-          sizes="(max-width: 390px) calc(100vw - 40px), 350px"
-          style={{ objectFit: 'cover' }}
-          priority
-        />
-        <TappableTagOverlays items={positionedItems.map((item) => ({
-          id: item.id,
-          xPct: item.xPct!,
-          yPct: item.yPct!,
-          brand: item.brand,
-          category: item.category,
-          productName: item.productName,
-        }))} />
-      </div>
+      <PostMediaSection
+        imageUrl={post.imageUrl}
+        imageAlt={post.caption ?? 'スナップ写真'}
+        imageWidth={post.imageWidth ?? null}
+        imageHeight={post.imageHeight ?? null}
+        items={post.items}
+      />
 
       {/* オーナー・犬情報 */}
       <div style={{
@@ -244,125 +207,6 @@ export default async function PostDetailPage({ params }: Props) {
               #{tag}
             </Link>
           ))}
-        </div>
-      )}
-
-      {/* 着用アイテム */}
-      {post.items.length > 0 && (
-        <div style={{
-          margin: '0 20px',
-          padding: '18px 16px 16px',
-          borderRadius: 18,
-          background: T.creamSoft,
-          border: `1px solid ${T.hairline}`,
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 14,
-          }}>
-            <div style={{
-              fontSize: 10,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: T.ink50,
-              fontWeight: 500,
-            }}>
-              着用アイテム · {post.items.length}
-            </div>
-          </div>
-
-          {post.items.map((item, i) => {
-            const color = itemColors[i % itemColors.length];
-            const displayBrand = item.brand ?? categoryLabels[item.category] ?? item.category;
-            const displayName =
-              item.productName ?? categoryLabels[item.category] ?? item.category;
-            return (
-              <div key={item.id}>
-                {i > 0 && <div style={{ height: 1, background: T.hairline, margin: '12px 0' }} />}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  {/* プロダクトサムネイル */}
-                  <div style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 10,
-                    background: T.paper,
-                    border: `1px solid ${T.hairline}`,
-                    flexShrink: 0,
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}>
-                    <div style={{
-                      position: 'absolute',
-                      inset: 0,
-                      backgroundImage: `repeating-linear-gradient(45deg, ${T.ink10} 0, ${T.ink10} 4px, transparent 4px, transparent 8px)`,
-                    }} />
-                    <div style={{
-                      position: 'absolute',
-                      top: 6,
-                      left: 6,
-                      width: 8,
-                      height: 8,
-                      borderRadius: 8,
-                      background: color,
-                    }} />
-                  </div>
-
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      fontSize: 9.5,
-                      letterSpacing: '0.14em',
-                      textTransform: 'uppercase',
-                      color: T.ink50,
-                      fontWeight: 600,
-                    }}>
-                      {displayBrand}
-                    </div>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: T.ink, marginTop: 2 }}>
-                      {displayName}
-                    </div>
-                    <div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: 10.5, color: T.ink70, flexWrap: 'wrap' }}>
-                      {item.size && <span>{item.size}</span>}
-                      {item.size && item.fitNote && <span style={{ color: T.ink30 }}>·</span>}
-                      {item.fitNote && <span style={{ color }}>{item.fitNote}</span>}
-                    </div>
-                  </div>
-
-                  {item.priceJpy != null && (
-                    <div style={{
-                      fontFamily: 'var(--font-mono, monospace)',
-                      fontSize: 13,
-                      fontWeight: 500,
-                      color: T.ink,
-                      letterSpacing: '-0.02em',
-                      flexShrink: 0,
-                    }}>
-                      ¥{item.priceJpy.toLocaleString('ja-JP')}
-                    </div>
-                  )}
-                </div>
-                {item.purchaseUrl && (
-                  <a
-                    href={item.purchaseUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 500,
-                      color: T.terracotta,
-                      textDecoration: 'none',
-                      marginTop: 6,
-                      display: 'inline-block',
-                      paddingLeft: 64,
-                    }}
-                  >
-                    購入ページを見る →
-                  </a>
-                )}
-              </div>
-            );
-          })}
         </div>
       )}
 
