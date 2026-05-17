@@ -111,7 +111,7 @@ export default async function PostDetailPage({ params }: Props) {
 
       {/* メイン写真 */}
       <div style={{
-        margin: '0 20px',
+        margin: '0 20px 16px',
         borderRadius: 20,
         overflow: 'hidden',
         aspectRatio: post.imageWidth && post.imageHeight ? `${post.imageWidth}/${post.imageHeight}` : '4/5',
