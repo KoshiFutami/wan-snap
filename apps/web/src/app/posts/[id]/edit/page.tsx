@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { getValidToken } from '../../../../lib/auth-store';
 import { api, type Post } from '../../../../lib/api';
 import { PhotoTagCanvas } from '../../../../components/photo-tag-canvas';
+import { HashtagInput } from '../../../../components/hashtag-input';
 import { ItemEditorSection, generateItemKey, validateItems, type EditableItem } from '../../../../components/item-editor-section';
 
 const T = {
@@ -34,16 +35,13 @@ function relativeTime(iso: string): string {
   return `${Math.floor(diff / 86400)}日前`;
 }
 
-function normalizeTagInput(value: string): string[] {
-  return [...new Set(value.split(',').map((tag) => tag.trim()).filter(Boolean))];
-}
 
 export default function PostEditPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [caption, setCaption] = useState('');
-  const [tags, setTags] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
   const [items, setItems] = useState<EditableItem[]>([]);
   const [placingItemKey, setPlacingItemKey] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -64,7 +62,7 @@ export default function PostEditPage() {
 
       setPost(p);
       setCaption(p.caption ?? '');
-      setTags(p.tags.join(', '));
+      setTags(p.tags);
       setItems(p.items.map(({ id: _id, category, ...item }) => ({ ...item, category: category as EditableItem['category'], _key: generateItemKey() })));
     });
   }, [id, router]);
@@ -83,7 +81,7 @@ export default function PostEditPage() {
         post.id,
         {
           caption: caption.trim() || undefined,
-          tags: normalizeTagInput(tags),
+          tags,
           items: sanitizedItems,
         },
         token,
@@ -246,30 +244,8 @@ export default function PostEditPage() {
         </div>
 
         <div style={{ marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
-            <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, letterSpacing: '0.02em' }}>タグ</div>
-            <div style={{ fontSize: 10, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>
-              カンマ区切りで編集
-            </div>
-          </div>
-          <input
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            placeholder="例: トイプードル, テディベアカット, 春コーデ"
-            style={{
-              width: '100%',
-              height: 46,
-              background: T.paper,
-              borderRadius: 12,
-              border: `1px solid ${T.hairline}`,
-              padding: '0 14px',
-              fontSize: 14,
-              color: T.ink,
-              fontFamily: 'inherit',
-              outline: 'none',
-              boxSizing: 'border-box',
-            }}
-          />
+          <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, letterSpacing: '0.02em', marginBottom: 6 }}>タグ</div>
+          <HashtagInput value={tags} onChange={setTags} />
         </div>
 
         {/* Tagged items */}
