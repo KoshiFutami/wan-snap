@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUrl,
   IsUUID,
   Max,
   MaxLength,
@@ -81,4 +82,14 @@ export class CreateDogDto {
   @IsString()
   @MaxLength(500)
   bio?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  trimmingStyle?: string;
+
+  @IsOptional()
+  @IsUrl()
+  @MaxLength(512)
+  salonUrl?: string;
 }

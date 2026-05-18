@@ -89,4 +89,16 @@ export class UpdateDogDto {
   @IsString()
   @MaxLength(500)
   bio?: string | null;
+
+  @IsOptional()
+  @ValidateIf((o: UpdateDogDto) => o.trimmingStyle !== null)
+  @IsString()
+  @MaxLength(120)
+  trimmingStyle?: string | null;
+
+  @IsOptional()
+  @ValidateIf((o: UpdateDogDto) => o.salonUrl !== null)
+  @IsUrl()
+  @MaxLength(512)
+  salonUrl?: string | null;
 }

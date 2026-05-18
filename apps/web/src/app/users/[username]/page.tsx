@@ -634,6 +634,8 @@ function fallbackDogsFromPosts(posts: Post[], ownerDisplayName: string): PublicD
         photoUrl: post.dog?.photoUrl ?? null,
         ownerDisplayName,
         bio: null,
+        trimmingStyle: null,
+        salonUrl: null,
         birthYear: null,
         birthMonth: null,
       });

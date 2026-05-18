@@ -58,4 +58,26 @@ describe('Dog birthday DTO validation', () => {
 
     expect(invalidProperties).toContain('birthMonth');
   });
+
+  it('accepts trimming fields on create', () => {
+    const dto = Object.assign(new CreateDogDto(), {
+      name: 'エマ',
+      breedId: validBreedId,
+      trimmingStyle: 'テディベアカット',
+      salonUrl: 'https://example.com/salon',
+    });
+
+    expect(validateSync(dto)).toHaveLength(0);
+  });
+
+  it('rejects invalid salon url on update', () => {
+    const dto = Object.assign(new UpdateDogDto(), {
+      salonUrl: 'not-a-url',
+    });
+
+    const errors = validateSync(dto);
+    const invalidProperties = errors.map((error) => error.property);
+
+    expect(invalidProperties).toContain('salonUrl');
+  });
 });

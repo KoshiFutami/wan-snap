@@ -22,6 +22,8 @@ export class PrismaPublicDogRepository implements IPublicDogRepository {
         coatColors: true,
         photoUrl: true,
         bio: true,
+        trimmingStyle: true,
+        salonUrl: true,
         birthYear: true,
         birthMonth: true,
         owner: { select: { displayName: true } },
@@ -43,6 +45,8 @@ export class PrismaPublicDogRepository implements IPublicDogRepository {
       photoUrl: dog.photoUrl,
       ownerDisplayName: dog.owner.displayName,
       bio: dog.bio ?? null,
+      trimmingStyle: dog.trimmingStyle ?? null,
+      salonUrl: dog.salonUrl ?? null,
       birthYear: dog.birthYear ?? null,
       birthMonth: dog.birthMonth ?? null,
     };

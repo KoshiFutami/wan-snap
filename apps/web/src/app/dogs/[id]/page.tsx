@@ -85,6 +85,8 @@ export default async function DogDetailPage({ params }: Props) {
   const coatColors = dog.coatColors;
   const authorName = dog.ownerDisplayName;
   const bio = dog.bio;
+  const trimmingStyle = dog.trimmingStyle;
+  const salonUrl = dog.salonUrl;
 
   const age = calcAge(dog.birthYear, dog.birthMonth);
   const sizeLabel = calcSizeFromChest(chestCm);
@@ -211,6 +213,53 @@ export default async function DogDetailPage({ params }: Props) {
           {bio && (
             <div style={{ fontSize: 13, color: T.ink70, marginTop: 10, lineHeight: 1.6 }}>
               {bio}
+            </div>
+          )}
+          {(trimmingStyle || salonUrl) && (
+            <div style={{ marginTop: 14, display: 'grid', gap: 8 }}>
+              {trimmingStyle && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  fontSize: 12,
+                  color: T.ink,
+                }}>
+                  <span style={{
+                    flexShrink: 0,
+                    padding: '5px 8px',
+                    borderRadius: 999,
+                    background: T.paper,
+                    border: `1px solid ${T.hairline}`,
+                    fontSize: 10,
+                    color: T.ink50,
+                    letterSpacing: '0.08em',
+                  }}>
+                    CUT
+                  </span>
+                  <span>{trimmingStyle}</span>
+                </div>
+              )}
+              {salonUrl && (
+                <a
+                  href={salonUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    width: 'fit-content',
+                    color: T.terracotta,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                  }}
+                >
+                  お店のリンクを見る
+                  <span aria-hidden="true">↗</span>
+                </a>
+              )}
             </div>
           )}
         </div>

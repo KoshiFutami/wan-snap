@@ -10,6 +10,8 @@ export type PublicDogProfile = {
   photoUrl: string | null;
   ownerDisplayName: string;
   bio: string | null;
+  trimmingStyle: string | null;
+  salonUrl: string | null;
   birthYear: number | null;
   birthMonth: number | null;
 };

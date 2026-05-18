@@ -46,6 +46,8 @@ model Dog {
   coatColors   Json     @map("coat_colors")
   gender       String?  @db.VarChar(10)
   bio          String?  @db.Text
+  trimmingStyle String? @map("trimming_style") @db.VarChar(120)
+  salonUrl     String?  @map("salon_url") @db.VarChar(512)
   photoUrl     String?  @map("photo_url") @db.VarChar(512)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")

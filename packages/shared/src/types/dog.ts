@@ -26,6 +26,8 @@ export interface DogProfile {
   backLengthCm?: number;
   gender?: 'male' | 'female' | null;
   bio?: string | null;
+  trimmingStyle?: string | null;
+  salonUrl?: string | null;
   coatColors: CoatColor[];
   photoUrl?: string | null;
   ownerId: string;

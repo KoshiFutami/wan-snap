@@ -61,6 +61,8 @@ export default function NewDogPage() {
   const [birthYear, setBirthYear] = useState('');
   const [birthMonth, setBirthMonth] = useState('');
   const [birthDay, setBirthDay] = useState('');
+  const [trimmingStyle, setTrimmingStyle] = useState('');
+  const [salonUrl, setSalonUrl] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -110,6 +112,8 @@ export default function NewDogPage() {
           birthYear: birthYear ? parseInt(birthYear, 10) : undefined,
           birthMonth: birthMonth ? parseInt(birthMonth, 10) : undefined,
           birthDay: birthDay ? parseInt(birthDay, 10) : undefined,
+          trimmingStyle: trimmingStyle.trim() || undefined,
+          salonUrl: salonUrl.trim() || undefined,
         },
         token,
       );
@@ -324,6 +328,28 @@ export default function NewDogPage() {
               ))}
             </SelectWithChevron>
           </div>
+        </FieldRow>
+
+        <FieldRow label="トリミング・カット">
+          <input
+            type="text"
+            value={trimmingStyle}
+            onChange={(e) => setTrimmingStyle(e.target.value)}
+            maxLength={120}
+            placeholder="例: テディベアカット"
+            style={inputStyle}
+          />
+        </FieldRow>
+
+        <FieldRow label="お店リンク">
+          <input
+            type="url"
+            value={salonUrl}
+            onChange={(e) => setSalonUrl(e.target.value)}
+            maxLength={512}
+            placeholder="https://..."
+            style={inputStyle}
+          />
         </FieldRow>
 
         {/* サイズ推定カード */}

@@ -110,6 +110,8 @@ export default function DogEditPage() {
   const [birthMonth, setBirthMonth] = useState('');
   const [birthDay, setBirthDay] = useState('');
   const [bio, setBio] = useState('');
+  const [trimmingStyle, setTrimmingStyle] = useState('');
+  const [salonUrl, setSalonUrl] = useState('');
   const [birthYearOptions] = useState(() => {
     const year = new Date().getFullYear();
     return Array.from({ length: year - 1999 }, (_, i) => year - i);
@@ -145,6 +147,8 @@ export default function DogEditPage() {
         setBirthMonth(d.birthMonth != null ? String(d.birthMonth) : '');
         setBirthDay(d.birthDay != null ? String(d.birthDay) : '');
         setBio(d.bio ?? '');
+        setTrimmingStyle(d.trimmingStyle ?? '');
+        setSalonUrl(d.salonUrl ?? '');
       }).catch(() => router.replace('/profile'));
     });
   }, [id, router]);
@@ -193,6 +197,8 @@ export default function DogEditPage() {
         birthMonth: birthMonth ? parseInt(birthMonth, 10) : undefined,
         birthDay: birthDay ? parseInt(birthDay, 10) : undefined,
         bio: bio.trim() || null,
+        trimmingStyle: trimmingStyle.trim() || null,
+        salonUrl: salonUrl.trim() || null,
       }, token);
       router.back();
     } catch (err) {
@@ -499,6 +505,26 @@ export default function DogEditPage() {
                 resize: 'vertical',
                 lineHeight: 1.6,
               }}
+            />
+          </FieldRow>
+          <FieldRow label="トリミング・カット">
+            <input
+              type="text"
+              value={trimmingStyle}
+              onChange={(e) => setTrimmingStyle(e.target.value)}
+              maxLength={120}
+              placeholder="例: テディベアカット / 2週間ごとにトリミング"
+              style={inputStyle}
+            />
+          </FieldRow>
+          <FieldRow label="お店リンク">
+            <input
+              type="url"
+              value={salonUrl}
+              onChange={(e) => setSalonUrl(e.target.value)}
+              maxLength={512}
+              placeholder="https://..."
+              style={inputStyle}
             />
           </FieldRow>
         </FormSection>
