@@ -24,7 +24,7 @@ export function FloatingFormFooter({ children }: { children: ReactNode }) {
     >
       <div
         style={{
-          maxWidth: 390,
+          maxWidth: 'var(--app-floating-footer-max-width)',
           margin: '0 auto',
           borderTop: `1px solid ${T.hairline}`,
           paddingTop: 12,

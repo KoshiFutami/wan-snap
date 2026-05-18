@@ -159,9 +159,11 @@ export default function HomePage() {
         </div>
       ) : (
         <div style={{ padding: '0 12px 24px' }}>
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
+          <div className="ws-feed-grid">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
         </div>
       )}
     </div>

@@ -100,25 +100,10 @@ export function BottomNav() {
 
   return (
     <nav
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        background: T.paper,
-        borderTop: `1px solid ${T.hairline}`,
-        paddingBottom: 'env(safe-area-inset-bottom, 16px)',
-      }}
+      className="ws-bottom-nav"
     >
       <div
-        style={{
-          maxWidth: 390,
-          margin: '0 auto',
-          display: 'flex',
-          alignItems: 'flex-start',
-          paddingTop: 12,
-        }}
+        className="ws-bottom-nav__inner"
       >
         <NavItem href="/" label="フィード" active={isHome}>
           <HomeIcon active={isHome} />

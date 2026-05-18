@@ -30,7 +30,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main
         style={{
           width: '100%',
-          maxWidth: 390,
+          maxWidth: 'var(--app-shell-max-width)',
           margin: '0 auto',
           paddingTop: hideHeader ? 0 : HEADER_HEIGHT,
           paddingBottom: hideBottomNav ? 0 : BOTTOM_NAV_HEIGHT,

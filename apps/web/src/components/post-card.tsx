@@ -146,7 +146,6 @@ export function PostCard({ post }: Props) {
         borderRadius: 18,
         overflow: 'hidden',
         border: `1px solid ${T.hairline}`,
-        marginBottom: 20,
       }}
     >
       {/* ヘッダー */}
@@ -221,7 +220,7 @@ export function PostCard({ post }: Props) {
             src={post.imageUrl}
             alt={post.caption ?? `${dogName}のスナップ`}
             fill
-            sizes="(max-width: 390px) 100vw, 390px"
+            sizes="(max-width: 1023px) 100vw, 460px"
             style={{ objectFit: 'cover' }}
           />
           {post.items.length > 0 && (

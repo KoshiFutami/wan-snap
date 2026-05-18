@@ -99,7 +99,7 @@ export function Header() {
     >
       <div
         style={{
-          maxWidth: 390,
+          maxWidth: 'var(--app-shell-max-width)',
           margin: '0 auto',
           display: 'flex',
           alignItems: 'center',
