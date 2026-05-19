@@ -207,9 +207,9 @@ export default function SignUpPage() {
             )}
           </button>
           <div style={{ fontSize: 11, color: T.ink70, lineHeight: 1.55 }}>
-            <span style={{ color: T.ink, fontWeight: 500, textDecoration: 'underline', cursor: 'pointer' }}>利用規約</span>
+            <Link href="/terms" style={{ color: T.ink, fontWeight: 500, textDecoration: 'underline' }}>利用規約</Link>
             と
-            <span style={{ color: T.ink, fontWeight: 500, textDecoration: 'underline', cursor: 'pointer' }}>プライバシーポリシー</span>
+            <Link href="/privacy-policy" style={{ color: T.ink, fontWeight: 500, textDecoration: 'underline' }}>プライバシーポリシー</Link>
             に同意します
           </div>
         </div>
