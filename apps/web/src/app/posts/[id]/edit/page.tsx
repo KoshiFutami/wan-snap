@@ -8,6 +8,8 @@ import { PhotoTagCanvas } from '../../../../components/photo-tag-canvas';
 import { HashtagInput } from '../../../../components/hashtag-input';
 import { ItemEditorSection, generateItemKey, validateItems, type EditableItem } from '../../../../components/item-editor-section';
 
+type PostMode = 'outfit' | 'grooming';
+
 const T = {
   ink: '#1F1A14',
   ink70: '#4A4239',
@@ -21,6 +23,13 @@ const T = {
   hairlineStrong: 'rgba(31,26,20,0.14)',
 };
 
+const inputStyle = {
+  width: '100%', height: 46, background: T.paper, borderRadius: 12,
+  border: `1px solid ${T.hairline}`, padding: '0 14px',
+  fontSize: 14, color: T.ink, fontFamily: 'inherit', outline: 'none',
+  boxSizing: 'border-box' as const,
+};
+
 function relativeTime(iso: string): string {
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
   if (diff < 60) return 'たった今';
@@ -29,16 +38,20 @@ function relativeTime(iso: string): string {
   return `${Math.floor(diff / 86400)}日前`;
 }
 
-
 export default function PostEditPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<Post | null>(null);
+  const [postMode, setPostMode] = useState<PostMode>('outfit');
   const [caption, setCaption] = useState('');
   const [location, setLocation] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [items, setItems] = useState<EditableItem[]>([]);
   const [placingItemKey, setPlacingItemKey] = useState<string | null>(null);
+  const [salonName, setSalonName] = useState('');
+  const [salonUrl, setSalonUrl] = useState('');
+  const [salonInstagram, setSalonInstagram] = useState('');
+  const [cutStyle, setCutStyle] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -60,26 +73,48 @@ export default function PostEditPage() {
       setLocation(p.location ?? '');
       setTags(p.tags);
       setItems(p.items.map(({ id: _id, category, ...item }) => ({ ...item, category: category as EditableItem['category'], _key: generateItemKey() })));
+
+      if (p.grooming) {
+        setPostMode('grooming');
+        setSalonName(p.grooming.salonName);
+        setSalonUrl(p.grooming.salonUrl ?? '');
+        setSalonInstagram(p.grooming.salonInstagram ?? '');
+        setCutStyle(p.grooming.cutStyle ?? '');
+      }
     });
   }, [id, router]);
 
   const handleSave = async () => {
     if (!post) return;
-    const urlError = validateItems(items);
-    if (urlError) { setError(urlError); return; }
+    if (postMode === 'outfit') {
+      const urlError = validateItems(items);
+      if (urlError) { setError(urlError); return; }
+    }
+    if (postMode === 'grooming' && !salonName.trim()) {
+      setError('サロン名を入力してください');
+      return;
+    }
     setError(null);
     setSaving(true);
     try {
       const token = tokenRef.current ?? await getValidToken();
       if (!token) throw new Error('ログインが必要です');
-      const sanitizedItems = items.map(({ _key: _k, ...rest }) => rest);
       await api.posts.update(
         post.id,
         {
           caption: caption.trim() || undefined,
           location: location.trim() || undefined,
           tags,
-          items: sanitizedItems,
+          items: postMode === 'outfit' ? items.map(({ _key: _k, ...rest }) => rest) : [],
+          grooming: postMode === 'grooming' && salonName.trim()
+            ? {
+                salonName: salonName.trim(),
+                salonUrl: salonUrl.trim() || null,
+                salonInstagram: salonInstagram.trim() || null,
+                cutStyle: cutStyle.trim() || null,
+                note: null,
+              }
+            : null,
         },
         token,
       );
@@ -119,7 +154,6 @@ export default function PostEditPage() {
       ),
     );
   };
-
 
   if (!post) {
     return (
@@ -178,14 +212,23 @@ export default function PostEditPage() {
         <div style={{
           display: 'flex', gap: 12, alignItems: 'center',
           background: T.paper, padding: 12, borderRadius: 14,
-          border: `1px solid ${T.hairline}`, marginBottom: 20,
+          border: `1px solid ${T.hairline}`, marginBottom: 16,
         }}>
           <div style={{
             width: 64, height: 80, borderRadius: 10, overflow: 'hidden',
-            background: T.ink10, flexShrink: 0,
+            background: T.ink10, flexShrink: 0, position: 'relative',
           }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={post.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {postMode === 'grooming' && (
+              <div style={{
+                position: 'absolute', top: 4, left: 4,
+                background: T.terracotta, borderRadius: 3,
+                padding: '1px 4px', fontSize: 7, fontWeight: 700, color: '#fff', letterSpacing: '0.05em',
+              }}>
+                TRIM
+              </div>
+            )}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{
@@ -207,15 +250,121 @@ export default function PostEditPage() {
           </div>
         </div>
 
+        {/* コーデ / トリミング タブ */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+          {(['outfit', 'grooming'] as PostMode[]).map((mode) => {
+            const active = postMode === mode;
+            const label = mode === 'outfit' ? 'コーデ' : 'トリミング';
+            return (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setPostMode(mode)}
+                style={{
+                  flex: 1,
+                  padding: '9px 0',
+                  borderRadius: 10,
+                  background: active ? T.ink : T.paper,
+                  color: active ? T.cream : T.ink70,
+                  border: `1px solid ${active ? T.ink : T.hairline}`,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                }}
+              >
+                {mode === 'outfit' ? (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ) : (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 3L3 6l4 4-1 4 4-1 4 4 3-3-2-2 2-2-2-2 2-2-3-3-2 2-2-2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
         <div style={{ marginBottom: 20 }}>
           <PhotoTagCanvas
             imageUrl={post.imageUrl}
-            items={items}
-            placingItemKey={placingItemKey}
+            items={postMode === 'outfit' ? items : []}
+            placingItemKey={postMode === 'outfit' ? placingItemKey : null}
             onPlace={handlePlaceItem}
             onClearPosition={handleClearItemPosition}
           />
         </div>
+
+        {/* トリミング情報フォーム */}
+        {postMode === 'grooming' && (
+          <div style={{
+            background: T.paper,
+            borderRadius: 14,
+            border: `1px solid ${T.hairline}`,
+            padding: '14px 16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 14,
+            marginBottom: 20,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: 14,
+                background: T.terracotta,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 3L3 6l4 4-1 4 4-1 4 4 3-3-2-2 2-2-2-2 2-2-3-3-2 2-2-2z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', color: T.terracotta }}>TRIMMING · 仕上がり報告</div>
+                <div style={{ fontSize: 11, color: T.ink50, marginTop: 1 }}>サロン名とURLを記録すると、他のオーナーの参考になります</div>
+              </div>
+            </div>
+
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <label style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>
+                  サロン名 <span style={{ color: T.terracotta }}>*</span>
+                </label>
+                <span style={{ fontSize: 10, color: T.ink50 }}>必須</span>
+              </div>
+              <input type="text" value={salonName} onChange={(e) => setSalonName(e.target.value)} maxLength={100} placeholder="例: Salon de Wan 表参道" style={inputStyle} />
+            </div>
+
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <label style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>ウェブサイト / 予約URL</label>
+                <span style={{ fontSize: 10, color: T.ink50 }}>任意</span>
+              </div>
+              <input type="url" value={salonUrl} onChange={(e) => setSalonUrl(e.target.value)} maxLength={512} placeholder="https://salon-de-wan.jp" style={inputStyle} />
+            </div>
+
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <label style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>Instagram</label>
+                <span style={{ fontSize: 10, color: T.ink50 }}>任意</span>
+              </div>
+              <input type="text" value={salonInstagram} onChange={(e) => setSalonInstagram(e.target.value)} maxLength={100} placeholder="@salondewan_omotesando" style={inputStyle} />
+            </div>
+
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <label style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>カット / メニュー</label>
+                <span style={{ fontSize: 10, color: T.ink50 }}>任意</span>
+              </div>
+              <input type="text" value={cutStyle} onChange={(e) => setCutStyle(e.target.value)} maxLength={100} placeholder="例: サマーカット" style={inputStyle} />
+            </div>
+          </div>
+        )}
 
         {/* Caption */}
         <div style={{ marginBottom: 20 }}>
@@ -245,15 +394,17 @@ export default function PostEditPage() {
           <HashtagInput value={tags} onChange={setTags} />
         </div>
 
-        {/* Tagged items */}
-        <div style={{ marginBottom: 24 }}>
-          <ItemEditorSection
-            items={items}
-            onChange={setItems}
-            placingItemKey={placingItemKey}
-            onSetPosition={setPlacingItemKey}
-          />
-        </div>
+        {/* 着用アイテム（コーデモードのみ） */}
+        {postMode === 'outfit' && (
+          <div style={{ marginBottom: 24 }}>
+            <ItemEditorSection
+              items={items}
+              onChange={setItems}
+              placingItemKey={placingItemKey}
+              onSetPosition={setPlacingItemKey}
+            />
+          </div>
+        )}
 
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, letterSpacing: '0.02em', marginBottom: 6 }}>場所</div>
@@ -262,12 +413,7 @@ export default function PostEditPage() {
             onChange={(e) => setLocation(e.target.value.slice(0, 100))}
             maxLength={100}
             placeholder="例: 代々木公園、渋谷ドッグラン"
-            style={{
-              width: '100%', height: 46, background: T.paper, borderRadius: 12,
-              border: `1px solid ${T.hairline}`, padding: '0 14px',
-              fontSize: 14, color: T.ink, fontFamily: 'inherit', outline: 'none',
-              boxSizing: 'border-box',
-            }}
+            style={inputStyle}
           />
         </div>
         {/* TODO: スナップの公開範囲仕様が確定したら登録・編集画面に再表示する */}

@@ -58,6 +58,14 @@ export type PostAuthor = {
   username: string;
 };
 
+export type PostGrooming = {
+  salonName: string;
+  salonUrl: string | null;
+  salonInstagram: string | null;
+  cutStyle: string | null;
+  note: string | null;
+};
+
 export type Post = {
   id: string;
   authorId: string;
@@ -69,6 +77,7 @@ export type Post = {
   location: string | null;
   tags: string[];
   items: PostItem[];
+  grooming: PostGrooming | null;
   likeCount: number;
   bookmarkCount: number;
   commentCount: number;
@@ -256,6 +265,7 @@ export const api = {
         location?: string;
         tags?: string[];
         items?: Omit<PostItem, 'id'>[];
+        grooming?: Omit<PostGrooming, 'note'> & { note?: string | null };
       },
       token: string,
     ) => request<Post>('/posts', { method: 'POST', body: JSON.stringify(body), token }),
@@ -270,7 +280,14 @@ export const api = {
     },
     update: (
       id: string,
-      body: { imageUrl?: string; caption?: string; location?: string; tags?: string[]; items?: Omit<PostItem, 'id'>[] },
+      body: {
+        imageUrl?: string;
+        caption?: string;
+        location?: string;
+        tags?: string[];
+        items?: Omit<PostItem, 'id'>[];
+        grooming?: (Omit<PostGrooming, 'note'> & { note?: string | null }) | null;
+      },
       token: string,
     ) => request<Post>(`/posts/${id}`, { method: 'PATCH', body: JSON.stringify(body), token }),
     delete: (id: string, token: string) =>
