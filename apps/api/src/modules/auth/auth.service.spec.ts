@@ -72,6 +72,16 @@ describe('AuthService', () => {
     );
   });
 
+  it('refresh でJWT検証に失敗した場合は拒否する', async () => {
+    jwtService.verify.mockImplementation(() => {
+      throw new Error('invalid token');
+    });
+
+    await expect(service.refresh('refresh-token')).rejects.toBeInstanceOf(
+      UnauthorizedException,
+    );
+  });
+
   it('メールアドレス変更時に現在のパスワードを検証して新しいトークンを返す', async () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-1',
@@ -107,7 +117,7 @@ describe('AuthService', () => {
 
     await expect(
       service.changeEmail('user-1', {
-        email: 'same@example.com',
+        email: 'Same@Example.com',
         currentPassword: 'current-password',
       }),
     ).rejects.toBeInstanceOf(BadRequestException);

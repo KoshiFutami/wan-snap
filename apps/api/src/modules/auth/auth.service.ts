@@ -106,7 +106,7 @@ export class AuthService {
     if (!valid) {
       throw new UnauthorizedException('現在のパスワードが違います');
     }
-    if (user.email === dto.email) {
+    if (user.email.toLowerCase() === dto.email.toLowerCase()) {
       throw new BadRequestException('新しいメールアドレスを入力してください');
     }
 
