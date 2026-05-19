@@ -352,11 +352,11 @@ export default function NewPostPage() {
           </div>
 
           {/* キャプション */}
-        <div>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
-            <label style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>キャプション</label>
-            <span style={{ fontSize: 10, color: T.ink50 }}>{caption.length} / 500</span>
-          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
+              <label style={{ fontSize: 11.5, fontWeight: 500, color: T.ink }}>キャプション</label>
+              <span style={{ fontSize: 10, color: T.ink50 }}>{caption.length} / 500</span>
+            </div>
             <textarea
               rows={3}
               value={caption}
@@ -370,17 +370,18 @@ export default function NewPostPage() {
                 resize: 'none',
                 lineHeight: 1.55,
               }}
-          />
-        </div>
+            />
+          </div>
 
-        <div>
-          <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, marginBottom: 6 }}>タグ</div>
-          <HashtagInput value={tags} onChange={setTags} />
-        </div>
+          {/* タグ */}
+          <div>
+            <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, marginBottom: 6 }}>タグ</div>
+            <HashtagInput value={tags} onChange={setTags} />
+          </div>
 
-        {/* 愛犬セレクター */}
-        <div>
-            <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, marginBottom: 8 }}>
+          {/* 愛犬セレクター */}
+          <div>
+            <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, marginBottom: 6 }}>
               愛犬 <span style={{ color: T.terracotta }}>*</span>
             </div>
             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '2px 0', scrollbarWidth: 'none' }}>
@@ -475,20 +476,20 @@ export default function NewPostPage() {
             />
           </div>
 
-        {error && (
-          <div
-            style={{
-              padding: '10px 14px',
-              borderRadius: 10,
-              background: 'rgba(185,90,61,0.08)',
-              border: `1px solid rgba(185,90,61,0.2)`,
-              fontSize: 12.5,
-              color: T.terracotta,
-            }}
-          >
-            {error}
-          </div>
-        )}
+          {error && (
+            <div
+              style={{
+                padding: '10px 14px',
+                borderRadius: 10,
+                background: 'rgba(185,90,61,0.08)',
+                border: `1px solid rgba(185,90,61,0.2)`,
+                fontSize: 12.5,
+                color: T.terracotta,
+              }}
+            >
+              {error}
+            </div>
+          )}
         </div>
       </form>
     </>

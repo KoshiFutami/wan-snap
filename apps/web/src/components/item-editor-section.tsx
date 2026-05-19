@@ -404,7 +404,7 @@ export function ItemEditorSection({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 8,
+        marginBottom: 6,
       }}>
         <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, letterSpacing: '0.02em' }}>
           着用アイテム{' '}
