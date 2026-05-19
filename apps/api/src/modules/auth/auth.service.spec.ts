@@ -60,6 +60,18 @@ describe('AuthService', () => {
     expect(tokens).toEqual({ accessToken: 'token', refreshToken: 'token' });
   });
 
+  it('refresh でユーザーが存在しない場合は拒否する', async () => {
+    jwtService.verify.mockReturnValue({
+      sub: 'user-1',
+      email: 'old@example.com',
+    });
+    prisma.user.findUnique.mockResolvedValue(null);
+
+    await expect(service.refresh('refresh-token')).rejects.toBeInstanceOf(
+      UnauthorizedException,
+    );
+  });
+
   it('メールアドレス変更時に現在のパスワードを検証して新しいトークンを返す', async () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-1',
@@ -83,6 +95,22 @@ describe('AuthService', () => {
       select: { id: true, email: true },
     });
     expect(tokens).toEqual({ accessToken: 'token', refreshToken: 'token' });
+  });
+
+  it('同じメールアドレスへの変更を拒否する', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'user-1',
+      email: 'same@example.com',
+      password: 'hashed-password',
+    });
+    compareMock.mockResolvedValue(true);
+
+    await expect(
+      service.changeEmail('user-1', {
+        email: 'same@example.com',
+        currentPassword: 'current-password',
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('同じパスワードへの変更を拒否する', async () => {
