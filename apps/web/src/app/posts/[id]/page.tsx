@@ -213,10 +213,10 @@ export default async function PostDetailPage({ params }: Props) {
                 <circle cx="17.5" cy="6.5" r="1" fill={T.ink50} />
               </svg>
               <span style={{ flex: 1, fontSize: 12, color: T.ink50, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                @{post.grooming.salonInstagram}
+                @{post.grooming.salonInstagram.replace(/\/+$/, '')}
               </span>
               <a
-                href={`https://www.instagram.com/${post.grooming.salonInstagram}`}
+                href={`https://www.instagram.com/${post.grooming.salonInstagram.replace(/\/+$/, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
