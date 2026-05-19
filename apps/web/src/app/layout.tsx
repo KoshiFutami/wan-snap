@@ -42,11 +42,11 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Wan·Snap | わんこのおしゃれスナップ',
+  title: 'Wan Snap | わんこのおしゃれスナップ',
   description: '犬種ごとに、サイズ感と着こなしが見つかる。愛犬家のためのファッションスナップ・コミュニティ。',
   appleWebApp: {
     capable: true,
-    title: 'Wan·Snap',
+    title: 'Wan Snap',
     statusBarStyle: 'default',
   },
 };
