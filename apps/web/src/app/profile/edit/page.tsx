@@ -28,6 +28,8 @@ export default function ProfileEditPage() {
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [bio, setBio] = useState('');
   const [location, setLocation] = useState('');
+  const [instagramUsername, setInstagramUsername] = useState('');
+  const [instagramError, setInstagramError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -51,6 +53,7 @@ export default function ProfileEditPage() {
         setUsername(u.username ?? '');
         setBio(u.bio ?? '');
         setLocation(u.location ?? '');
+        setInstagramUsername(u.instagramUsername ?? '');
       }).catch(() => router.replace('/auth/sign-in'));
     });
   }, [router]);
@@ -82,14 +85,31 @@ export default function ProfileEditPage() {
     return null;
   };
 
+  const validateInstagramUsername = (value: string): string | null => {
+    if (value.length === 0) return null;
+    if (value.length > 30) return '30文字以内で入力してください';
+    if (!/^[a-zA-Z0-9._]+$/.test(value)) return '英数字・アンダースコア・ピリオドのみ使用できます';
+    if (value.startsWith('.') || value.endsWith('.')) return 'ピリオドは先頭・末尾に使用できません';
+    if (value.includes('..')) return '連続するピリオドは使用できません';
+    return null;
+  };
+
   const handleUsernameChange = (value: string) => {
     setUsername(value);
     setUsernameError(validateUsername(value));
   };
 
+  const handleInstagramUsernameChange = (value: string) => {
+    const trimmed = value.startsWith('@') ? value.slice(1) : value;
+    setInstagramUsername(trimmed);
+    setInstagramError(validateInstagramUsername(trimmed));
+  };
+
   const handleSave = async () => {
     const uErr = validateUsername(username);
     if (uErr) { setUsernameError(uErr); return; }
+    const igErr = validateInstagramUsername(instagramUsername);
+    if (igErr) { setInstagramError(igErr); return; }
     setError(null);
     setSaving(true);
     try {
@@ -106,6 +126,10 @@ export default function ProfileEditPage() {
       if (displayName !== (user?.displayName ?? '')) body.displayName = displayName;
       if (bio !== (user?.bio ?? '')) body.bio = bio;
       if (location !== (user?.location ?? '')) body.location = location;
+      const currentIg = user?.instagramUsername ?? '';
+      if (instagramUsername !== currentIg) {
+        body.instagramUsername = instagramUsername || null;
+      }
       if (Object.keys(body).length > 0) {
         await api.users.updateMe(body, token);
       }
@@ -170,13 +194,13 @@ export default function ProfileEditPage() {
         </div>
         <button
           onClick={handleSave}
-          disabled={saving || !displayName.trim() || !!usernameError}
+          disabled={saving || !displayName.trim() || !!usernameError || !!instagramError}
           style={{
             padding: '7px 16px', borderRadius: 999,
-            background: saving || !displayName.trim() || !!usernameError ? T.ink10 : T.ink,
-            color: saving || !displayName.trim() || !!usernameError ? T.ink50 : T.cream,
+            background: saving || !displayName.trim() || !!usernameError || !!instagramError ? T.ink10 : T.ink,
+            color: saving || !displayName.trim() || !!usernameError || !!instagramError ? T.ink50 : T.cream,
             border: 'none', fontSize: 12, fontWeight: 600,
-            cursor: saving || !displayName.trim() || !!usernameError ? 'not-allowed' : 'pointer',
+            cursor: saving || !displayName.trim() || !!usernameError || !!instagramError ? 'not-allowed' : 'pointer',
             fontFamily: 'inherit', flexShrink: 0,
             transition: 'background 0.15s',
           }}
@@ -288,6 +312,26 @@ export default function ProfileEditPage() {
               placeholder="https://"
               style={inputStyle}
             />
+          </FieldRow>
+
+          <FieldRow label="Instagram" hint="任意">
+            <div style={{ position: 'relative' }}>
+              <span style={{
+                position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
+                fontSize: 14, color: T.ink50, pointerEvents: 'none',
+              }}>@</span>
+              <input
+                type="text"
+                value={instagramUsername}
+                onChange={(e) => handleInstagramUsernameChange(e.target.value)}
+                maxLength={30}
+                placeholder="username"
+                style={{ ...inputStyle, paddingLeft: 28 }}
+              />
+            </div>
+            {instagramError && (
+              <div style={{ fontSize: 11, color: T.terracotta, marginTop: 4 }}>{instagramError}</div>
+            )}
           </FieldRow>
         </FormSection>
 

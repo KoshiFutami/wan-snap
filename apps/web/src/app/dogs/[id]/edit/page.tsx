@@ -110,6 +110,8 @@ export default function DogEditPage() {
   const [birthMonth, setBirthMonth] = useState('');
   const [birthDay, setBirthDay] = useState('');
   const [bio, setBio] = useState('');
+  const [instagramUsername, setInstagramUsername] = useState('');
+  const [instagramError, setInstagramError] = useState<string | null>(null);
   const [birthYearOptions] = useState(() => {
     const year = new Date().getFullYear();
     return Array.from({ length: year - 1999 }, (_, i) => year - i);
@@ -145,6 +147,7 @@ export default function DogEditPage() {
         setBirthMonth(d.birthMonth != null ? String(d.birthMonth) : '');
         setBirthDay(d.birthDay != null ? String(d.birthDay) : '');
         setBio(d.bio ?? '');
+        setInstagramUsername(d.instagramUsername ?? '');
       }).catch(() => router.replace('/profile'));
     });
   }, [id, router]);
@@ -169,6 +172,7 @@ export default function DogEditPage() {
 
   const handleSave = async () => {
     if (!name.trim() || !breedId) return;
+    if (instagramError) return;
     setError(null);
     setSaving(true);
     try {
@@ -193,6 +197,7 @@ export default function DogEditPage() {
         birthMonth: birthMonth ? parseInt(birthMonth, 10) : undefined,
         birthDay: birthDay ? parseInt(birthDay, 10) : undefined,
         bio: bio.trim() || null,
+        instagramUsername: instagramUsername.trim() || null,
       }, token);
       router.back();
     } catch (err) {
@@ -501,6 +506,34 @@ export default function DogEditPage() {
               }}
             />
           </FieldRow>
+
+          <FieldRow label="Instagram" hint="任意">
+            <div style={{ position: 'relative' }}>
+              <span style={{
+                position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
+                fontSize: 14, color: T.ink50, pointerEvents: 'none',
+              }}>@</span>
+              <input
+                type="text"
+                value={instagramUsername}
+                onChange={(e) => {
+                  const value = e.target.value.startsWith('@') ? e.target.value.slice(1) : e.target.value;
+                  setInstagramUsername(value);
+                  if (value && !/^(?!.*\.\.)(?!\.)[\w.]+(?<!\.)$/.test(value)) {
+                    setInstagramError('英数字・アンダースコア・ピリオドのみ使用できます（先頭・末尾・連続ピリオド不可）');
+                  } else {
+                    setInstagramError(null);
+                  }
+                }}
+                maxLength={30}
+                placeholder="username"
+                style={{ ...inputStyle, paddingLeft: 28 }}
+              />
+            </div>
+            {instagramError && (
+              <div style={{ fontSize: 11, color: T.terracotta, marginTop: 4 }}>{instagramError}</div>
+            )}
+          </FieldRow>
         </FormSection>
 
         {error && (
@@ -595,14 +628,17 @@ function FormSection({ title, subtitle, children }: {
   );
 }
 
-function FieldRow({ label, required, children }: {
-  label: string; required?: boolean; children: React.ReactNode;
+function FieldRow({ label, required, hint, children }: {
+  label: string; required?: boolean; hint?: string; children: React.ReactNode;
 }) {
   return (
     <div>
-      <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, letterSpacing: '0.02em', marginBottom: 6 }}>
-        {label}
-        {required && <span style={{ color: T.terracotta, marginLeft: 4 }}>*</span>}
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 6 }}>
+        <div style={{ fontSize: 11.5, fontWeight: 500, color: T.ink, letterSpacing: '0.02em' }}>
+          {label}
+          {required && <span style={{ color: T.terracotta, marginLeft: 4 }}>*</span>}
+        </div>
+        {hint && <div style={{ fontSize: 10, color: T.ink50, fontFamily: 'var(--font-mono, monospace)' }}>{hint}</div>}
       </div>
       {children}
     </div>

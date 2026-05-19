@@ -14,10 +14,11 @@ model User {
   username    String   @unique @db.VarChar(30)
   displayName String   @map("display_name") @db.VarChar(100)
   avatarUrl   String?  @map("avatar_url") @db.VarChar(512)
-  bio         String?  @db.Text
-  location    String?  @db.VarChar(100)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  bio                 String?  @db.Text
+  location            String?  @db.VarChar(100)
+  instagramUsername   String?  @map("instagram_username") @db.VarChar(30)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
 
   dogs                  Dog[]
   posts                 Post[]
@@ -46,6 +47,7 @@ model Dog {
   coatColors   Json     @map("coat_colors")
   gender       String?  @db.VarChar(10)
   bio          String?  @db.Text
+  instagramUsername String? @map("instagram_username") @db.VarChar(30)
   photoUrl     String?  @map("photo_url") @db.VarChar(512)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")

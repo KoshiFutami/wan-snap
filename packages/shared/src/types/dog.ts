@@ -26,6 +26,7 @@ export interface DogProfile {
   backLengthCm?: number;
   gender?: 'male' | 'female' | null;
   bio?: string | null;
+  instagramUsername?: string | null;
   coatColors: CoatColor[];
   photoUrl?: string | null;
   ownerId: string;

@@ -5,6 +5,7 @@ import {
   Matches,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 
 export class UpdateUserDto {
@@ -36,4 +37,14 @@ export class UpdateUserDto {
   @IsString()
   @MaxLength(100)
   location?: string;
+
+  @IsOptional()
+  @ValidateIf((o: UpdateUserDto) => o.instagramUsername !== null)
+  @IsString()
+  @MaxLength(30)
+  @Matches(/^(?!.*\.\.)(?!\.)[a-zA-Z0-9._]+(?<!\.)$/, {
+    message:
+      'Instagramユーザーネームは英数字・アンダースコア・ピリオドのみ使用可能で、先頭・末尾のピリオドと連続ピリオドは使用できません',
+  })
+  instagramUsername?: string | null;
 }

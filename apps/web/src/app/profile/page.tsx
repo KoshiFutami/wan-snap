@@ -220,6 +220,18 @@ export default function ProfilePage() {
           {user?.bio || 'Wan Snapでうちの子のコーデ記録をまとめています。'}
           {dogNames ? <div>愛犬: {dogNames}</div> : null}
           {user?.location ? <div>{user.location}</div> : null}
+          {user?.instagramUsername ? (
+            <div>
+              <a
+                href={`https://www.instagram.com/${user.instagramUsername}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: T.terracotta, textDecoration: 'none', fontWeight: 500 }}
+              >
+                @{user.instagramUsername}
+              </a>
+            </div>
+          ) : null}
         </div>
 
         {/* ボタン行 */}

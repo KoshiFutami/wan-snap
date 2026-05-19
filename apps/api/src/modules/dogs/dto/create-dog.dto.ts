@@ -6,11 +6,13 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Matches,
   Max,
   MaxLength,
   Min,
   MinLength,
   Validate,
+  ValidateIf,
 } from 'class-validator';
 import { IsValidBirthDateConstraint } from './validators/is-valid-birth-date.validator';
 
@@ -81,4 +83,14 @@ export class CreateDogDto {
   @IsString()
   @MaxLength(500)
   bio?: string;
+
+  @IsOptional()
+  @ValidateIf((o: CreateDogDto) => o.instagramUsername !== null)
+  @IsString()
+  @MaxLength(30)
+  @Matches(/^(?!.*\.\.)(?!\.)[a-zA-Z0-9._]+(?<!\.)$/, {
+    message:
+      'Instagramユーザーネームは英数字・アンダースコア・ピリオドのみ使用可能で、先頭・末尾のピリオドと連続ピリオドは使用できません',
+  })
+  instagramUsername?: string;
 }
