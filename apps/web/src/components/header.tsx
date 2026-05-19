@@ -36,7 +36,7 @@ function PawLogo() {
           lineHeight: 1,
         }}
       >
-        Wan<span style={{ opacity: 0.45, margin: '0 1px' }}>·</span>Snap
+        Wan Snap
       </span>
     </Link>
   );
