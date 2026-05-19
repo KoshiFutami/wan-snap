@@ -116,10 +116,10 @@ export default function HelpPage() {
         <p style={{ fontSize: 12.5, color: T.ink50, lineHeight: 1.7, margin: 0 }}>
           ご不明な点は{' '}
           <a
-            href="mailto:support@wansnap.app"
+            href="mailto:koshi.futami@gmail.com"
             style={{ color: T.ink, textDecoration: 'underline' }}
           >
-            support@wansnap.app
+            koshi.futami@gmail.com
           </a>{' '}
           までお問い合わせください。
         </p>
