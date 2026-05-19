@@ -23,6 +23,10 @@ describe('AuthService', () => {
     sign: jest.fn(),
     verify: jest.fn(),
   };
+  const authMailService = {
+    sendSignUpNotice: jest.fn(),
+    sendSignInNotice: jest.fn(),
+  };
 
   let service: AuthService;
   const compareMock = bcrypt.compare as jest.Mock<
@@ -33,7 +37,58 @@ describe('AuthService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jwtService.sign.mockReturnValue('token');
-    service = new AuthService(prisma as never, jwtService as never);
+    service = new AuthService(
+      prisma as never,
+      jwtService as never,
+      authMailService as never,
+    );
+  });
+
+  it('signUp 成功時にトークン発行と登録メール送信を行う', async () => {
+    prisma.user.findUnique
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+    prisma.user.create.mockResolvedValue({
+      id: 'user-1',
+      email: 'new@example.com',
+      displayName: 'テストユーザー',
+    });
+    const hashMock = bcrypt.hash as jest.Mock<
+      Promise<string>,
+      [string, number]
+    >;
+    hashMock.mockResolvedValue('hashed-password');
+
+    const tokens = await service.signUp({
+      email: 'new@example.com',
+      password: 'password123',
+      displayName: 'テストユーザー',
+    });
+
+    expect(tokens).toEqual({ accessToken: 'token', refreshToken: 'token' });
+    expect(authMailService.sendSignUpNotice).toHaveBeenCalledWith(
+      'new@example.com',
+      'テストユーザー',
+    );
+  });
+
+  it('signIn 成功時にトークン発行とログイン通知メール送信を行う', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'user-1',
+      email: 'user@example.com',
+      password: 'hashed-password',
+    });
+    compareMock.mockResolvedValue(true);
+
+    const tokens = await service.signIn({
+      email: 'user@example.com',
+      password: 'password123',
+    });
+
+    expect(tokens).toEqual({ accessToken: 'token', refreshToken: 'token' });
+    expect(authMailService.sendSignInNotice).toHaveBeenCalledWith(
+      'user@example.com',
+    );
   });
 
   it('refresh で最新のメールアドレスを使ってトークンを再発行する', async () => {

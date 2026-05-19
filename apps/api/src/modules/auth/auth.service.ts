@@ -11,12 +11,14 @@ import type { ChangeEmailDto } from './dto/change-email.dto';
 import type { ChangePasswordDto } from './dto/change-password.dto';
 import type { SignUpDto } from './dto/sign-up.dto';
 import type { SignInDto } from './dto/sign-in.dto';
+import { AuthMailService } from './auth-mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly authMailService: AuthMailService,
   ) {}
 
   private async generateUniqueUsername(): Promise<string> {
@@ -55,7 +57,9 @@ export class AuthService {
       },
     });
 
-    return this.issueTokens(user.id, user.email);
+    const tokens = this.issueTokens(user.id, user.email);
+    void this.authMailService.sendSignUpNotice(user.email, user.displayName);
+    return tokens;
   }
 
   async signIn(dto: SignInDto) {
@@ -73,7 +77,9 @@ export class AuthService {
         'メールアドレスまたはパスワードが違います',
       );
 
-    return this.issueTokens(user.id, user.email);
+    const tokens = this.issueTokens(user.id, user.email);
+    void this.authMailService.sendSignInNotice(user.email);
+    return tokens;
   }
 
   async refresh(refreshToken: string) {
