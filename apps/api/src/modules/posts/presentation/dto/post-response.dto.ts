@@ -33,6 +33,7 @@ export class PostItemResponseDto {
 
 export class PostGroomingResponseDto {
   salonName: string;
+  salonUrl: string | null;
   salonInstagram: string | null;
   cutStyle: string | null;
   note: string | null;
@@ -40,6 +41,7 @@ export class PostGroomingResponseDto {
   static from(this: void, grooming: PostGrooming): PostGroomingResponseDto {
     const dto = new PostGroomingResponseDto();
     dto.salonName = grooming.salonName;
+    dto.salonUrl = grooming.salonUrl;
     dto.salonInstagram = grooming.salonInstagram;
     dto.cutStyle = grooming.cutStyle;
     dto.note = grooming.note;

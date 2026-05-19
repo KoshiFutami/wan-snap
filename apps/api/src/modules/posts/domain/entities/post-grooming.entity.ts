@@ -3,6 +3,7 @@ import { PostId } from '../value-objects/post-id.vo';
 export interface PostGroomingProps {
   postId: PostId;
   salonName: string;
+  salonUrl: string | null;
   salonInstagram: string | null;
   cutStyle: string | null;
   note: string | null;
@@ -15,6 +16,7 @@ export interface PostGroomingProps {
 export class PostGrooming {
   readonly postId: PostId;
   readonly salonName: string;
+  readonly salonUrl: string | null;
   readonly salonInstagram: string | null;
   readonly cutStyle: string | null;
   readonly note: string | null;
@@ -22,6 +24,7 @@ export class PostGrooming {
   private constructor(props: PostGroomingProps) {
     this.postId = props.postId;
     this.salonName = props.salonName;
+    this.salonUrl = props.salonUrl;
     this.salonInstagram = props.salonInstagram;
     this.cutStyle = props.cutStyle;
     this.note = props.note;

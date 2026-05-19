@@ -35,6 +35,7 @@ export class PostMapper {
       ? PostGrooming.reconstruct({
           postId,
           salonName: raw.grooming.salonName,
+          salonUrl: raw.grooming.salonUrl,
           salonInstagram: raw.grooming.salonInstagram,
           cutStyle: raw.grooming.cutStyle,
           note: raw.grooming.note,
@@ -125,6 +126,7 @@ export class PostMapper {
         ? {
             postId: post.id.value,
             salonName: post.grooming.salonName,
+            salonUrl: post.grooming.salonUrl,
             salonInstagram: post.grooming.salonInstagram,
             cutStyle: post.grooming.cutStyle,
             note: post.grooming.note,
