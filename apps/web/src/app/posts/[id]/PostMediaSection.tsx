@@ -52,9 +52,10 @@ type Props = {
   imageWidth: number | null;
   imageHeight: number | null;
   items: Item[];
+  hasGrooming?: boolean;
 };
 
-export function PostMediaSection({ imageUrl, imageAlt, imageWidth, imageHeight, items }: Props) {
+export function PostMediaSection({ imageUrl, imageAlt, imageWidth, imageHeight, items, hasGrooming }: Props) {
   const positionedItems = items.filter(
     (item): item is Item & { xPct: number; yPct: number } =>
       item.xPct != null && item.yPct != null,
@@ -85,6 +86,30 @@ export function PostMediaSection({ imageUrl, imageAlt, imageWidth, imageHeight, 
           style={{ objectFit: 'cover' }}
           priority
         />
+        {hasGrooming && (
+          <div style={{
+            position: 'absolute',
+            top: 12,
+            left: 12,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '5px 10px',
+            borderRadius: 999,
+            background: T.terracotta,
+            color: '#fff',
+            fontSize: 10.5,
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+          }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <circle cx="6" cy="6" r="2.5" stroke="#fff" strokeWidth="1.6" />
+              <circle cx="6" cy="18" r="2.5" stroke="#fff" strokeWidth="1.6" />
+              <path d="M8.5 6l11 11M8.5 18L19.5 7" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+            AFTER TRIMMING
+          </div>
+        )}
         {positionedItems.length === 1 ? (
           <ItemTagOverlay
             xPct={positionedItems[0].xPct}

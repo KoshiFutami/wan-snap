@@ -23,6 +23,7 @@ export interface CreatePostItemInput {
 
 export interface CreatePostGroomingInput {
   salonName: string;
+  salonUrl?: string;
   salonInstagram?: string;
   cutStyle?: string;
   note?: string;
@@ -106,6 +107,7 @@ export class CreatePostUseCase {
       ? PostGrooming.create({
           postId: post.id,
           salonName: input.grooming.salonName,
+          salonUrl: input.grooming.salonUrl ?? null,
           salonInstagram: input.grooming.salonInstagram ?? null,
           cutStyle: input.grooming.cutStyle ?? null,
           note: input.grooming.note ?? null,

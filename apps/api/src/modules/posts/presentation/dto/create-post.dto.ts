@@ -19,6 +19,11 @@ export class CreatePostGroomingDto {
   salonName: string;
 
   @IsOptional()
+  @IsUrl()
+  @MaxLength(512)
+  salonUrl?: string;
+
+  @IsOptional()
   @IsString()
   @MaxLength(100)
   salonInstagram?: string;

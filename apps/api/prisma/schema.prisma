@@ -101,6 +101,7 @@ model Post {
 model PostGrooming {
   postId         String  @id @map("post_id")
   salonName      String  @map("salon_name") @db.VarChar(100)
+  salonUrl       String? @map("salon_url") @db.VarChar(512)
   salonInstagram String? @map("salon_instagram") @db.VarChar(100)
   cutStyle       String? @map("cut_style") @db.VarChar(100)
   note           String? @db.VarChar(500)

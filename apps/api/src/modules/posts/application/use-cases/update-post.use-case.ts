@@ -95,6 +95,7 @@ export class UpdatePostUseCase {
           ? PostGrooming.create({
               postId: post.id,
               salonName: input.grooming.salonName,
+              salonUrl: input.grooming.salonUrl ?? null,
               salonInstagram: input.grooming.salonInstagram ?? null,
               cutStyle: input.grooming.cutStyle ?? null,
               note: input.grooming.note ?? null,

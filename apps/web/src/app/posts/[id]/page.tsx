@@ -102,7 +102,167 @@ export default async function PostDetailPage({ params }: Props) {
         imageWidth={post.imageWidth ?? null}
         imageHeight={post.imageHeight ?? null}
         items={post.items}
+        hasGrooming={!!post.grooming}
       />
+
+      {/* グルーミング情報カード */}
+      {post.grooming && (
+        <div style={{
+          margin: '0 20px 16px',
+          borderRadius: 18,
+          background: '#FAF5EA',
+          border: `1px solid ${T.hairline}`,
+          overflow: 'hidden',
+        }}>
+          {/* ヘッダー */}
+          <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 38,
+              height: 38,
+              borderRadius: 19,
+              background: T.terracotta,
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <circle cx="6" cy="6" r="2.5" stroke="#fff" strokeWidth="1.6" />
+                <circle cx="6" cy="18" r="2.5" stroke="#fff" strokeWidth="1.6" />
+                <path d="M8.5 6l11 11M8.5 18L19.5 7" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div>
+              <div style={{
+                fontSize: 9.5,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: T.terracotta,
+                fontWeight: 600,
+                marginBottom: 2,
+              }}>
+                TRIMMING · 仕上がり報告
+              </div>
+              <div style={{
+                fontFamily: 'var(--font-serif, serif)',
+                fontSize: 17,
+                fontWeight: 500,
+                color: T.ink,
+                lineHeight: 1.2,
+              }}>
+                {post.grooming.salonName}
+              </div>
+            </div>
+          </div>
+
+          {/* URL行 */}
+          {post.grooming.salonUrl && (
+            <div style={{
+              margin: '0 12px 8px',
+              padding: '10px 12px',
+              borderRadius: 12,
+              background: T.paper,
+              border: `1px solid ${T.hairline}`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke={T.ink50} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke={T.ink50} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span style={{ flex: 1, fontSize: 12, color: T.ink50, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {post.grooming.salonUrl.replace(/^https?:\/\//, '')}
+              </span>
+              <a
+                href={post.grooming.salonUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: 999,
+                  background: T.terracotta,
+                  color: '#fff',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                店舗サイトを開く →
+              </a>
+            </div>
+          )}
+
+          {/* Instagram行 */}
+          {post.grooming.salonInstagram && (
+            <div style={{
+              margin: `0 12px ${post.grooming.cutStyle ? '8px' : '12px'}`,
+              padding: '10px 12px',
+              borderRadius: 12,
+              background: T.paper,
+              border: `1px solid ${T.hairline}`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                <rect x="2" y="2" width="20" height="20" rx="5" stroke={T.ink50} strokeWidth="1.8" />
+                <circle cx="12" cy="12" r="4" stroke={T.ink50} strokeWidth="1.8" />
+                <circle cx="17.5" cy="6.5" r="1" fill={T.ink50} />
+              </svg>
+              <span style={{ flex: 1, fontSize: 12, color: T.ink50, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                @{post.grooming.salonInstagram}
+              </span>
+              <a
+                href={`https://www.instagram.com/${post.grooming.salonInstagram}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: 999,
+                  background: 'transparent',
+                  color: T.terracotta,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  border: `1.5px solid ${T.terracotta}`,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                Instagram →
+              </a>
+            </div>
+          )}
+
+          {/* MENU行 */}
+          {post.grooming.cutStyle && (
+            <div style={{
+              margin: '0 12px 12px',
+              padding: '10px 12px',
+              borderRadius: 12,
+              background: T.paper,
+              border: `1px solid ${T.hairline}`,
+            }}>
+              <div style={{
+                fontSize: 9,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: T.ink50,
+                fontWeight: 600,
+                marginBottom: 4,
+              }}>
+                MENU
+              </div>
+              <div style={{ fontSize: 13, color: T.ink, lineHeight: 1.5 }}>
+                {post.grooming.cutStyle}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* オーナー・犬情報 */}
       <div style={{

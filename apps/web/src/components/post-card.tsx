@@ -224,7 +224,32 @@ export function PostCard({ post }: Props) {
             sizes="(max-width: 390px) 100vw, 390px"
             style={{ objectFit: 'cover' }}
           />
-          {post.items.length > 0 && (
+          {post.grooming ? (
+            <div
+              style={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                padding: '5px 10px',
+                borderRadius: 999,
+                background: T.terracotta,
+                color: '#fff',
+                fontSize: 10.5,
+                fontWeight: 600,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                letterSpacing: '0.06em',
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <circle cx="6" cy="6" r="2.5" stroke="#fff" strokeWidth="1.6" />
+                <circle cx="6" cy="18" r="2.5" stroke="#fff" strokeWidth="1.6" />
+                <path d="M8.5 6l11 11M8.5 18L19.5 7" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+              TRIMMING
+            </div>
+          ) : post.items.length > 0 ? (
             <div
               style={{
                 position: 'absolute',
@@ -250,7 +275,7 @@ export function PostCard({ post }: Props) {
               <span style={{ fontWeight: 700 }}>{post.items.length}</span>
               <span style={{ fontWeight: 400 }}> アイテム</span>
             </div>
-          )}
+          ) : null}
         </div>
       </Link>
 
@@ -343,6 +368,52 @@ export function PostCard({ post }: Props) {
               </Link>
             ))}
           </div>
+        )}
+
+        {/* グルーミングサマリー */}
+        {post.grooming && (
+          <Link
+            href={`/posts/${post.id}`}
+            style={{
+              marginTop: 10,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '9px 12px',
+              borderRadius: 12,
+              background: '#FAF5EA',
+              border: `1px solid rgba(185,90,61,0.15)`,
+              textDecoration: 'none',
+            }}
+          >
+            <div style={{
+              width: 28,
+              height: 28,
+              borderRadius: 14,
+              background: T.terracotta,
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <circle cx="6" cy="6" r="2.5" stroke="#fff" strokeWidth="1.6" />
+                <circle cx="6" cy="18" r="2.5" stroke="#fff" strokeWidth="1.6" />
+                <path d="M8.5 6l11 11M8.5 18L19.5 7" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: T.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {post.grooming.salonName}
+              </div>
+              {post.grooming.cutStyle && (
+                <div style={{ fontSize: 10.5, color: T.ink50, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {post.grooming.cutStyle}
+                </div>
+              )}
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 600, color: T.terracotta, flexShrink: 0 }}>詳細 →</span>
+          </Link>
         )}
       </div>
     </article>
