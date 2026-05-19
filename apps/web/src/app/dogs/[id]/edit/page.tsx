@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getValidToken } from '../../../../lib/auth-store';
 import { api, type Dog } from '../../../../lib/api';
+import { validateInstagramUsername } from '../../../../lib/instagram';
 import { BreedCombobox } from '../../../../components/breed-combobox';
 import { ImageCropEditor } from '../../../../components/image-crop-editor';
 
@@ -519,11 +520,7 @@ export default function DogEditPage() {
                 onChange={(e) => {
                   const value = e.target.value.startsWith('@') ? e.target.value.slice(1) : e.target.value;
                   setInstagramUsername(value);
-                  if (value && !/^(?!.*\.\.)(?!\.)[\w.]+(?<!\.)$/.test(value)) {
-                    setInstagramError('英数字・アンダースコア・ピリオドのみ使用できます（先頭・末尾・連続ピリオド不可）');
-                  } else {
-                    setInstagramError(null);
-                  }
+                  setInstagramError(validateInstagramUsername(value));
                 }}
                 maxLength={30}
                 placeholder="username"

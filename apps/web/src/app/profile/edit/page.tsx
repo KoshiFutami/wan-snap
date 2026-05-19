@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getValidToken } from '../../../lib/auth-store';
 import { api, type User } from '../../../lib/api';
+import { validateInstagramUsername } from '../../../lib/instagram';
 import { ImageCropEditor } from '../../../components/image-crop-editor';
 
 const T = {
@@ -78,15 +79,6 @@ export default function ProfileEditPage() {
 
   const validateUsername = (value: string): string | null => {
     if (value.length === 0) return 'ユーザーネームは必須です';
-    if (value.length > 30) return '30文字以内で入力してください';
-    if (!/^[a-zA-Z0-9._]+$/.test(value)) return '英数字・アンダースコア・ピリオドのみ使用できます';
-    if (value.startsWith('.') || value.endsWith('.')) return 'ピリオドは先頭・末尾に使用できません';
-    if (value.includes('..')) return '連続するピリオドは使用できません';
-    return null;
-  };
-
-  const validateInstagramUsername = (value: string): string | null => {
-    if (value.length === 0) return null;
     if (value.length > 30) return '30文字以内で入力してください';
     if (!/^[a-zA-Z0-9._]+$/.test(value)) return '英数字・アンダースコア・ピリオドのみ使用できます';
     if (value.startsWith('.') || value.endsWith('.')) return 'ピリオドは先頭・末尾に使用できません';
