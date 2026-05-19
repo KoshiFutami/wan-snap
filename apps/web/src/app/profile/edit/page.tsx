@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getValidToken } from '../../../lib/auth-store';
+import { getValidToken, saveTokens } from '../../../lib/auth-store';
 import { api, type User } from '../../../lib/api';
 import { validateInstagramUsername } from '../../../lib/instagram';
 import { ImageCropEditor } from '../../../components/image-crop-editor';
@@ -24,6 +24,8 @@ const T = {
 export default function ProfileEditPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [email, setEmail] = useState('');
+  const [initialEmail, setInitialEmail] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
   const [usernameError, setUsernameError] = useState<string | null>(null);
@@ -34,6 +36,9 @@ export default function ProfileEditPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [privateAccount, setPrivateAccount] = useState(false);
   const [allowTagging, setAllowTagging] = useState(true);
   const [allowContactSearch, setAllowContactSearch] = useState(true);
@@ -50,6 +55,8 @@ export default function ProfileEditPage() {
       tokenRef.current = token;
       api.users.getMe(token).then((u) => {
         setUser(u);
+        setEmail(u.email ?? '');
+        setInitialEmail(u.email ?? '');
         setDisplayName(u.displayName ?? '');
         setUsername(u.username ?? '');
         setBio(u.bio ?? '');
@@ -102,10 +109,36 @@ export default function ProfileEditPage() {
     if (uErr) { setUsernameError(uErr); return; }
     const igErr = validateInstagramUsername(instagramUsername);
     if (igErr) { setInstagramError(igErr); return; }
+    const trimmedEmail = email.trim();
+    const emailChanged = trimmedEmail !== initialEmail;
+    const passwordInputStarted =
+      newPassword.length > 0 || confirmPassword.length > 0;
+    const passwordChanged =
+      newPassword.length > 0 && confirmPassword.length > 0;
+    if (passwordInputStarted && !passwordChanged) {
+      setError('新しいパスワードを両方入力してください');
+      return;
+    }
+    if (passwordChanged) {
+      if (newPassword.length < 8) {
+        setError('新しいパスワードは8文字以上で入力してください');
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        setError('新しいパスワードが一致しません');
+        return;
+      }
+    }
+    if ((emailChanged || passwordChanged) && currentPassword.length === 0) {
+      setError(
+        'メールアドレスまたはパスワードを変更する場合は現在のパスワードが必要です',
+      );
+      return;
+    }
     setError(null);
     setSaving(true);
     try {
-      const token = tokenRef.current ?? await getValidToken();
+      let token = tokenRef.current ?? await getValidToken();
       if (!token) throw new Error('ログインが必要です');
       if (imageFile) {
         const uploaded = await api.users.uploadAvatar(imageFile, token);
@@ -124,7 +157,36 @@ export default function ProfileEditPage() {
       }
       if (Object.keys(body).length > 0) {
         await api.users.updateMe(body, token);
+        setUser((prev) => (
+          prev
+            ? {
+                ...prev,
+                username,
+                displayName,
+                bio,
+                location,
+                instagramUsername: instagramUsername || null,
+              }
+            : prev
+        ));
       }
+      if (emailChanged) {
+        const tokens = await api.auth.changeEmail(
+          { email: trimmedEmail, currentPassword },
+          token,
+        );
+        saveTokens(tokens.accessToken, tokens.refreshToken);
+        token = tokens.accessToken;
+        tokenRef.current = token;
+        setInitialEmail(trimmedEmail);
+        setUser((prev) => (prev ? { ...prev, email: trimmedEmail } : prev));
+      }
+      if (passwordChanged) {
+        await api.auth.changePassword({ currentPassword, newPassword }, token);
+      }
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
       setSuccess(true);
       setTimeout(() => router.push('/profile'), 700);
     } catch (err) {
@@ -252,6 +314,17 @@ export default function ProfileEditPage() {
 
         {/* 基本情報 */}
         <FormSection title="基本情報">
+          <FieldRow label="メールアドレス" required>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              placeholder="sample@example.com"
+              style={inputStyle}
+            />
+          </FieldRow>
+
           <FieldRow label="表示名" required>
             <input
               type="text"
@@ -324,6 +397,41 @@ export default function ProfileEditPage() {
             {instagramError && (
               <div style={{ fontSize: 11, color: T.terracotta, marginTop: 4 }}>{instagramError}</div>
             )}
+          </FieldRow>
+        </FormSection>
+
+        <FormSection title="アカウント" subtitle="変更時のみ現在のパスワードが必要です">
+          <FieldRow label="現在のパスワード" hint="変更時に必須">
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              autoComplete="current-password"
+              placeholder="現在のパスワード"
+              style={inputStyle}
+            />
+          </FieldRow>
+
+          <FieldRow label="新しいパスワード" hint="8文字以上">
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              autoComplete="new-password"
+              placeholder="新しいパスワード"
+              style={inputStyle}
+            />
+          </FieldRow>
+
+          <FieldRow label="新しいパスワード（確認）">
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+              placeholder="新しいパスワードを再入力"
+              style={inputStyle}
+            />
           </FieldRow>
         </FormSection>
 
