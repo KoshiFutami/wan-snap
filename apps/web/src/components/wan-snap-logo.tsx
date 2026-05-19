@@ -21,7 +21,7 @@ export function WanSnapLogo({ size = 20 }: { size?: number }) {
           color: T.ink,
         }}
       >
-        Wan Snap
+        wansnap
       </span>
     </div>
   );
