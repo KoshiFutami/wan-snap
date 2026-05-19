@@ -21,6 +21,13 @@ const T = {
   hairlineStrong: 'rgba(31,26,20,0.18)',
 };
 
+function isValidEmail(value: string) {
+  const input = document.createElement('input');
+  input.type = 'email';
+  input.value = value;
+  return input.checkValidity();
+}
+
 export default function ProfileEditPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -115,7 +122,7 @@ export default function ProfileEditPage() {
       newPassword.length > 0 || confirmPassword.length > 0;
     const passwordChanged =
       newPassword.length > 0 && confirmPassword.length > 0;
-    if (emailChanged && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+    if (emailChanged && !isValidEmail(trimmedEmail)) {
       setError('正しいメールアドレスを入力してください');
       return;
     }
