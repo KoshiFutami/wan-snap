@@ -86,7 +86,6 @@ export default async function DogDetailPage({ params }: Props) {
   const authorName = dog.ownerDisplayName;
   const bio = dog.bio;
   const dogInstagramUsername = dog.instagramUsername;
-  const ownerInstagramUsername = dog.ownerInstagramUsername;
 
   const age = calcAge(dog.birthYear, dog.birthMonth);
   const sizeLabel = calcSizeFromChest(chestCm);
@@ -215,34 +214,19 @@ export default async function DogDetailPage({ params }: Props) {
               {bio}
             </div>
           )}
-          {(dogInstagramUsername || ownerInstagramUsername) && (
+          {dogInstagramUsername && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
-              {dogInstagramUsername && (
-                <a
-                  href={`https://www.instagram.com/${dogInstagramUsername}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 4,
-                    fontSize: 12, color: T.terracotta, textDecoration: 'none', fontWeight: 500,
-                  }}
-                >
-                  @{dogInstagramUsername}
-                </a>
-              )}
-              {ownerInstagramUsername && (
-                <a
-                  href={`https://www.instagram.com/${ownerInstagramUsername}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 4,
-                    fontSize: 12, color: T.ink50, textDecoration: 'none',
-                  }}
-                >
-                  @{ownerInstagramUsername}（オーナー）
-                </a>
-              )}
+              <a
+                href={`https://www.instagram.com/${dogInstagramUsername}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  fontSize: 12, color: T.terracotta, textDecoration: 'none', fontWeight: 500,
+                }}
+              >
+                @{dogInstagramUsername}
+              </a>
             </div>
           )}
         </div>
