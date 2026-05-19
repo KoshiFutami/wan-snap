@@ -52,6 +52,7 @@ export class UsersController {
         where: { id: user.sub },
         select: {
           id: true,
+          email: true,
           username: true,
           displayName: true,
           avatarUrl: true,

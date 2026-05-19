@@ -157,6 +157,7 @@ export type UpdateDogInput = {
 
 export type User = {
   id: string;
+  email?: string;
   username: string;
   displayName: string;
   avatarUrl: string | null;
@@ -331,6 +332,22 @@ export const api = {
       request<AuthTokens>('/auth/sign-up', { method: 'POST', body: JSON.stringify(body) }),
     signIn: (body: { email: string; password: string }) =>
       request<AuthTokens>('/auth/sign-in', { method: 'POST', body: JSON.stringify(body) }),
+    changeEmail: (
+      body: { email: string; currentPassword: string },
+      token: string,
+    ) => request<AuthTokens>('/auth/email', {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+      token,
+    }),
+    changePassword: (
+      body: { currentPassword: string; newPassword: string },
+      token: string,
+    ) => request<AuthTokens>('/auth/password', {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+      token,
+    }),
     refresh: (refreshToken: string) =>
       request<AuthTokens>('/auth/refresh', {
         method: 'POST',
