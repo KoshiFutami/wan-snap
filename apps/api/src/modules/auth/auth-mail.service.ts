@@ -5,6 +5,7 @@ import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 export class AuthMailService {
   private readonly logger = new Logger(AuthMailService.name);
   private readonly sender = process.env.AUTH_MAIL_FROM?.trim();
+  private hasWarnedMissingSender = false;
   private readonly sesClient = new SESClient({
     region:
       process.env.AUTH_MAIL_REGION ??
@@ -31,7 +32,15 @@ export class AuthMailService {
   }
 
   private async send(to: string, subject: string, bodyText: string) {
-    if (!this.sender) return;
+    if (!this.sender) {
+      if (!this.hasWarnedMissingSender) {
+        this.logger.warn(
+          'AUTH_MAIL_FROM が未設定のためメール送信をスキップします',
+        );
+        this.hasWarnedMissingSender = true;
+      }
+      return;
+    }
 
     try {
       await this.sesClient.send(
