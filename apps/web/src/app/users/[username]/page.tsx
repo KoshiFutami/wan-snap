@@ -629,6 +629,7 @@ function DogCard({ dog, active }: { dog: PublicDog; active: boolean }) {
   );
 }
 
+// PostDog / PostAuthor にはInstagramデータが含まれないため、フォールバック時はnullとする
 function fallbackDogsFromPosts(posts: Post[], ownerDisplayName: string): PublicDog[] {
   const dogMap = new Map<string, PublicDog>();
   posts.forEach((post) => {
