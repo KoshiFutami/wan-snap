@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Wan Snap',
-    short_name: 'Wan Snap',
+    name: 'wansnap',
+    short_name: 'wansnap',
     description: '愛犬のコーデを共有して、同じ犬種のオーナーと繋がろう',
     start_url: '/',
     display: 'standalone',

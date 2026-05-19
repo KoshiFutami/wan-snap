@@ -59,8 +59,8 @@ export default function ProfilePage() {
 
   const handleShare = async () => {
     const shareData = {
-      title: `${user?.displayName ?? 'Wan Snap'}のプロフィール`,
-      text: `${user?.displayName ?? 'Wan Snap'}のプロフィールをチェック`,
+      title: `${user?.displayName ?? 'wansnap'}のプロフィール`,
+      text: `${user?.displayName ?? 'wansnap'}のプロフィールをチェック`,
       url: window.location.href,
     };
 
@@ -217,7 +217,7 @@ export default function ProfilePage() {
 
         {/* bio / location */}
         <div style={{ fontSize: 12, color: T.ink70, lineHeight: 1.65, marginTop: 8 }}>
-          {user?.bio || 'Wan Snapでうちの子のコーデ記録をまとめています。'}
+          {user?.bio || 'wansnapでうちの子のコーデ記録をまとめています。'}
           {dogNames ? <div>愛犬: {dogNames}</div> : null}
           {user?.location ? <div>{user.location}</div> : null}
           {user?.instagramUsername ? (

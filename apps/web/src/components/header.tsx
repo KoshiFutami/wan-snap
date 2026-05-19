@@ -36,7 +36,7 @@ function PawLogo() {
           lineHeight: 1,
         }}
       >
-        Wan Snap
+        wansnap
       </span>
     </Link>
   );
