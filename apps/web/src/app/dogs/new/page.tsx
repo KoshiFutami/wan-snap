@@ -5,6 +5,7 @@ import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '../../../lib/api';
 import { getValidToken } from '../../../lib/auth-store';
+import { validateInstagramUsername } from '../../../lib/instagram';
 import { BreedCombobox } from '../../../components/breed-combobox';
 import { FloatingFormFooter } from '../../../components/floating-form-footer';
 import { ImageCropEditor } from '../../../components/image-crop-editor';
@@ -63,6 +64,8 @@ export default function NewDogPage() {
   const [birthDay, setBirthDay] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [instagramUsername, setInstagramUsername] = useState('');
+  const [instagramError, setInstagramError] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
@@ -110,6 +113,7 @@ export default function NewDogPage() {
           birthYear: birthYear ? parseInt(birthYear, 10) : undefined,
           birthMonth: birthMonth ? parseInt(birthMonth, 10) : undefined,
           birthDay: birthDay ? parseInt(birthDay, 10) : undefined,
+          instagramUsername: instagramUsername.trim() || undefined,
         },
         token,
       );
@@ -290,6 +294,30 @@ export default function NewDogPage() {
             placeholder="赤, クリーム"
             style={inputStyle}
           />
+        </FieldRow>
+
+        <FieldRow label="Instagram" hint="任意">
+          <div style={{ position: 'relative' }}>
+            <span style={{
+              position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
+              fontSize: 14, color: T.ink50, pointerEvents: 'none',
+            }}>@</span>
+            <input
+              type="text"
+              value={instagramUsername}
+              onChange={(e) => {
+                const value = e.target.value.startsWith('@') ? e.target.value.slice(1) : e.target.value;
+                setInstagramUsername(value);
+                setInstagramError(validateInstagramUsername(value));
+              }}
+              maxLength={30}
+              placeholder="username"
+              style={{ ...inputStyle, paddingLeft: 28 }}
+            />
+          </div>
+          {instagramError && (
+            <div style={{ fontSize: 11, color: T.terracotta, marginTop: 4 }}>{instagramError}</div>
+          )}
         </FieldRow>
 
         <FieldRow label="誕生日">

@@ -106,6 +106,7 @@ export type Dog = {
   coatColors: string[];
   gender: string | null;
   bio: string | null;
+  instagramUsername: string | null;
   photoUrl: string | null;
   createdAt: string;
 };
@@ -121,7 +122,9 @@ export type PublicDog = {
   coatColors: string[];
   photoUrl: string | null;
   ownerDisplayName: string;
+  ownerInstagramUsername: string | null;
   bio: string | null;
+  instagramUsername: string | null;
   birthYear: number | null;
   birthMonth: number | null;
 };
@@ -139,6 +142,7 @@ export type UpdateDogInput = {
   coatColors?: string[];
   gender?: string | null;
   bio?: string | null;
+  instagramUsername?: string | null;
   photoUrl?: string | null;
 };
 
@@ -149,6 +153,7 @@ export type User = {
   avatarUrl: string | null;
   bio: string | null;
   location: string | null;
+  instagramUsername: string | null;
   createdAt: string;
   followerCount?: number;
   followingCount?: number;
@@ -161,6 +166,7 @@ export type UpdateUserInput = {
   avatarUrl?: string | null;
   bio?: string;
   location?: string;
+  instagramUsername?: string | null;
 };
 
 export type AuthTokens = {
@@ -376,6 +382,7 @@ export const api = {
         birthMonth?: number;
         birthDay?: number;
         bio?: string;
+        instagramUsername?: string;
       },
       token: string,
     ) => request<Dog>('/dogs', { method: 'POST', body: JSON.stringify(body), token }),

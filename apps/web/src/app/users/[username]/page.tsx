@@ -218,6 +218,18 @@ export default function OtherUserProfilePage() {
         <div style={{ fontSize: 12, color: T.ink70, lineHeight: 1.65, marginTop: 8 }}>
           {user.bio || 'このユーザーはまだ自己紹介を設定していません。'}
           {user.location ? <div>{user.location}</div> : null}
+          {user.instagramUsername ? (
+            <div>
+              <a
+                href={`https://www.instagram.com/${user.instagramUsername}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: T.terracotta, textDecoration: 'none', fontWeight: 500 }}
+              >
+                @{user.instagramUsername}
+              </a>
+            </div>
+          ) : null}
         </div>
 
         <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
@@ -617,6 +629,7 @@ function DogCard({ dog, active }: { dog: PublicDog; active: boolean }) {
   );
 }
 
+// PostDog / PostAuthor にはInstagramデータが含まれないため、フォールバック時はnullとする
 function fallbackDogsFromPosts(posts: Post[], ownerDisplayName: string): PublicDog[] {
   const dogMap = new Map<string, PublicDog>();
   posts.forEach((post) => {
@@ -633,7 +646,9 @@ function fallbackDogsFromPosts(posts: Post[], ownerDisplayName: string): PublicD
         coatColors: [],
         photoUrl: post.dog?.photoUrl ?? null,
         ownerDisplayName,
+        ownerInstagramUsername: null,
         bio: null,
+        instagramUsername: null,
         birthYear: null,
         birthMonth: null,
       });

@@ -22,9 +22,10 @@ export class PrismaPublicDogRepository implements IPublicDogRepository {
         coatColors: true,
         photoUrl: true,
         bio: true,
+        instagramUsername: true,
         birthYear: true,
         birthMonth: true,
-        owner: { select: { displayName: true } },
+        owner: { select: { displayName: true, instagramUsername: true } },
       },
     });
     if (!dog) return null;
@@ -42,7 +43,9 @@ export class PrismaPublicDogRepository implements IPublicDogRepository {
         : [],
       photoUrl: dog.photoUrl,
       ownerDisplayName: dog.owner.displayName,
+      ownerInstagramUsername: dog.owner.instagramUsername ?? null,
       bio: dog.bio ?? null,
+      instagramUsername: dog.instagramUsername ?? null,
       birthYear: dog.birthYear ?? null,
       birthMonth: dog.birthMonth ?? null,
     };

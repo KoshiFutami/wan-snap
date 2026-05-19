@@ -9,7 +9,9 @@ export type PublicDogProfile = {
   coatColors: string[];
   photoUrl: string | null;
   ownerDisplayName: string;
+  ownerInstagramUsername: string | null;
   bio: string | null;
+  instagramUsername: string | null;
   birthYear: number | null;
   birthMonth: number | null;
 };

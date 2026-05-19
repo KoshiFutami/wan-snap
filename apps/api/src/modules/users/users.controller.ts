@@ -32,6 +32,7 @@ const userSelect = {
   avatarUrl: true,
   bio: true,
   location: true,
+  instagramUsername: true,
   createdAt: true,
   updatedAt: true,
 } as const;
@@ -56,6 +57,7 @@ export class UsersController {
           avatarUrl: true,
           bio: true,
           location: true,
+          instagramUsername: true,
           createdAt: true,
         },
       }),
@@ -117,6 +119,7 @@ export class UsersController {
           avatarUrl: true,
           bio: true,
           location: true,
+          instagramUsername: true,
           updatedAt: true,
         },
       });
@@ -262,6 +265,7 @@ export class UsersController {
         avatarUrl: true,
         bio: true,
         location: true,
+        instagramUsername: true,
         createdAt: true,
       },
     });
@@ -306,6 +310,7 @@ export class UsersController {
             avatarUrl: true,
             bio: true,
             location: true,
+            instagramUsername: true,
             createdAt: true,
           },
         }),
