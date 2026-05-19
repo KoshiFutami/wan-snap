@@ -150,8 +150,6 @@ export class AuthService {
       where: { id: userId },
       data: { password: hashed },
     });
-
-    return this.issueTokens(user.id, user.email);
   }
 
   private issueTokens(userId: string, email: string) {

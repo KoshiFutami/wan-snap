@@ -25,6 +25,7 @@ export default function ProfileEditPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [email, setEmail] = useState('');
+  const [initialEmail, setInitialEmail] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
   const [usernameError, setUsernameError] = useState<string | null>(null);
@@ -55,6 +56,7 @@ export default function ProfileEditPage() {
       api.users.getMe(token).then((u) => {
         setUser(u);
         setEmail(u.email ?? '');
+        setInitialEmail(u.email ?? '');
         setDisplayName(u.displayName ?? '');
         setUsername(u.username ?? '');
         setBio(u.bio ?? '');
@@ -108,10 +110,17 @@ export default function ProfileEditPage() {
     const igErr = validateInstagramUsername(instagramUsername);
     if (igErr) { setInstagramError(igErr); return; }
     const trimmedEmail = email.trim();
-    const emailChanged = trimmedEmail !== (user?.email ?? '');
-    const passwordChanged = newPassword.length > 0 || confirmPassword.length > 0;
+    const emailChanged = trimmedEmail !== initialEmail;
+    const passwordInputStarted =
+      newPassword.length > 0 || confirmPassword.length > 0;
+    const passwordChanged =
+      newPassword.length > 0 && confirmPassword.length > 0;
     if (emailChanged && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
       setError('正しいメールアドレスを入力してください');
+      return;
+    }
+    if (passwordInputStarted && !passwordChanged) {
+      setError('新しいパスワードを両方入力してください');
       return;
     }
     if (passwordChanged) {
@@ -171,15 +180,11 @@ export default function ProfileEditPage() {
         saveTokens(tokens.accessToken, tokens.refreshToken);
         token = tokens.accessToken;
         tokenRef.current = token;
+        setInitialEmail(trimmedEmail);
         setUser((prev) => (prev ? { ...prev, email: trimmedEmail } : prev));
       }
       if (passwordChanged) {
-        const tokens = await api.auth.changePassword(
-          { currentPassword, newPassword },
-          token,
-        );
-        saveTokens(tokens.accessToken, tokens.refreshToken);
-        tokenRef.current = tokens.accessToken;
+        await api.auth.changePassword({ currentPassword, newPassword }, token);
       }
       setCurrentPassword('');
       setNewPassword('');

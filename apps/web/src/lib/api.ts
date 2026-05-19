@@ -343,7 +343,7 @@ export const api = {
     changePassword: (
       body: { currentPassword: string; newPassword: string },
       token: string,
-    ) => request<AuthTokens>('/auth/password', {
+    ) => request<void>('/auth/password', {
       method: 'PATCH',
       body: JSON.stringify(body),
       token,

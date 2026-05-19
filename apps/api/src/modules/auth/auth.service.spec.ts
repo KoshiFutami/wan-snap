@@ -101,6 +101,33 @@ describe('AuthService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
+  it('パスワード変更時はハッシュ化して保存する', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'user-1',
+      email: 'user@example.com',
+      password: 'hashed-password',
+    });
+    prisma.user.update.mockResolvedValue({ id: 'user-1' });
+    compareMock.mockResolvedValue(true);
+    const hashMock = bcrypt.hash as jest.Mock<
+      Promise<string>,
+      [string, number]
+    >;
+    hashMock.mockResolvedValue('next-hashed-password');
+
+    await expect(
+      service.changePassword('user-1', {
+        currentPassword: 'current-password',
+        newPassword: 'next-password',
+      }),
+    ).resolves.toBeUndefined();
+
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+      data: { password: 'next-hashed-password' },
+    });
+  });
+
   it('メールアドレス重複時は ConflictException を返す', async () => {
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-1',
