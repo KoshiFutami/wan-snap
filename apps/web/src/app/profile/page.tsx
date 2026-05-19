@@ -259,21 +259,28 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        <button
-          onClick={handleSignOut}
-          style={{
-            marginTop: 10,
-            padding: 0,
-            border: 'none',
-            background: 'none',
-            color: T.ink50,
-            fontSize: 11,
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
-        >
-          ログアウト
-        </button>
+        <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 16 }}>
+          <Link
+            href="/help"
+            style={{ padding: 0, color: T.ink50, fontSize: 11, textDecoration: 'none' }}
+          >
+            使い方ガイド
+          </Link>
+          <button
+            onClick={handleSignOut}
+            style={{
+              padding: 0,
+              border: 'none',
+              background: 'none',
+              color: T.ink50,
+              fontSize: 11,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            ログアウト
+          </button>
+        </div>
       </div>
 
       {/* マイわんセクション */}
