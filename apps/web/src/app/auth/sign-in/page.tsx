@@ -241,6 +241,11 @@ export default function SignInPage() {
             新規登録
           </Link>
         </div>
+        <div style={{ marginTop: 10, textAlign: 'center', fontSize: 12, color: T.ink50 }}>
+          <Link href="/" style={{ color: T.ink50, textDecoration: 'underline' }}>
+            トップページへ戻る
+          </Link>
+        </div>
       </div>
     </div>
   );
