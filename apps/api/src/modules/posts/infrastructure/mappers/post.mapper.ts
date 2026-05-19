@@ -1,10 +1,12 @@
 import {
   Prisma,
   Post as PrismaPost,
+  PostGrooming as PrismaPostGrooming,
   PostItem as PrismaPostItem,
   PostTag as PrismaPostTag,
 } from '@prisma/client';
 import { Post } from '../../domain/entities/post.entity';
+import { PostGrooming } from '../../domain/entities/post-grooming.entity';
 import { PostItem } from '../../domain/entities/post-item.entity';
 import { Caption } from '../../domain/value-objects/caption.vo';
 import { ImageUrl } from '../../domain/value-objects/image-url.vo';
@@ -15,6 +17,7 @@ import { Tag } from '../../domain/value-objects/tag.vo';
 type PrismaPostWithItems = PrismaPost & {
   items: PrismaPostItem[];
   postTags: Pick<PrismaPostTag, 'tag'>[];
+  grooming: PrismaPostGrooming | null;
 };
 
 const toNum = (v: { toNumber(): number } | null) =>
@@ -27,8 +30,19 @@ export class PostMapper {
       PostMapper.toItemDomain(item, raw.id),
     );
 
+    const postId = PostId.of(raw.id);
+    const grooming = raw.grooming
+      ? PostGrooming.reconstruct({
+          postId,
+          salonName: raw.grooming.salonName,
+          salonInstagram: raw.grooming.salonInstagram,
+          cutStyle: raw.grooming.cutStyle,
+          note: raw.grooming.note,
+        })
+      : null;
+
     return Post.reconstruct({
-      id: PostId.of(raw.id),
+      id: postId,
       authorId: raw.authorId,
       dogId: raw.dogId,
       imageUrl: ImageUrl.of(raw.imageUrl),
@@ -38,6 +52,7 @@ export class PostMapper {
       location: raw.location,
       tags,
       items,
+      grooming,
       dogWeightKg: toNum(raw.dogWeightKg),
       dogNeckCm: toNum(raw.dogNeckCm),
       dogChestCm: toNum(raw.dogChestCm),
@@ -68,6 +83,7 @@ export class PostMapper {
     postData: Prisma.PostUncheckedCreateInput;
     items: Prisma.PostItemUncheckedCreateInput[];
     postTags: Prisma.PostTagUncheckedCreateInput[];
+    grooming: Prisma.PostGroomingUncheckedCreateInput | null;
   } {
     return {
       postId: post.id.value,
@@ -105,6 +121,15 @@ export class PostMapper {
         tag: tag.value,
         createdAt: post.createdAt,
       })),
+      grooming: post.grooming
+        ? {
+            postId: post.id.value,
+            salonName: post.grooming.salonName,
+            salonInstagram: post.grooming.salonInstagram,
+            cutStyle: post.grooming.cutStyle,
+            note: post.grooming.note,
+          }
+        : null,
     };
   }
 }

@@ -22,7 +22,7 @@ export class PrismaPostRepository implements IPostRepository {
   async findById(id: PostId): Promise<Post | null> {
     const raw = await this.prisma.post.findUnique({
       where: { id: id.value },
-      include: { items: true, postTags: true },
+      include: { items: true, postTags: true, grooming: true },
     });
     return raw ? PostMapper.toDomain(raw) : null;
   }
@@ -36,6 +36,7 @@ export class PrismaPostRepository implements IPostRepository {
       include: {
         items: true,
         postTags: true,
+        grooming: true,
         dog: {
           select: {
             name: true,
@@ -81,6 +82,7 @@ export class PrismaPostRepository implements IPostRepository {
       include: {
         items: true,
         postTags: true,
+        grooming: true,
         dog: {
           select: {
             name: true,
@@ -172,7 +174,7 @@ export class PrismaPostRepository implements IPostRepository {
       }),
       where,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      include: { items: true, postTags: true },
+      include: { items: true, postTags: true, grooming: true },
     });
 
     const hasNext = raws.length > limit;
@@ -186,7 +188,7 @@ export class PrismaPostRepository implements IPostRepository {
   }
 
   async save(post: Post): Promise<void> {
-    const { postId, postData, items, postTags } =
+    const { postId, postData, items, postTags, grooming } =
       PostMapper.toPersistence(post);
 
     await this.prisma.$transaction(async (tx) => {
@@ -203,6 +205,16 @@ export class PrismaPostRepository implements IPostRepository {
       }
       if (postTags.length > 0) {
         await tx.postTag.createMany({ data: postTags });
+      }
+
+      if (grooming) {
+        await tx.postGrooming.upsert({
+          where: { postId },
+          create: grooming,
+          update: grooming,
+        });
+      } else {
+        await tx.postGrooming.deleteMany({ where: { postId } });
       }
     });
   }

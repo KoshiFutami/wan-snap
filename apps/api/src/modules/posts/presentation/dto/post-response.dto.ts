@@ -1,4 +1,5 @@
 import { Post } from '../../domain/entities/post.entity';
+import { PostGrooming } from '../../domain/entities/post-grooming.entity';
 import { PostItem } from '../../domain/entities/post-item.entity';
 import type { PostRelations } from '../../domain/repositories/post.repository';
 
@@ -30,6 +31,22 @@ export class PostItemResponseDto {
   }
 }
 
+export class PostGroomingResponseDto {
+  salonName: string;
+  salonInstagram: string | null;
+  cutStyle: string | null;
+  note: string | null;
+
+  static from(this: void, grooming: PostGrooming): PostGroomingResponseDto {
+    const dto = new PostGroomingResponseDto();
+    dto.salonName = grooming.salonName;
+    dto.salonInstagram = grooming.salonInstagram;
+    dto.cutStyle = grooming.cutStyle;
+    dto.note = grooming.note;
+    return dto;
+  }
+}
+
 export class PostDogDto {
   name: string;
   breed: string;
@@ -57,6 +74,7 @@ export class PostResponseDto {
   location: string | null;
   tags: string[];
   items: PostItemResponseDto[];
+  grooming: PostGroomingResponseDto | null;
   likeCount: number;
   bookmarkCount: number;
   commentCount: number;
@@ -83,6 +101,9 @@ export class PostResponseDto {
     dto.location = post.location;
     dto.tags = post.tags.map((t) => t.value);
     dto.items = post.items.map(PostItemResponseDto.from);
+    dto.grooming = post.grooming
+      ? PostGroomingResponseDto.from(post.grooming)
+      : null;
     dto.likeCount = relations?.likeCount ?? 0;
     dto.bookmarkCount = relations?.bookmarkCount ?? 0;
     dto.commentCount = relations?.commentCount ?? 0;

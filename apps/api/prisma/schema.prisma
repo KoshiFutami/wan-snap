@@ -85,12 +85,29 @@ model Post {
 
   items         PostItem[]
   postTags      PostTag[]
+  grooming      PostGrooming?
   likes         Like[]
   bookmarks     Bookmark[]
   comments      Comment[]
   notifications Notification[]
 
   @@map("posts")
+}
+
+// TODO(phase-c): salon_id カラムを追加して GroomingSalon マスタに紐づける
+//  - GroomingSalon モデルを別集約として追加する（name, instagram_handle, address?）
+//  - salon_id は nullable とし、null の場合は salon_name フリーテキストにフォールバック
+//  - 既存データは salon_name をキーに正規化マイグレーションで移行する
+model PostGrooming {
+  postId         String  @id @map("post_id")
+  salonName      String  @map("salon_name") @db.VarChar(100)
+  salonInstagram String? @map("salon_instagram") @db.VarChar(100)
+  cutStyle       String? @map("cut_style") @db.VarChar(100)
+  note           String? @db.VarChar(500)
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("post_groomings")
 }
 
 model PostTag {

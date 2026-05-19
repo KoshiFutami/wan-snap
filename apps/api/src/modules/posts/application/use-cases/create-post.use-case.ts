@@ -3,6 +3,7 @@ import { PrismaService } from '../../../../infrastructure/database/prisma.servic
 import type { IPostRepository } from '../../domain/repositories/post.repository';
 import { POST_REPOSITORY } from '../../domain/repositories/post.repository';
 import { Post } from '../../domain/entities/post.entity';
+import { PostGrooming } from '../../domain/entities/post-grooming.entity';
 import { PostItem } from '../../domain/entities/post-item.entity';
 import { Caption } from '../../domain/value-objects/caption.vo';
 import { ImageUrl } from '../../domain/value-objects/image-url.vo';
@@ -20,6 +21,13 @@ export interface CreatePostItemInput {
   yPct?: number;
 }
 
+export interface CreatePostGroomingInput {
+  salonName: string;
+  salonInstagram?: string;
+  cutStyle?: string;
+  note?: string;
+}
+
 export interface CreatePostInput {
   authorId: string;
   dogId: string;
@@ -30,6 +38,7 @@ export interface CreatePostInput {
   location?: string | null;
   tags?: string[];
   items?: CreatePostItemInput[];
+  grooming?: CreatePostGroomingInput;
 }
 
 interface DogBodySnapshot {
@@ -93,9 +102,20 @@ export class CreatePostUseCase {
       }),
     );
 
+    const grooming = input.grooming
+      ? PostGrooming.create({
+          postId: post.id,
+          salonName: input.grooming.salonName,
+          salonInstagram: input.grooming.salonInstagram ?? null,
+          cutStyle: input.grooming.cutStyle ?? null,
+          note: input.grooming.note ?? null,
+        })
+      : null;
+
     const postWithItems = Post.reconstruct({
       ...post,
       items,
+      grooming,
     });
 
     await this.postRepo.save(postWithItems);
