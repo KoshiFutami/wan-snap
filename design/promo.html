@@ -392,11 +392,11 @@ body {
     </div>
 
     <!-- ── Two phones ── -->
-    <div style="position:absolute;top:200px;left:50%;transform:translateX(-50%);width:820px;height:620px">
+    <div style="position:absolute;top:200px;left:50%;transform:translateX(calc(-50% + 50px));width:820px;height:620px">
 
       <!-- Phone 1: Home feed (left, rotated) -->
       <div style="position:absolute;left:20px;top:40px;transform:rotate(-6deg);transform-origin:bottom center">
-        <div class="phone" style="transform:scale(0.74);transform-origin:top left">
+        <div class="phone" style="transform:scale(0.64);transform-origin:top left">
           <div class="phone-dyn-island"></div>
           <div class="screen screen-cream">
             <!-- status bar -->
@@ -532,7 +532,7 @@ body {
 
       <!-- Phone 2: Detail screen (right, rotated opposite) -->
       <div style="position:absolute;right:20px;top:20px;transform:rotate(5deg);transform-origin:bottom center">
-        <div class="phone" style="transform:scale(0.74);transform-origin:top left">
+        <div class="phone" style="transform:scale(0.64);transform-origin:top left">
           <div class="phone-dyn-island"></div>
           <div class="screen screen-paper">
             <!-- status bar -->
@@ -643,8 +643,11 @@ body {
 
     </div><!-- /phones -->
 
+    <!-- gradient fade so text reads clearly over phones -->
+    <div style="position:absolute;bottom:0;left:0;right:0;height:280px;background:linear-gradient(to bottom,transparent,#F0E8D8 55%);pointer-events:none;z-index:6"></div>
+
     <!-- ── Bottom copy ── -->
-    <div style="position:absolute;bottom:80px;left:50%;transform:translateX(-50%);text-align:center;width:900px">
+    <div style="position:absolute;bottom:80px;left:50%;transform:translateX(-50%);text-align:center;width:900px;z-index:7">
       <div style="font-family:'Noto Serif JP',serif;font-size:54px;font-weight:500;color:var(--ink);letter-spacing:-0.02em;line-height:1.15">
         わんこのコーデを、<br>写真で共有。
       </div>
@@ -719,9 +722,9 @@ body {
     </div>
 
     <!-- RIGHT: phone -->
-    <div style="flex-shrink:0;padding-right:60px;display:flex;align-items:center">
+    <div style="flex-shrink:0;padding:70px 60px 0 0">
       <div style="transform:rotate(4deg)">
-        <div class="phone" style="transform:scale(0.6);transform-origin:top left">
+        <div class="phone" style="transform:scale(0.56);transform-origin:top left">
           <div class="phone-dyn-island"></div>
           <div class="screen screen-cream">
             <div class="status-bar">
