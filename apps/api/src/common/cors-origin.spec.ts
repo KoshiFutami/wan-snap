@@ -33,6 +33,54 @@ describe('resolveCorsOrigin', () => {
     expect(callback).toHaveBeenCalledWith(null, false);
   });
 
+  it('allows vercel preview origins even when CORS_ORIGIN is configured in production', () => {
+    const originResolver = resolveCorsOrigin({
+      NODE_ENV: 'production',
+      CORS_ORIGIN: 'https://www.wan-snap.com',
+    });
+    expect(typeof originResolver).toBe('function');
+
+    const callback = jest.fn();
+    if (typeof originResolver !== 'function') {
+      throw new Error('originResolver should be a function');
+    }
+
+    originResolver('https://wan-snap-preview.vercel.app', callback);
+    expect(callback).toHaveBeenCalledWith(null, true);
+  });
+
+  it('allows configured origins in production even with CORS_ORIGIN set', () => {
+    const originResolver = resolveCorsOrigin({
+      NODE_ENV: 'production',
+      CORS_ORIGIN: 'https://www.wan-snap.com',
+    });
+    expect(typeof originResolver).toBe('function');
+
+    const callback = jest.fn();
+    if (typeof originResolver !== 'function') {
+      throw new Error('originResolver should be a function');
+    }
+
+    originResolver('https://www.wan-snap.com', callback);
+    expect(callback).toHaveBeenCalledWith(null, true);
+  });
+
+  it('rejects unknown origins in production when CORS_ORIGIN is configured', () => {
+    const originResolver = resolveCorsOrigin({
+      NODE_ENV: 'production',
+      CORS_ORIGIN: 'https://www.wan-snap.com',
+    });
+    expect(typeof originResolver).toBe('function');
+
+    const callback = jest.fn();
+    if (typeof originResolver !== 'function') {
+      throw new Error('originResolver should be a function');
+    }
+
+    originResolver('https://example.com', callback);
+    expect(callback).toHaveBeenCalledWith(null, false);
+  });
+
   it('returns a single configured origin', () => {
     expect(
       resolveCorsOrigin({ CORS_ORIGIN: 'https://wan-snap.example.com' }),
