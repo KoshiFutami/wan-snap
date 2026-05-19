@@ -39,6 +39,9 @@ export default function ProfileEditPage() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [privateAccount, setPrivateAccount] = useState(false);
   const [allowTagging, setAllowTagging] = useState(true);
   const [allowContactSearch, setAllowContactSearch] = useState(true);
@@ -402,36 +405,69 @@ export default function ProfileEditPage() {
 
         <FormSection title="アカウント" subtitle="変更時のみ現在のパスワードが必要です">
           <FieldRow label="現在のパスワード" hint="変更時に必須">
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              autoComplete="current-password"
-              placeholder="現在のパスワード"
-              style={inputStyle}
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showCurrentPassword ? 'text' : 'password'}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                autoComplete="current-password"
+                placeholder="現在のパスワード"
+                style={{ ...inputStyle, paddingRight: 68 }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword((v) => !v)}
+                aria-label={showCurrentPassword ? '現在のパスワードを隠す' : '現在のパスワードを表示'}
+                aria-pressed={showCurrentPassword}
+                style={passwordToggleButtonStyle}
+              >
+                {showCurrentPassword ? '非表示' : '表示'}
+              </button>
+            </div>
           </FieldRow>
 
           <FieldRow label="新しいパスワード" hint="8文字以上">
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              autoComplete="new-password"
-              placeholder="新しいパスワード"
-              style={inputStyle}
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showNewPassword ? 'text' : 'password'}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                autoComplete="new-password"
+                placeholder="新しいパスワード"
+                style={{ ...inputStyle, paddingRight: 68 }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword((v) => !v)}
+                aria-label={showNewPassword ? '新しいパスワードを隠す' : '新しいパスワードを表示'}
+                aria-pressed={showNewPassword}
+                style={passwordToggleButtonStyle}
+              >
+                {showNewPassword ? '非表示' : '表示'}
+              </button>
+            </div>
           </FieldRow>
 
           <FieldRow label="新しいパスワード（確認）">
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              autoComplete="new-password"
-              placeholder="新しいパスワードを再入力"
-              style={inputStyle}
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+                placeholder="新しいパスワードを再入力"
+                style={{ ...inputStyle, paddingRight: 68 }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((v) => !v)}
+                aria-label={showConfirmPassword ? '確認用パスワードを隠す' : '確認用パスワードを表示'}
+                aria-pressed={showConfirmPassword}
+                style={passwordToggleButtonStyle}
+              >
+                {showConfirmPassword ? '非表示' : '表示'}
+              </button>
+            </div>
           </FieldRow>
         </FormSection>
 
@@ -575,4 +611,19 @@ const inputStyle: React.CSSProperties = {
   fontFamily: 'inherit',
   outline: 'none',
   boxSizing: 'border-box',
+};
+
+const passwordToggleButtonStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: '50%',
+  right: 12,
+  transform: 'translateY(-50%)',
+  border: 'none',
+  background: 'transparent',
+  color: T.ink50,
+  fontSize: 12,
+  fontWeight: 500,
+  padding: 0,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
 };

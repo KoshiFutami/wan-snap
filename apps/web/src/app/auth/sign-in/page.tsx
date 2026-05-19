@@ -25,6 +25,7 @@ export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -181,14 +182,38 @@ export default function SignInPage() {
             />
           </FieldRow>
           <FieldRow label="パスワード">
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              style={inputStyle}
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                style={{ ...inputStyle, paddingRight: 68 }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'パスワードを隠す' : 'パスワードを表示'}
+                aria-pressed={showPassword}
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  right: 12,
+                  transform: 'translateY(-50%)',
+                  border: 'none',
+                  background: 'transparent',
+                  color: T.ink50,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  padding: 0,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {showPassword ? '非表示' : '表示'}
+              </button>
+            </div>
           </FieldRow>
 
           {error && (
