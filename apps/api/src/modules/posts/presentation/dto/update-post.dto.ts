@@ -7,7 +7,7 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { CreatePostItemDto } from './create-post.dto';
+import { CreatePostGroomingDto, CreatePostItemDto } from './create-post.dto';
 
 export class UpdatePostDto {
   @IsOptional()
@@ -35,4 +35,10 @@ export class UpdatePostDto {
   @ValidateNested({ each: true })
   @Type(() => CreatePostItemDto)
   items?: CreatePostItemDto[];
+
+  // null を渡すとトリミング情報を削除する
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreatePostGroomingDto)
+  grooming?: CreatePostGroomingDto | null;
 }

@@ -13,6 +13,27 @@ import {
   ValidateNested,
 } from 'class-validator';
 
+export class CreatePostGroomingDto {
+  @IsString()
+  @MaxLength(100)
+  salonName: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  salonInstagram?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  cutStyle?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  note?: string;
+}
+
 export class CreatePostItemDto {
   @IsString()
   @MaxLength(50)
@@ -98,4 +119,9 @@ export class CreatePostDto {
   @ValidateNested({ each: true })
   @Type(() => CreatePostItemDto)
   items?: CreatePostItemDto[];
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreatePostGroomingDto)
+  grooming?: CreatePostGroomingDto;
 }

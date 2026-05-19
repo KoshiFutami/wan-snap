@@ -7,13 +7,17 @@ import {
 import type { IPostRepository } from '../../domain/repositories/post.repository';
 import { POST_REPOSITORY } from '../../domain/repositories/post.repository';
 import { Post } from '../../domain/entities/post.entity';
+import { PostGrooming } from '../../domain/entities/post-grooming.entity';
 import { PostItem } from '../../domain/entities/post-item.entity';
 import { Caption } from '../../domain/value-objects/caption.vo';
 import { ImageUrl } from '../../domain/value-objects/image-url.vo';
 import { PostId } from '../../domain/value-objects/post-id.vo';
 import { Tag } from '../../domain/value-objects/tag.vo';
 import { PostImageStorageService } from '../../infrastructure/services/post-image-storage.service';
-import type { CreatePostItemInput } from './create-post.use-case';
+import type {
+  CreatePostGroomingInput,
+  CreatePostItemInput,
+} from './create-post.use-case';
 
 export interface UpdatePostInput {
   id: string;
@@ -23,6 +27,8 @@ export interface UpdatePostInput {
   location?: string | null;
   tags?: string[];
   items?: CreatePostItemInput[];
+  // null を渡すとトリミング情報を削除する
+  grooming?: CreatePostGroomingInput | null;
 }
 
 @Injectable()
@@ -83,6 +89,19 @@ export class UpdatePostUseCase {
           )
         : post.items;
 
+    const grooming =
+      input.grooming !== undefined
+        ? input.grooming
+          ? PostGrooming.create({
+              postId: post.id,
+              salonName: input.grooming.salonName,
+              salonInstagram: input.grooming.salonInstagram ?? null,
+              cutStyle: input.grooming.cutStyle ?? null,
+              note: input.grooming.note ?? null,
+            })
+          : null
+        : post.grooming;
+
     const updated = Post.reconstruct({
       ...post,
       imageUrl,
@@ -90,6 +109,7 @@ export class UpdatePostUseCase {
       location,
       tags,
       items,
+      grooming,
       updatedAt: new Date(),
     });
 

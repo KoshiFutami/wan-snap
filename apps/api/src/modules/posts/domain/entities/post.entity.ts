@@ -2,6 +2,7 @@ import { Caption } from '../value-objects/caption.vo';
 import { ImageUrl } from '../value-objects/image-url.vo';
 import { PostId } from '../value-objects/post-id.vo';
 import { Tag } from '../value-objects/tag.vo';
+import { PostGrooming } from './post-grooming.entity';
 import { PostItem } from './post-item.entity';
 
 export interface PostProps {
@@ -15,6 +16,7 @@ export interface PostProps {
   location: string | null;
   tags: Tag[];
   items: PostItem[];
+  grooming: PostGrooming | null;
   dogWeightKg: number | null;
   dogNeckCm: number | null;
   dogChestCm: number | null;
@@ -33,6 +35,7 @@ export interface CreatePostProps {
   location?: string | null;
   tags?: Tag[];
   items?: PostItem[];
+  grooming?: PostGrooming | null;
   dogWeightKg?: number | null;
   dogNeckCm?: number | null;
   dogChestCm?: number | null;
@@ -50,6 +53,7 @@ export class Post {
   readonly location: string | null;
   readonly tags: Tag[];
   readonly items: PostItem[];
+  readonly grooming: PostGrooming | null;
   readonly dogWeightKg: number | null;
   readonly dogNeckCm: number | null;
   readonly dogChestCm: number | null;
@@ -68,6 +72,7 @@ export class Post {
     this.location = props.location;
     this.tags = props.tags;
     this.items = props.items;
+    this.grooming = props.grooming;
     this.dogWeightKg = props.dogWeightKg;
     this.dogNeckCm = props.dogNeckCm;
     this.dogChestCm = props.dogChestCm;
@@ -89,6 +94,7 @@ export class Post {
       location: props.location ?? null,
       tags: props.tags ?? [],
       items: props.items ?? [],
+      grooming: props.grooming ?? null,
       dogWeightKg: props.dogWeightKg ?? null,
       dogNeckCm: props.dogNeckCm ?? null,
       dogChestCm: props.dogChestCm ?? null,
