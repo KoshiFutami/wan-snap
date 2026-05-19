@@ -229,9 +229,9 @@ export default function SignInPage() {
 
         <div style={{ fontSize: 10, color: T.ink50, textAlign: 'center', marginTop: 16, lineHeight: 1.5 }}>
           続行することで、
-          <span style={{ color: T.ink, textDecoration: 'underline' }}>利用規約</span>
+          <Link href="/terms" style={{ color: T.ink, textDecoration: 'underline' }}>利用規約</Link>
           {' '}と{' '}
-          <span style={{ color: T.ink, textDecoration: 'underline' }}>プライバシーポリシー</span>
+          <Link href="/privacy-policy" style={{ color: T.ink, textDecoration: 'underline' }}>プライバシーポリシー</Link>
           {' '}に同意したものとみなされます
         </div>
 
