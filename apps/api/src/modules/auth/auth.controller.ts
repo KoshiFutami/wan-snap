@@ -1,54 +1,14 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { JwtPayload } from '../../common/decorators/current-user.decorator';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { AuthService } from './auth.service';
-import { ChangeEmailDto } from './dto/change-email.dto';
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { SignUpDto } from './dto/sign-up.dto';
-import { SignInDto } from './dto/sign-in.dto';
-import { RefreshDto } from './dto/refresh.dto';
 
+/** 認証確認用エンドポイント（デバッグ・ヘルスチェック用） */
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
-
-  @Post('sign-up')
-  signUp(@Body() dto: SignUpDto) {
-    return this.authService.signUp(dto);
-  }
-
-  @Post('sign-in')
-  signIn(@Body() dto: SignInDto) {
-    return this.authService.signIn(dto);
-  }
-
-  @Post('refresh')
-  refresh(@Body() dto: RefreshDto) {
-    return this.authService.refresh(dto.refreshToken);
-  }
-
-  @Patch('email')
+  @Get('me')
   @UseGuards(JwtAuthGuard)
-  changeEmail(@CurrentUser() user: JwtPayload, @Body() dto: ChangeEmailDto) {
-    return this.authService.changeEmail(user.sub, dto);
-  }
-
-  @Patch('password')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthGuard)
-  changePassword(
-    @CurrentUser() user: JwtPayload,
-    @Body() dto: ChangePasswordDto,
-  ) {
-    return this.authService.changePassword(user.sub, dto);
+  me(@CurrentUser() user: JwtPayload) {
+    return { userId: user.sub, email: user.email };
   }
 }
