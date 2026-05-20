@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
-import { getAccessToken, getValidToken } from '../../../lib/auth-store';
+import { getValidToken } from '../../../lib/auth-store';
 import { api, type Post, type PublicDog, type User, type UserPublic } from '../../../lib/api';
 import { resolveBreedName } from '../../../lib/breed';
 
@@ -49,8 +49,7 @@ export default function OtherUserProfilePage() {
 
     const load = async () => {
       setStatus('loading');
-      const accessToken = getAccessToken();
-      const tokenPromise = accessToken ? getValidToken().catch(() => null) : Promise.resolve(null);
+      const tokenPromise = getValidToken().catch(() => null);
 
       const token = await tokenPromise;
       const meResult = token ? await api.users.getMe(token).catch(() => null) : null;

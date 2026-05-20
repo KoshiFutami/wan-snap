@@ -3,7 +3,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { getAccessToken } from '../lib/auth-store';
+import { getValidToken } from '../lib/auth-store';
 
 const T = {
   ink: '#1F1A14',
@@ -66,7 +66,7 @@ export function Header() {
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
-    setIsAuthed(!!getAccessToken());
+    getValidToken().then(token => setIsAuthed(!!token));
   }, []);
 
   useEffect(() => {

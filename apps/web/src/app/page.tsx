@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { PostCard } from '../components/post-card';
-import { getAccessToken, getValidToken } from '../lib/auth-store';
+import { getValidToken } from '../lib/auth-store';
 import { api, type Post } from '../lib/api';
 
 const T = {
@@ -25,11 +25,13 @@ export default function HomePage() {
   const [isAuthed, setIsAuthed] = useState(false);
 
   useEffect(() => {
-    const authed = !!getAccessToken();
-    setIsAuthed(authed);
-    if (!authed && !sessionStorage.getItem('wan_snap_seen_intro')) {
-      router.replace('/intro');
-    }
+    getValidToken().then(token => {
+      const authed = !!token;
+      setIsAuthed(authed);
+      if (!authed && !sessionStorage.getItem('wan_snap_seen_intro')) {
+        router.replace('/intro');
+      }
+    });
   }, [router]);
 
   const loadPosts = useCallback(async (filter: Filter) => {

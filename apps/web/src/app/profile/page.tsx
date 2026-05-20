@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { getAccessToken, clearTokens, getValidToken } from '../../lib/auth-store';
+import { clearTokens, getValidToken } from '../../lib/auth-store';
 import { api, type User, type Dog, type Post, type UserPublic } from '../../lib/api';
 import { resolveBreedName } from '../../lib/breed';
 
@@ -32,11 +32,9 @@ export default function ProfilePage() {
   const [followListTab, setFollowListTab] = useState<'followers' | 'following' | null>(null);
 
   useEffect(() => {
-    const token = getAccessToken();
-    if (!token) return;
-    setIsAuthed(true);
     getValidToken().then((t) => {
       if (!t) return;
+      setIsAuthed(true);
       api.users.getMe(t).then((u) => {
         setUser(u);
         return Promise.all([

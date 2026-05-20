@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Comment } from '../../../lib/api';
 import { api } from '../../../lib/api';
-import { getValidToken, getCurrentUserId } from '../../../lib/auth-store';
+import { getValidToken } from '../../../lib/auth-store';
 
 const T = {
   ink: '#1F1A14',
@@ -46,8 +46,16 @@ export function CommentSection({
   const [body, setBody] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const currentUserId = getCurrentUserId();
+
+  useEffect(() => {
+    getValidToken().then(async (token) => {
+      if (!token) return;
+      const me = await api.users.getMe(token).catch(() => null);
+      if (me) setCurrentUserId(me.id);
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
