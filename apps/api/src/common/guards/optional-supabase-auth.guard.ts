@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import type { Request } from 'express';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { SupabaseAuthGuard } from './supabase-auth.guard';
 
@@ -20,8 +19,9 @@ export class OptionalSupabaseAuthGuard implements CanActivate {
     try {
       return await this.inner.canActivate(context);
     } catch {
-      const req = context.switchToHttp().getRequest<Request & { user: null }>();
-      req.user = null;
+      Object.assign(context.switchToHttp().getRequest<object>(), {
+        user: null,
+      });
       return true;
     }
   }
