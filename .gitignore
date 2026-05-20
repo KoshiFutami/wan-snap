@@ -10,3 +10,7 @@ coverage/
 .turbo/
 
 *.tsbuildinfo
+
+# 一時的な運用スクリプト（リストア・バックアップ等）
+restore_*.sql
+backup_*.sql

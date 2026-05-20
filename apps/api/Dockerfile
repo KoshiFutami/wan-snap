@@ -41,4 +41,4 @@ RUN pnpm install --frozen-lockfile --prod
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 WORKDIR /app/apps/api
 EXPOSE 3001
-CMD ["sh", "-c", "npx prisma migrate resolve --applied 20260520000000_replace_auth_with_supabase 2>/dev/null || true && npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "npx prisma migrate resolve --applied 20260520000000_replace_auth_with_supabase 2>/dev/null || true && npx prisma migrate resolve --rolled-back 20260520000001_fix_supabase_migration 2>/dev/null || true && npx prisma migrate deploy && node dist/main"]

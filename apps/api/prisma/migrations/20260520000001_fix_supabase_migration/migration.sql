@@ -15,7 +15,7 @@ DELETE FROM `dogs`;
 DELETE FROM `users`;
 
 -- UNIQUE INDEX を追加（テーブルが空なので安全）
-CREATE UNIQUE INDEX IF NOT EXISTS `users_supabase_id_key` ON `users` (`supabase_id`);
+ALTER TABLE `users` ADD UNIQUE INDEX `users_supabase_id_key` (`supabase_id`);
 
 -- password カラムを削除（残っている場合）
 ALTER TABLE `users` DROP COLUMN IF EXISTS `password`;
