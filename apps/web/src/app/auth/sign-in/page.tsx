@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { getSupabase } from '../../../lib/supabase';
 import { WanSnapLogo } from '../../../components/wan-snap-logo';
 
 const T = {
@@ -39,7 +39,7 @@ function SignInContent() {
 
   const handleGoogle = async () => {
     setGoogleLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await getSupabase().auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo },
     });
@@ -51,8 +51,8 @@ function SignInContent() {
     // LINE は Supabase の Custom OIDC Provider 経由で設定する。
     // Supabase ダッシュボード → Authentication → Providers → Add custom provider (LINE OIDC) が必要。
     // プロバイダー名は Supabase 管理画面の設定名に合わせること。
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'line' as Parameters<typeof supabase.auth.signInWithOAuth>[0]['provider'],
+    const { error } = await getSupabase().auth.signInWithOAuth({
+      provider: 'line' as 'google', // LINE は Custom OIDC Provider として設定する
       options: { redirectTo },
     });
     if (error) setLineLoading(false);
@@ -63,7 +63,7 @@ function SignInContent() {
     setMagicLinkError('');
     setMagicLinkSending(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      const { error } = await getSupabase().auth.signInWithOtp({
         email,
         options: { emailRedirectTo: redirectTo },
       });

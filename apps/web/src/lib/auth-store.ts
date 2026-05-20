@@ -1,6 +1,6 @@
 'use client';
 
-import { supabase } from './supabase';
+import { getSupabase } from './supabase';
 
 /**
  * 有効なアクセストークンを返す。
@@ -8,7 +8,7 @@ import { supabase } from './supabase';
  * ログイン済みでない場合は null を返す。
  */
 export async function getValidToken(): Promise<string | null> {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await getSupabase().auth.getSession();
   if (!session) return null;
 
   // トークンが60秒以内に切れる場合はリフレッシュ
@@ -17,7 +17,7 @@ export async function getValidToken(): Promise<string | null> {
     return session.access_token;
   }
 
-  const { data: { session: refreshed } } = await supabase.auth.refreshSession();
+  const { data: { session: refreshed } } = await getSupabase().auth.refreshSession();
   return refreshed?.access_token ?? null;
 }
 
@@ -27,12 +27,12 @@ export async function getValidToken(): Promise<string | null> {
  * バックエンドの User.id が必要な場合は /api/v1/users/me を呼ぶこと。
  */
 export async function getCurrentSupabaseUserId(): Promise<string | null> {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getSupabase().auth.getUser();
   return user?.id ?? null;
 }
 
 export async function signOut(): Promise<void> {
-  await supabase.auth.signOut();
+  await getSupabase().auth.signOut();
 }
 
 // 後方互換: 既存コードで使われている同期版 getCurrentUserId は
@@ -48,7 +48,7 @@ export function saveTokens(_accessToken: string, _refreshToken: string): void {
 
 /** @deprecated Supabase Auth に移行済み。signOut() を使うこと */
 export function clearTokens(): void {
-  void supabase.auth.signOut();
+  void getSupabase().auth.signOut();
 }
 
 /** @deprecated Supabase Auth に移行済み。getValidToken() を使うこと */
