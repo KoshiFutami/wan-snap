@@ -30,7 +30,7 @@ function SignInContent() {
   const [magicLinkSending, setMagicLinkSending] = useState(false);
   const [magicLinkError, setMagicLinkError] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [lineLoading, setLineLoading] = useState(false);
+  const [lineLoading] = useState(false);
 
   const redirectTo =
     typeof window !== 'undefined'
@@ -46,17 +46,8 @@ function SignInContent() {
     if (error) setGoogleLoading(false);
   };
 
-  const handleLine = async () => {
-    setLineLoading(true);
-    // LINE は Supabase の Custom OIDC Provider 経由で設定する。
-    // Supabase ダッシュボード → Authentication → Providers → Add custom provider (LINE OIDC) が必要。
-    // プロバイダー名は Supabase 管理画面の設定名に合わせること。
-    const { error } = await getSupabase().auth.signInWithOAuth({
-      provider: 'line' as 'google', // LINE は Custom OIDC Provider として設定する
-      options: { redirectTo },
-    });
-    if (error) setLineLoading(false);
-  };
+  // LINE ログインは Custom OIDC Provider 設定後に有効化する（現在準備中）
+  const handleLine = () => undefined;
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,9 +149,10 @@ function SignInContent() {
           <SocialButton
             onClick={handleLine}
             loading={lineLoading}
+            disabled
             icon={<LineIcon />}
-            label="LINEでログイン"
-            style={{ background: T.green, color: '#fff', border: 'none' }}
+            label="LINEでログイン（準備中）"
+            style={{ background: T.green, color: '#fff', border: 'none', opacity: 0.4 }}
           />
         </div>
 
@@ -224,12 +216,14 @@ function SignInContent() {
 function SocialButton({
   onClick,
   loading,
+  disabled,
   icon,
   label,
   style,
 }: {
   onClick: () => void;
   loading: boolean;
+  disabled?: boolean;
   icon: React.ReactNode;
   label: string;
   style: CSSProperties;
@@ -238,7 +232,7 @@ function SocialButton({
     <button
       type="button"
       onClick={onClick}
-      disabled={loading}
+      disabled={loading || disabled}
       style={{
         width: '100%',
         padding: '13px 16px',
