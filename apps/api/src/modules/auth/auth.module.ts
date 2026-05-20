@@ -1,15 +1,15 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
 import { PrismaModule } from '../../infrastructure/database/prisma.module';
-import { JwtStrategy } from '../../common/strategies/jwt.strategy';
+import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
+import { OptionalSupabaseAuthGuard } from '../../common/guards/optional-supabase-auth.guard';
 import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
 
+@Global()
 @Module({
-  imports: [PrismaModule, PassportModule, JwtModule.register({})],
+  imports: [PrismaModule, JwtModule.register({})],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [JwtStrategy],
+  providers: [SupabaseAuthGuard, OptionalSupabaseAuthGuard],
+  exports: [SupabaseAuthGuard, OptionalSupabaseAuthGuard, JwtModule],
 })
 export class AuthModule {}

@@ -179,6 +179,7 @@ export type UpdateUserInput = {
   instagramUsername?: string | null;
 };
 
+/** @deprecated Supabase Auth 移行済み。auth-store の getValidToken() を使うこと */
 export type AuthTokens = {
   accessToken: string;
   refreshToken: string;
@@ -328,31 +329,8 @@ export const api = {
       request<void>(`/comments/${id}`, { method: 'DELETE', token }),
   },
   auth: {
-    signUp: (body: { email: string; password: string; displayName: string }) =>
-      request<AuthTokens>('/auth/sign-up', { method: 'POST', body: JSON.stringify(body) }),
-    signIn: (body: { email: string; password: string }) =>
-      request<AuthTokens>('/auth/sign-in', { method: 'POST', body: JSON.stringify(body) }),
-    changeEmail: (
-      body: { email: string; currentPassword: string },
-      token: string,
-    ) => request<AuthTokens>('/auth/email', {
-      method: 'PATCH',
-      body: JSON.stringify(body),
-      token,
-    }),
-    changePassword: (
-      body: { currentPassword: string; newPassword: string },
-      token: string,
-    ) => request<void>('/auth/password', {
-      method: 'PATCH',
-      body: JSON.stringify(body),
-      token,
-    }),
-    refresh: (refreshToken: string) =>
-      request<AuthTokens>('/auth/refresh', {
-        method: 'POST',
-        body: JSON.stringify({ refreshToken }),
-      }),
+    getMe: (token: string) =>
+      request<{ userId: string; email: string }>('/auth/me', { token }),
   },
   breeds: {
     search: (q: string) =>
