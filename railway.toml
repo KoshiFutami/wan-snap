@@ -4,7 +4,7 @@ dockerContext = "."
 dockerTarget = "production"
 
 [deploy]
-startCommand = "sh -c 'npx prisma migrate resolve --applied 20260520000000_replace_auth_with_supabase 2>/dev/null || true && npx prisma migrate resolve --rolled-back 20260520000001_fix_supabase_migration 2>/dev/null || true && npx prisma migrate deploy && node dist/main'"
+startCommand = "sh -c 'npx prisma migrate resolve --applied 20260520000000_replace_auth_with_supabase 2>/dev/null || true && npx prisma migrate deploy && node dist/main'"
 healthcheckPath = "/api/v1/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
