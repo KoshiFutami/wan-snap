@@ -50,9 +50,9 @@ export class SupabaseAuthGuard implements CanActivate {
 
   private verifyToken(token: string): SupabaseJwtPayload {
     try {
-      return this.jwtService.verify<SupabaseJwtPayload>(token, {
-        secret: process.env.SUPABASE_JWT_SECRET,
-      });
+      // Supabase JWT Secret はダッシュボード上で base64 エンコードされているため復号して使う
+      const secret = Buffer.from(process.env.SUPABASE_JWT_SECRET!, 'base64');
+      return this.jwtService.verify<SupabaseJwtPayload>(token, { secret });
     } catch {
       throw new UnauthorizedException('トークンが無効です');
     }
