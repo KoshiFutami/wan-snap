@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { getAccessToken, getValidToken } from '../../../lib/auth-store';
+import { getValidToken } from '../../../lib/auth-store';
 import { api } from '../../../lib/api';
 
 const T = {
@@ -22,8 +22,6 @@ export function FollowButton({
 
   useEffect(() => {
     let cancelled = false;
-    const accessToken = getAccessToken();
-    if (!accessToken) return;
     getValidToken()
       .then(async (t) => {
         if (!t || cancelled) return;
