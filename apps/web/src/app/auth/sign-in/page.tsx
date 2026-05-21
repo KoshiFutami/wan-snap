@@ -73,13 +73,13 @@ function SignInContent() {
             token: credential,
           });
           if (error) {
-            setGoogleError('Googleログインに失敗しました。もう一度お試しください。');
+            setGoogleError(`ログイン失敗: ${error.message}`);
             setGoogleLoading(false);
           } else {
             routerRef.current.replace('/');
           }
-        } catch {
-          setGoogleError('Googleログインに失敗しました。もう一度お試しください。');
+        } catch (e) {
+          setGoogleError(`ログイン失敗: ${e instanceof Error ? e.message : String(e)}`);
           setGoogleLoading(false);
         }
       },
