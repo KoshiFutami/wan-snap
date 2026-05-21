@@ -215,7 +215,7 @@ export default function ProfilePage() {
 
         {/* bio / location */}
         <div style={{ fontSize: 12, color: T.ink70, lineHeight: 1.65, marginTop: 8 }}>
-          {user?.bio || 'wansnapでうちの子のコーデ記録をまとめています。'}
+          <span style={{ whiteSpace: 'pre-wrap' }}>{user?.bio || 'wansnapでうちの子のコーデ記録をまとめています。'}</span>
           {dogNames ? <div>愛犬: {dogNames}</div> : null}
           {user?.location ? <div>{user.location}</div> : null}
           {user?.instagramUsername ? (

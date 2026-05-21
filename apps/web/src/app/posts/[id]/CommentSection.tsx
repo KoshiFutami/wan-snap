@@ -170,6 +170,7 @@ export function CommentSection({
                     color: T.ink70,
                     lineHeight: 1.5,
                     wordBreak: 'break-word',
+                    whiteSpace: 'pre-wrap',
                   }}
                 >
                   {comment.body}

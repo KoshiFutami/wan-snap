@@ -215,7 +215,7 @@ export default function OtherUserProfilePage() {
         </div>
 
         <div style={{ fontSize: 12, color: T.ink70, lineHeight: 1.65, marginTop: 8 }}>
-          {user.bio || 'このユーザーはまだ自己紹介を設定していません。'}
+          <span style={{ whiteSpace: 'pre-wrap' }}>{user.bio || 'このユーザーはまだ自己紹介を設定していません。'}</span>
           {user.location ? <div>{user.location}</div> : null}
           {user.instagramUsername ? (
             <div>
