@@ -215,7 +215,13 @@ export default function NewPostPage() {
         >
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={() => {
+              if (window.history.length > 1) {
+                router.back();
+              } else {
+                router.replace('/');
+              }
+            }}
             style={{
               width: 40,
               height: 40,
