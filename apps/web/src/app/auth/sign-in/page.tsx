@@ -1,8 +1,9 @@
 'use client';
 
+import Script from 'next/script';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { getSupabase } from '../../../lib/supabase';
@@ -21,6 +22,28 @@ const T = {
   hairlineStrong: 'rgba(31,26,20,0.14)',
 };
 
+// Google Identity Services の型
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: { credential: string }) => void;
+            auto_select?: boolean;
+            cancel_on_tap_outside?: boolean;
+          }) => void;
+          prompt: (momentListener?: (n: {
+            isNotDisplayed: () => boolean;
+            isSkippedMoment: () => boolean;
+          }) => void) => void;
+        };
+      };
+    };
+  }
+}
+
 function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -32,22 +55,47 @@ function SignInContent() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [lineLoading] = useState(false);
 
+  // stale closure を避けるため router を ref で保持
+  const routerRef = useRef(router);
+  routerRef.current = router;
+
+  const handleGoogle = useCallback(() => {
+    if (googleLoading || !window.google) return;
+
+    window.google.accounts.id.initialize({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
+      callback: async ({ credential }) => {
+        setGoogleLoading(true);
+        try {
+          const { error } = await getSupabase().auth.signInWithIdToken({
+            provider: 'google',
+            token: credential,
+          });
+          if (error) {
+            setGoogleLoading(false);
+          } else {
+            routerRef.current.replace('/');
+          }
+        } catch {
+          setGoogleLoading(false);
+        }
+      },
+      auto_select: false,
+      cancel_on_tap_outside: true,
+    });
+
+    window.google.accounts.id.prompt((notification) => {
+      // プロンプトが表示できなかった / スキップされた場合はローディングをリセット
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        setGoogleLoading(false);
+      }
+    });
+  }, [googleLoading]);
+
   const redirectTo =
     typeof window !== 'undefined'
       ? `${window.location.origin}/auth/callback`
       : '/auth/callback';
-
-  const handleGoogle = async () => {
-    setGoogleLoading(true);
-    const { error } = await getSupabase().auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo },
-    });
-    if (error) setGoogleLoading(false);
-  };
-
-  // LINE ログインは Custom OIDC Provider 設定後に有効化する（現在準備中）
-  const handleLine = () => undefined;
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,148 +116,156 @@ function SignInContent() {
     }
   };
 
+  // LINE ログインは Custom OIDC Provider 設定後に有効化する（現在準備中）
+  const handleLine = () => undefined;
+
   return (
-    <div style={{ minHeight: '100vh', background: T.cream, position: 'relative', overflow: 'hidden' }}>
-      {/* ヒーロー */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 340, overflow: 'hidden' }}>
+    <>
+      {/* Google Identity Services SDK */}
+      <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
+
+      <div style={{ minHeight: '100vh', background: T.cream, position: 'relative', overflow: 'hidden' }}>
+        {/* ヒーロー */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 340, overflow: 'hidden' }}>
+          <div
+            style={{
+              position: 'absolute',
+              top: 60,
+              right: -40,
+              width: 260,
+              height: 260,
+              borderRadius: 20,
+              background: `url(https://images.unsplash.com/photo-1568393691622-c7ba131d63b4?w=600&auto=format&fit=crop) center/cover`,
+              transform: 'rotate(5deg)',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              top: 100,
+              left: -20,
+              width: 160,
+              height: 200,
+              borderRadius: 16,
+              background: `url(https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&auto=format&fit=crop) center/cover`,
+              transform: 'rotate(-8deg)',
+            }}
+          />
+        </div>
+
+        {/* ボトムシート */}
         <div
           style={{
             position: 'absolute',
-            top: 60,
-            right: -40,
-            width: 260,
-            height: 260,
-            borderRadius: 20,
-            background: `url(https://images.unsplash.com/photo-1568393691622-c7ba131d63b4?w=600&auto=format&fit=crop) center/cover`,
-            transform: 'rotate(5deg)',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            top: 100,
-            left: -20,
-            width: 160,
-            height: 200,
-            borderRadius: 16,
-            background: `url(https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&auto=format&fit=crop) center/cover`,
-            transform: 'rotate(-8deg)',
-          }}
-        />
-      </div>
-
-      {/* ボトムシート */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          background: T.creamSoft,
-          borderRadius: '32px 32px 0 0',
-          padding: '32px 20px 48px',
-          boxShadow: '0 -20px 40px rgba(31,26,20,0.06)',
-        }}
-      >
-        <WanSnapLogo />
-
-        <div
-          style={{
-            fontFamily: 'var(--font-serif, serif)',
-            fontSize: 32,
-            fontWeight: 500,
-            color: T.ink,
-            letterSpacing: '-0.02em',
-            lineHeight: 1.05,
-            marginTop: 24,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            background: T.creamSoft,
+            borderRadius: '32px 32px 0 0',
+            padding: '32px 20px 48px',
+            boxShadow: '0 -20px 40px rgba(31,26,20,0.06)',
           }}
         >
-          愛犬の今日の<br />一枚を、世界へ<span style={{ color: T.terracotta }}>。</span>
-        </div>
-        <div style={{ fontSize: 12.5, color: T.ink70, marginTop: 10, lineHeight: 1.5 }}>
-          サイズ感とコーデが見つかる、<br />
-          ファッションスナップ・コミュニティ。
-        </div>
+          <WanSnapLogo />
 
-        {errorParam && (
-          <div style={{ marginTop: 16, padding: '10px 14px', borderRadius: 10, background: 'rgba(185,90,61,0.08)', border: `1px solid rgba(185,90,61,0.2)`, fontSize: 12.5, color: T.terracotta }}>
-            ログインに失敗しました。もう一度お試しください。
+          <div
+            style={{
+              fontFamily: 'var(--font-serif, serif)',
+              fontSize: 32,
+              fontWeight: 500,
+              color: T.ink,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.05,
+              marginTop: 24,
+            }}
+          >
+            愛犬の今日の<br />一枚を、世界へ<span style={{ color: T.terracotta }}>。</span>
           </div>
-        )}
+          <div style={{ fontSize: 12.5, color: T.ink70, marginTop: 10, lineHeight: 1.5 }}>
+            サイズ感とコーデが見つかる、<br />
+            ファッションスナップ・コミュニティ。
+          </div>
 
-        {/* ソーシャルログイン */}
-        <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <SocialButton
-            onClick={handleGoogle}
-            loading={googleLoading}
-            icon={<GoogleIcon />}
-            label="Googleでログイン"
-            style={{ background: T.paper, color: T.ink, border: `1px solid ${T.hairlineStrong}` }}
-          />
-          <SocialButton
-            onClick={handleLine}
-            loading={lineLoading}
-            disabled
-            icon={<LineIcon />}
-            label="LINEでログイン（準備中）"
-            style={{ background: T.green, color: '#fff', border: 'none', opacity: 0.4 }}
-          />
-        </div>
-
-        {/* 区切り線 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
-          <div style={{ flex: 1, height: 1, background: T.hairline }} />
-          <div style={{ fontSize: 10.5, color: T.ink50, letterSpacing: '0.1em' }}>メールでログイン</div>
-          <div style={{ flex: 1, height: 1, background: T.hairline }} />
-        </div>
-
-        {/* マジックリンク */}
-        <form onSubmit={handleMagicLink} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            style={inputStyle}
-          />
-
-          {magicLinkError && (
-            <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(185,90,61,0.08)', border: `1px solid rgba(185,90,61,0.2)`, fontSize: 12.5, color: T.terracotta }}>
-              {magicLinkError}
+          {errorParam && (
+            <div style={{ marginTop: 16, padding: '10px 14px', borderRadius: 10, background: 'rgba(185,90,61,0.08)', border: `1px solid rgba(185,90,61,0.2)`, fontSize: 12.5, color: T.terracotta }}>
+              ログインに失敗しました。もう一度お試しください。
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={magicLinkSending}
-            style={{
-              width: '100%',
-              padding: '14px 22px',
-              borderRadius: 999,
-              background: T.ink,
-              color: T.cream,
-              fontSize: 13.5,
-              fontWeight: 600,
-              border: 'none',
-              cursor: magicLinkSending ? 'not-allowed' : 'pointer',
-              opacity: magicLinkSending ? 0.5 : 1,
-              fontFamily: 'inherit',
-            }}
-          >
-            {magicLinkSending ? '送信中...' : 'マジックリンクを送る'}
-          </button>
-        </form>
+          {/* ソーシャルログイン */}
+          <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <SocialButton
+              onClick={handleGoogle}
+              loading={googleLoading}
+              icon={<GoogleIcon />}
+              label="Googleでログイン"
+              style={{ background: T.paper, color: T.ink, border: `1px solid ${T.hairlineStrong}` }}
+            />
+            <SocialButton
+              onClick={handleLine}
+              loading={lineLoading}
+              disabled
+              icon={<LineIcon />}
+              label="LINEでログイン（準備中）"
+              style={{ background: T.green, color: '#fff', border: 'none', opacity: 0.4 }}
+            />
+          </div>
 
-        <div style={{ fontSize: 10, color: T.ink50, textAlign: 'center', marginTop: 16, lineHeight: 1.5 }}>
-          続行することで、
-          <Link href="/terms" style={{ color: T.ink, textDecoration: 'underline' }}>利用規約</Link>
-          {' '}と{' '}
-          <Link href="/privacy-policy" style={{ color: T.ink, textDecoration: 'underline' }}>プライバシーポリシー</Link>
-          {' '}に同意したものとみなされます
+          {/* 区切り線 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
+            <div style={{ flex: 1, height: 1, background: T.hairline }} />
+            <div style={{ fontSize: 10.5, color: T.ink50, letterSpacing: '0.1em' }}>メールでログイン</div>
+            <div style={{ flex: 1, height: 1, background: T.hairline }} />
+          </div>
+
+          {/* マジックリンク */}
+          <form onSubmit={handleMagicLink} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              style={inputStyle}
+            />
+
+            {magicLinkError && (
+              <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(185,90,61,0.08)', border: `1px solid rgba(185,90,61,0.2)`, fontSize: 12.5, color: T.terracotta }}>
+                {magicLinkError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={magicLinkSending}
+              style={{
+                width: '100%',
+                padding: '14px 22px',
+                borderRadius: 999,
+                background: T.ink,
+                color: T.cream,
+                fontSize: 13.5,
+                fontWeight: 600,
+                border: 'none',
+                cursor: magicLinkSending ? 'not-allowed' : 'pointer',
+                opacity: magicLinkSending ? 0.5 : 1,
+                fontFamily: 'inherit',
+              }}
+            >
+              {magicLinkSending ? '送信中...' : 'マジックリンクを送る'}
+            </button>
+          </form>
+
+          <div style={{ fontSize: 10, color: T.ink50, textAlign: 'center', marginTop: 16, lineHeight: 1.5 }}>
+            続行することで、
+            <Link href="/terms" style={{ color: T.ink, textDecoration: 'underline' }}>利用規約</Link>
+            {' '}と{' '}
+            <Link href="/privacy-policy" style={{ color: T.ink, textDecoration: 'underline' }}>プライバシーポリシー</Link>
+            {' '}に同意したものとみなされます
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
