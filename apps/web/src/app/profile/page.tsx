@@ -264,6 +264,12 @@ export default function ProfilePage() {
           >
             使い方ガイド
           </Link>
+          <Link
+            href="/feedback"
+            style={{ padding: 0, color: T.ink50, fontSize: 11, textDecoration: 'none' }}
+          >
+            機能要望
+          </Link>
           <button
             onClick={handleSignOut}
             style={{
@@ -278,6 +284,12 @@ export default function ProfilePage() {
           >
             ログアウト
           </button>
+          <Link
+            href="/settings"
+            style={{ padding: 0, color: T.ink50, fontSize: 11, textDecoration: 'none' }}
+          >
+            設定
+          </Link>
         </div>
       </div>
 

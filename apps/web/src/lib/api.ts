@@ -362,6 +362,8 @@ export const api = {
       if (params?.cursor) qs.set('cursor', params.cursor);
       return request<ListPostsResponse>(`/users/me/bookmarks?${qs.toString()}`, { token });
     },
+    deleteMe: (token: string) =>
+      request<void>('/users/me', { method: 'DELETE', token }),
     getByUsername: (username: string, token?: string) =>
       request<User>(`/users/by-username/${encodeURIComponent(username)}`, token ? { token } : undefined),
     searchByUsername: (q: string) =>
@@ -423,5 +425,9 @@ export const api = {
     },
     markAllRead: (token: string) =>
       request<void>('/notifications/read-all', { method: 'PATCH', token }),
+  },
+  feedback: {
+    send: (body: { message: string }, token: string) =>
+      request<void>('/feedback', { method: 'POST', body: JSON.stringify(body), token }),
   },
 };
