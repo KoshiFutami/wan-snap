@@ -45,6 +45,8 @@ declare global {
 }
 
 const NONCE_KEY = 'gis_raw_nonce';
+const NONCE_TS_KEY = 'gis_nonce_ts';
+const NONCE_TTL_MS = 2 * 60 * 1000; // 2分以内のnonceのみリダイレクト戻りと見なす
 
 // Supabase 公式と同じ形式: rawNonce = base64, hashedNonce = hex SHA-256
 function generateNonce(): string {
@@ -123,10 +125,22 @@ function SignInContent() {
   // リダイレクト後のページリロード時も credential を処理できるよう GIS ロード時に初期化
   const onGISLoad = useCallback(() => {
     const storedNonce = sessionStorage.getItem(NONCE_KEY);
-    const rawNonce = storedNonce ?? generateNonce();
-    if (!storedNonce) sessionStorage.setItem(NONCE_KEY, rawNonce);
-    // リダイレクト後の場合はローディング表示
-    if (storedNonce) setGoogleLoading(true);
+    const storedTs = sessionStorage.getItem(NONCE_TS_KEY);
+    const isRecent = !!storedTs && Date.now() - parseInt(storedTs) < NONCE_TTL_MS;
+    const isPendingRedirect = !!storedNonce && isRecent;
+
+    if (!isPendingRedirect) {
+      // 古いnonceをクリアして新規生成
+      sessionStorage.removeItem(NONCE_KEY);
+      sessionStorage.removeItem(NONCE_TS_KEY);
+    }
+
+    const rawNonce = isPendingRedirect ? storedNonce! : generateNonce();
+    if (!isPendingRedirect) {
+      sessionStorage.setItem(NONCE_KEY, rawNonce);
+      sessionStorage.setItem(NONCE_TS_KEY, Date.now().toString());
+    }
+    if (isPendingRedirect) setGoogleLoading(true);
     void initializeGIS(rawNonce);
   }, [initializeGIS]);
 
@@ -137,10 +151,13 @@ function SignInContent() {
 
     const rawNonce = generateNonce();
     sessionStorage.setItem(NONCE_KEY, rawNonce);
+    sessionStorage.setItem(NONCE_TS_KEY, Date.now().toString());
 
     void initializeGIS(rawNonce).then(() => {
       window.google!.accounts.id.prompt((notification) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          sessionStorage.removeItem(NONCE_KEY);
+          sessionStorage.removeItem(NONCE_TS_KEY);
           setGoogleLoading(false);
         }
       });
@@ -162,7 +179,14 @@ function SignInContent() {
         options: { emailRedirectTo: redirectTo },
       });
       if (error) {
-        setMagicLinkError(error.message);
+        const msg = error.message;
+        if (/sending|email/i.test(msg)) {
+          setMagicLinkError('メールの送信に失敗しました。しばらく経ってから再度お試しください。');
+        } else if (/rate.?limit|too.?many/i.test(msg)) {
+          setMagicLinkError('送信回数の上限に達しました。しばらく経ってからお試しください。');
+        } else {
+          setMagicLinkError(msg);
+        }
         return;
       }
       router.push(`/auth/magic-link-sent?email=${encodeURIComponent(email)}`);
