@@ -22,7 +22,6 @@ const T = {
   hairlineStrong: 'rgba(31,26,20,0.14)',
 };
 
-// Google Identity Services の型
 declare global {
   interface Window {
     google?: {
@@ -53,44 +52,52 @@ function SignInContent() {
   const [magicLinkSending, setMagicLinkSending] = useState(false);
   const [magicLinkError, setMagicLinkError] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState('');
   const [lineLoading] = useState(false);
 
-  // stale closure を避けるため router を ref で保持
   const routerRef = useRef(router);
   routerRef.current = router;
 
-  const handleGoogle = useCallback(() => {
-    if (googleLoading || !window.google) return;
-
+  // リダイレクト方式で戻ってきたときも credential を処理できるよう
+  // GIS ロード時にも initialize を呼ぶ
+  const initGIS = useCallback(() => {
+    if (!window.google) return;
     window.google.accounts.id.initialize({
       client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
       callback: async ({ credential }) => {
         setGoogleLoading(true);
+        setGoogleError('');
         try {
           const { error } = await getSupabase().auth.signInWithIdToken({
             provider: 'google',
             token: credential,
           });
           if (error) {
+            setGoogleError('Googleログインに失敗しました。もう一度お試しください。');
             setGoogleLoading(false);
           } else {
             routerRef.current.replace('/');
           }
         } catch {
+          setGoogleError('Googleログインに失敗しました。もう一度お試しください。');
           setGoogleLoading(false);
         }
       },
       auto_select: false,
       cancel_on_tap_outside: true,
     });
+  }, []);
 
+  const handleGoogle = useCallback(() => {
+    if (googleLoading || !window.google) return;
+    setGoogleError('');
+    initGIS();
     window.google.accounts.id.prompt((notification) => {
-      // プロンプトが表示できなかった / スキップされた場合はローディングをリセット
       if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
         setGoogleLoading(false);
       }
     });
-  }, [googleLoading]);
+  }, [googleLoading, initGIS]);
 
   const redirectTo =
     typeof window !== 'undefined'
@@ -116,13 +123,16 @@ function SignInContent() {
     }
   };
 
-  // LINE ログインは Custom OIDC Provider 設定後に有効化する（現在準備中）
   const handleLine = () => undefined;
 
   return (
     <>
-      {/* Google Identity Services SDK */}
-      <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
+      {/* GIS ロード時に initialize を呼び、リダイレクト後の credential も処理する */}
+      <Script
+        src="https://accounts.google.com/gsi/client"
+        strategy="afterInteractive"
+        onLoad={initGIS}
+      />
 
       <div style={{ minHeight: '100vh', background: T.cream, position: 'relative', overflow: 'hidden' }}>
         {/* ヒーロー */}
@@ -186,9 +196,9 @@ function SignInContent() {
             ファッションスナップ・コミュニティ。
           </div>
 
-          {errorParam && (
+          {(errorParam || googleError) && (
             <div style={{ marginTop: 16, padding: '10px 14px', borderRadius: 10, background: 'rgba(185,90,61,0.08)', border: `1px solid rgba(185,90,61,0.2)`, fontSize: 12.5, color: T.terracotta }}>
-              ログインに失敗しました。もう一度お試しください。
+              {googleError || 'ログインに失敗しました。もう一度お試しください。'}
             </div>
           )}
 
