@@ -1,5 +1,4 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { SupabaseAuthGuard } from './supabase-auth.guard';
 
@@ -11,8 +10,8 @@ import { SupabaseAuthGuard } from './supabase-auth.guard';
 export class OptionalSupabaseAuthGuard implements CanActivate {
   private readonly inner: SupabaseAuthGuard;
 
-  constructor(jwtService: JwtService, prisma: PrismaService) {
-    this.inner = new SupabaseAuthGuard(jwtService, prisma);
+  constructor(prisma: PrismaService) {
+    this.inner = new SupabaseAuthGuard(prisma);
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
