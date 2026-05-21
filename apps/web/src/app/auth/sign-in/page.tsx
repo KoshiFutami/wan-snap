@@ -56,6 +56,15 @@ async function sha256hex(str: string): Promise<string> {
   return Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Instagram / Facebook / LINE 等のインアプリブラウザを検知
+function detectInAppBrowser(): { isInApp: boolean; isIOS: boolean } {
+  if (typeof window === 'undefined') return { isInApp: false, isIOS: false };
+  const ua = navigator.userAgent;
+  const isInApp = /Instagram|FBAN|FBAV|Line\/|Twitter|TikTok/i.test(ua);
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  return { isInApp, isIOS };
+}
+
 function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -67,6 +76,7 @@ function SignInContent() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState('');
   const [lineLoading] = useState(false);
+  const { isInApp, isIOS } = detectInAppBrowser();
 
   const routerRef = useRef(router);
   routerRef.current = router;
@@ -234,6 +244,22 @@ function SignInContent() {
           {(errorParam || googleError) && (
             <div style={{ marginTop: 16, padding: '10px 14px', borderRadius: 10, background: 'rgba(185,90,61,0.08)', border: `1px solid rgba(185,90,61,0.2)`, fontSize: 12.5, color: T.terracotta }}>
               {googleError || 'ログインに失敗しました。もう一度お試しください。'}
+            </div>
+          )}
+
+          {/* インアプリブラウザ警告 */}
+          {isInApp && (
+            <div style={{ marginTop: 20, padding: '12px 14px', borderRadius: 12, background: 'rgba(185,90,61,0.07)', border: `1px solid rgba(185,90,61,0.18)`, fontSize: 12, color: T.ink70, lineHeight: 1.6 }}>
+              <div style={{ fontWeight: 600, color: T.terracotta, marginBottom: 4 }}>⚠️ アプリ内ブラウザではGoogleログインが使えません</div>
+              <div>右上メニューから「ブラウザで開く」を選択するか、URLをコピーして Safari / Chrome で開いてください。</div>
+              {isIOS && (
+                <a
+                  href={`x-safari-https://www.wan-snap.com/auth/sign-in`}
+                  style={{ display: 'inline-block', marginTop: 8, padding: '6px 14px', borderRadius: 999, background: T.terracotta, color: '#fff', fontSize: 11.5, fontWeight: 600, textDecoration: 'none' }}
+                >
+                  Safariで開く
+                </a>
+              )}
             </div>
           )}
 
