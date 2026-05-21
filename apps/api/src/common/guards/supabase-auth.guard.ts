@@ -4,7 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 import type { Request } from 'express';
 import type { JwtPayload } from '../decorators/current-user.decorator';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
@@ -24,10 +24,14 @@ interface SupabaseJwtPayload {
 
 @Injectable()
 export class SupabaseAuthGuard implements CanActivate {
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly prisma: PrismaService,
-  ) {}
+  // Supabase の JWT Signing Keys（非対称鍵）エンドポイント
+  private readonly jwks = createRemoteJWKSet(
+    new URL(
+      `${process.env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`,
+    ),
+  );
+
+  constructor(private readonly prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context
@@ -36,7 +40,7 @@ export class SupabaseAuthGuard implements CanActivate {
     const token = this.extractToken(request);
     if (!token) throw new UnauthorizedException('認証が必要です');
 
-    const supabasePayload = this.verifyToken(token);
+    const supabasePayload = await this.verifyToken(token);
     const user = await this.findOrProvisionUser(supabasePayload);
     request.user = user;
     return true;
@@ -48,11 +52,10 @@ export class SupabaseAuthGuard implements CanActivate {
     return auth.slice(7);
   }
 
-  private verifyToken(token: string): SupabaseJwtPayload {
+  private async verifyToken(token: string): Promise<SupabaseJwtPayload> {
     try {
-      // Supabase JWT Secret はダッシュボード上で base64 エンコードされているため復号して使う
-      const secret = Buffer.from(process.env.SUPABASE_JWT_SECRET!, 'base64');
-      return this.jwtService.verify<SupabaseJwtPayload>(token, { secret });
+      const { payload } = await jwtVerify(token, this.jwks);
+      return payload as unknown as SupabaseJwtPayload;
     } catch {
       throw new UnauthorizedException('トークンが無効です');
     }
