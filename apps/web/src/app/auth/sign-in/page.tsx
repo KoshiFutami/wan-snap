@@ -46,16 +46,14 @@ declare global {
 
 const NONCE_KEY = 'gis_raw_nonce';
 
+// Supabase 公式と同じ形式: rawNonce = base64, hashedNonce = hex SHA-256
 function generateNonce(): string {
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  return Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('');
+  return btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))));
 }
 
-async function sha256base64(str: string): Promise<string> {
-  const bytes = new TextEncoder().encode(str);
-  const hash = await crypto.subtle.digest('SHA-256', bytes);
-  return btoa(String.fromCharCode(...new Uint8Array(hash)));
+async function sha256hex(str: string): Promise<string> {
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 function SignInContent() {
@@ -86,13 +84,13 @@ function SignInContent() {
         ...(rawNonce ? { nonce: rawNonce } : {}),
       });
       if (error) {
-        setGoogleError('Googleログインに失敗しました。もう一度お試しください。');
+        setGoogleError(`ログイン失敗: ${error.message}`);
         setGoogleLoading(false);
       } else {
         routerRef.current.replace('/');
       }
-    } catch {
-      setGoogleError('Googleログインに失敗しました。もう一度お試しください。');
+    } catch (e) {
+      setGoogleError(`ログイン失敗: ${e instanceof Error ? e.message : String(e)}`);
       setGoogleLoading(false);
     }
   }, []);
@@ -102,7 +100,7 @@ function SignInContent() {
 
   const initializeGIS = useCallback(async (rawNonce: string) => {
     if (!window.google) return;
-    const hashedNonce = await sha256base64(rawNonce);
+    const hashedNonce = await sha256hex(rawNonce);
     window.google.accounts.id.initialize({
       client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
       nonce: hashedNonce,
