@@ -29,6 +29,7 @@ declare global {
         id: {
           initialize: (config: {
             client_id: string;
+            nonce: string;
             callback: (response: { credential: string }) => void;
             auto_select?: boolean;
             cancel_on_tap_outside?: boolean;
@@ -41,6 +42,20 @@ declare global {
       };
     };
   }
+}
+
+const NONCE_KEY = 'gis_raw_nonce';
+
+function generateNonce(): string {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function sha256base64(str: string): Promise<string> {
+  const bytes = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', bytes);
+  return btoa(String.fromCharCode(...new Uint8Array(hash)));
 }
 
 function SignInContent() {
@@ -58,46 +73,71 @@ function SignInContent() {
   const routerRef = useRef(router);
   routerRef.current = router;
 
-  // リダイレクト方式で戻ってきたときも credential を処理できるよう
-  // GIS ロード時にも initialize を呼ぶ
-  const initGIS = useCallback(() => {
+  // credential 受け取り後の処理（ページリロード後もリフレッシュされない ref 経由で呼ぶ）
+  const handleCredential = useCallback(async ({ credential }: { credential: string }) => {
+    setGoogleLoading(true);
+    setGoogleError('');
+    const rawNonce = sessionStorage.getItem(NONCE_KEY);
+    sessionStorage.removeItem(NONCE_KEY);
+    try {
+      const { error } = await getSupabase().auth.signInWithIdToken({
+        provider: 'google',
+        token: credential,
+        ...(rawNonce ? { nonce: rawNonce } : {}),
+      });
+      if (error) {
+        setGoogleError('Googleログインに失敗しました。もう一度お試しください。');
+        setGoogleLoading(false);
+      } else {
+        routerRef.current.replace('/');
+      }
+    } catch {
+      setGoogleError('Googleログインに失敗しました。もう一度お試しください。');
+      setGoogleLoading(false);
+    }
+  }, []);
+
+  const handleCredentialRef = useRef(handleCredential);
+  handleCredentialRef.current = handleCredential;
+
+  const initializeGIS = useCallback(async (rawNonce: string) => {
     if (!window.google) return;
+    const hashedNonce = await sha256base64(rawNonce);
     window.google.accounts.id.initialize({
       client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
-      callback: async ({ credential }) => {
-        setGoogleLoading(true);
-        setGoogleError('');
-        try {
-          const { error } = await getSupabase().auth.signInWithIdToken({
-            provider: 'google',
-            token: credential,
-          });
-          if (error) {
-            setGoogleError(`ログイン失敗: ${error.message}`);
-            setGoogleLoading(false);
-          } else {
-            routerRef.current.replace('/');
-          }
-        } catch (e) {
-          setGoogleError(`ログイン失敗: ${e instanceof Error ? e.message : String(e)}`);
-          setGoogleLoading(false);
-        }
-      },
+      nonce: hashedNonce,
+      callback: (response) => { void handleCredentialRef.current(response); },
       auto_select: false,
       cancel_on_tap_outside: true,
     });
   }, []);
 
+  // リダイレクト後のページリロード時も credential を処理できるよう GIS ロード時に初期化
+  const onGISLoad = useCallback(() => {
+    const storedNonce = sessionStorage.getItem(NONCE_KEY);
+    const rawNonce = storedNonce ?? generateNonce();
+    if (!storedNonce) sessionStorage.setItem(NONCE_KEY, rawNonce);
+    // リダイレクト後の場合はローディング表示
+    if (storedNonce) setGoogleLoading(true);
+    void initializeGIS(rawNonce);
+  }, [initializeGIS]);
+
   const handleGoogle = useCallback(() => {
     if (googleLoading || !window.google) return;
     setGoogleError('');
-    initGIS();
-    window.google.accounts.id.prompt((notification) => {
-      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        setGoogleLoading(false);
-      }
+    setGoogleLoading(true);
+
+    const rawNonce = generateNonce();
+    sessionStorage.setItem(NONCE_KEY, rawNonce);
+
+    void initializeGIS(rawNonce).then(() => {
+      window.google!.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          setGoogleLoading(false);
+        }
+      });
     });
-  }, [googleLoading, initGIS]);
+  }, [googleLoading, initializeGIS]);
 
   const redirectTo =
     typeof window !== 'undefined'
@@ -127,15 +167,13 @@ function SignInContent() {
 
   return (
     <>
-      {/* GIS ロード時に initialize を呼び、リダイレクト後の credential も処理する */}
       <Script
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
-        onLoad={initGIS}
+        onLoad={onGISLoad}
       />
 
       <div style={{ minHeight: '100vh', background: T.cream, position: 'relative', overflow: 'hidden' }}>
-        {/* ヒーロー */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 340, overflow: 'hidden' }}>
           <div
             style={{
@@ -163,7 +201,6 @@ function SignInContent() {
           />
         </div>
 
-        {/* ボトムシート */}
         <div
           style={{
             position: 'absolute',
@@ -202,7 +239,6 @@ function SignInContent() {
             </div>
           )}
 
-          {/* ソーシャルログイン */}
           <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 10 }}>
             <SocialButton
               onClick={handleGoogle}
@@ -221,14 +257,12 @@ function SignInContent() {
             />
           </div>
 
-          {/* 区切り線 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
             <div style={{ flex: 1, height: 1, background: T.hairline }} />
             <div style={{ fontSize: 10.5, color: T.ink50, letterSpacing: '0.1em' }}>メールでログイン</div>
             <div style={{ flex: 1, height: 1, background: T.hairline }} />
           </div>
 
-          {/* マジックリンク */}
           <form onSubmit={handleMagicLink} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <input
               type="email"
