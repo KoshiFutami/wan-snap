@@ -120,13 +120,9 @@ function SignInContent() {
     });
   }, []);
 
-  // リダイレクト後のページリロード時も credential を処理できるよう GIS ロード時に初期化
   const onGISLoad = useCallback(() => {
-    const storedNonce = sessionStorage.getItem(NONCE_KEY);
-    const rawNonce = storedNonce ?? generateNonce();
-    if (!storedNonce) sessionStorage.setItem(NONCE_KEY, rawNonce);
-    // リダイレクト後の場合はローディング表示
-    if (storedNonce) setGoogleLoading(true);
+    const rawNonce = generateNonce();
+    sessionStorage.setItem(NONCE_KEY, rawNonce);
     void initializeGIS(rawNonce);
   }, [initializeGIS]);
 
@@ -141,6 +137,7 @@ function SignInContent() {
     void initializeGIS(rawNonce).then(() => {
       window.google!.accounts.id.prompt((notification) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          sessionStorage.removeItem(NONCE_KEY);
           setGoogleLoading(false);
         }
       });
