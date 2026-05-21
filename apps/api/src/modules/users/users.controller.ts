@@ -102,6 +102,30 @@ export class UsersController {
     return { avatarUrl: updated.avatarUrl };
   }
 
+  @Delete('me')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteMe(@CurrentUser() user: JwtPayload) {
+    const dbUser = await this.prisma.user.findUnique({
+      where: { id: user.sub },
+      select: { supabaseId: true },
+    });
+    if (!dbUser) throw new NotFoundException('ユーザーが見つかりません');
+
+    await this.prisma.user.delete({ where: { id: user.sub } });
+
+    await fetch(
+      `${process.env.SUPABASE_URL}/auth/v1/admin/users/${dbUser.supabaseId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''}`,
+          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
+        },
+      },
+    );
+  }
+
   @Patch('me')
   @UseGuards(JwtAuthGuard)
   async updateMe(@CurrentUser() user: JwtPayload, @Body() dto: UpdateUserDto) {

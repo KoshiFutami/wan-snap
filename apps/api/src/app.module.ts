@@ -8,6 +8,7 @@ import { TagsModule } from './modules/tags/tags.module';
 import { LikesModule } from './modules/likes/likes.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { FeedbackModule } from './modules/feedback/feedback.module';
 import { PrismaModule } from './infrastructure/database/prisma.module';
 import { StorageModule } from './infrastructure/storage/storage.module';
 import { HealthController } from './health.controller';
@@ -25,6 +26,7 @@ import { HealthController } from './health.controller';
     LikesModule,
     CommentsModule,
     NotificationsModule,
+    FeedbackModule,
   ],
   controllers: [HealthController],
 })
