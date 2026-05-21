@@ -24,6 +24,7 @@ import { imageFileInterceptor } from '../../common/interceptors/image-file.inter
 import { PrismaService } from '../../infrastructure/database/prisma.service';
 import { ProfileImageStorageService } from '../../infrastructure/storage/profile-image-storage.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { sendEmail, buildFarewellEmail } from '../../infrastructure/email/send-email';
 
 const userSelect = {
   id: true,
@@ -108,11 +109,13 @@ export class UsersController {
   async deleteMe(@CurrentUser() user: JwtPayload) {
     const dbUser = await this.prisma.user.findUnique({
       where: { id: user.sub },
-      select: { supabaseId: true },
+      select: { supabaseId: true, displayName: true },
     });
     if (!dbUser) throw new NotFoundException('ユーザーが見つかりません');
 
     await this.prisma.user.delete({ where: { id: user.sub } });
+    const { subject, html } = buildFarewellEmail(dbUser.displayName);
+    void sendEmail(user.email, subject, html);
 
     await fetch(
       `${process.env.SUPABASE_URL}/auth/v1/admin/users/${dbUser.supabaseId}`,

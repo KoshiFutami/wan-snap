@@ -8,6 +8,7 @@ import { createRemoteJWKSet, jwtVerify } from 'jose';
 import type { Request } from 'express';
 import type { JwtPayload } from '../decorators/current-user.decorator';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { sendEmail, buildWelcomeEmail } from '../../infrastructure/email/send-email';
 
 interface SupabaseJwtPayload {
   sub: string;
@@ -88,6 +89,8 @@ export class SupabaseAuthGuard implements CanActivate {
         },
         select: { id: true, email: true },
       });
+      const { subject, html } = buildWelcomeEmail(displayName);
+      void sendEmail(payload.email, subject, html);
     }
 
     return { sub: user.id, email: user.email };
