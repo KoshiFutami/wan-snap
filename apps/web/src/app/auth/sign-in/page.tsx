@@ -281,6 +281,49 @@ function SignInContent() {
             />
           </div>
 
+          {/* 区切り線 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 20 }}>
+            <div style={{ flex: 1, height: 1, background: T.hairline }} />
+            <span style={{ fontSize: 11, color: T.ink50 }}>またはメールで続ける</span>
+            <div style={{ flex: 1, height: 1, background: T.hairline }} />
+          </div>
+
+          {/* マジックリンク */}
+          <form onSubmit={handleMagicLink} style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="メールアドレス"
+              required
+              style={inputStyle}
+            />
+            {magicLinkError && (
+              <div style={{ fontSize: 11.5, color: T.terracotta, padding: '6px 4px' }}>
+                {magicLinkError}
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={!email.trim() || magicLinkSending}
+              style={{
+                width: '100%',
+                padding: '13px 16px',
+                borderRadius: 999,
+                fontSize: 13.5,
+                fontWeight: 600,
+                fontFamily: 'inherit',
+                border: `1px solid ${T.hairlineStrong}`,
+                background: email.trim() ? T.terracotta : T.cream,
+                color: email.trim() ? '#fff' : T.ink50,
+                cursor: email.trim() && !magicLinkSending ? 'pointer' : 'default',
+                transition: 'background 0.15s, color 0.15s',
+              }}
+            >
+              {magicLinkSending ? '送信中...' : 'マジックリンクを送る'}
+            </button>
+          </form>
+
           <div style={{ fontSize: 10, color: T.ink50, textAlign: 'center', marginTop: 20, lineHeight: 1.5 }}>
             続行することで、
             <Link href="/terms" style={{ color: T.ink, textDecoration: 'underline' }}>利用規約</Link>
