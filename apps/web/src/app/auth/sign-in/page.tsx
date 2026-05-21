@@ -255,50 +255,7 @@ function SignInContent() {
             />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
-            <div style={{ flex: 1, height: 1, background: T.hairline }} />
-            <div style={{ fontSize: 10.5, color: T.ink50, letterSpacing: '0.1em' }}>メールでログイン</div>
-            <div style={{ flex: 1, height: 1, background: T.hairline }} />
-          </div>
-
-          <form onSubmit={handleMagicLink} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              style={inputStyle}
-            />
-
-            {magicLinkError && (
-              <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(185,90,61,0.08)', border: `1px solid rgba(185,90,61,0.2)`, fontSize: 12.5, color: T.terracotta }}>
-                {magicLinkError}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={magicLinkSending}
-              style={{
-                width: '100%',
-                padding: '14px 22px',
-                borderRadius: 999,
-                background: T.ink,
-                color: T.cream,
-                fontSize: 13.5,
-                fontWeight: 600,
-                border: 'none',
-                cursor: magicLinkSending ? 'not-allowed' : 'pointer',
-                opacity: magicLinkSending ? 0.5 : 1,
-                fontFamily: 'inherit',
-              }}
-            >
-              {magicLinkSending ? '送信中...' : 'マジックリンクを送る'}
-            </button>
-          </form>
-
-          <div style={{ fontSize: 10, color: T.ink50, textAlign: 'center', marginTop: 16, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 10, color: T.ink50, textAlign: 'center', marginTop: 20, lineHeight: 1.5 }}>
             続行することで、
             <Link href="/terms" style={{ color: T.ink, textDecoration: 'underline' }}>利用規約</Link>
             {' '}と{' '}
