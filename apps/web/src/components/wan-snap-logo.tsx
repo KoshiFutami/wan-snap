@@ -17,6 +17,7 @@ export function WanSnapLogo({ size = 20 }: { size?: number }) {
           fontFamily: 'var(--font-serif, serif)',
           fontWeight: 600,
           fontSize: size * 0.9,
+          lineHeight: 1,
           letterSpacing: '-0.01em',
           color: T.ink,
         }}
