@@ -1,19 +1,11 @@
 {
+  "version": "0.0.1",
   "configurations": [
     {
       "name": "web",
-      "command": "docker compose up web",
-      "url": "http://localhost:3000"
-    },
-    {
-      "name": "api",
-      "command": "docker compose up api",
-      "url": "http://localhost:3001"
-    },
-    {
-      "name": "all",
-      "command": "docker compose up",
-      "url": "http://localhost:3000"
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "web", "dev"],
+      "port": 3000
     }
   ]
 }
