@@ -166,6 +166,14 @@ export default function HomePage() {
           ))}
         </div>
       )}
+      <footer style={{ padding: '12px 12px 8px', textAlign: 'center' }}>
+        <a
+          href="/privacy-policy"
+          style={{ fontSize: 11, color: T.ink50, textDecoration: 'underline', textUnderlineOffset: 2 }}
+        >
+          プライバシーポリシー
+        </a>
+      </footer>
     </div>
   );
 }
