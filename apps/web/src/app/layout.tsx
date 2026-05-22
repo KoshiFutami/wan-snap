@@ -49,6 +49,9 @@ export const metadata: Metadata = {
     title: 'wansnap',
     statusBarStyle: 'default',
   },
+  verification: {
+    google: 'TCq5GkK6bZqVsBtF4PsOhJR4zuXXtTx-A64EBBz4iOM',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
