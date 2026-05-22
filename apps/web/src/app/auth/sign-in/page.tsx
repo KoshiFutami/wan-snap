@@ -168,13 +168,18 @@ function SignInContent() {
         )}
 
         <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <SocialButton
-            onClick={handleGoogle}
-            loading={googleLoading}
-            icon={<GoogleIcon />}
-            label="Googleでログイン"
-            style={{ background: T.paper, color: T.ink, border: `1px solid ${T.hairlineStrong}` }}
-          />
+          <div>
+            <SocialButton
+              onClick={handleGoogle}
+              loading={googleLoading}
+              icon={<GoogleIcon />}
+              label="Googleでログイン"
+              style={{ background: T.paper, color: T.ink, border: `1px solid ${T.hairlineStrong}` }}
+            />
+            <div style={{ fontSize: 10, color: T.ink50, textAlign: 'center', marginTop: 5 }}>
+              認証後、supabase.co を経由してログインが完了します
+            </div>
+          </div>
           <SocialButton
             onClick={handleLine}
             loading={lineLoading}
